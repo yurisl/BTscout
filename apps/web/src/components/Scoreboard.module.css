@@ -1,0 +1,84 @@
+.board {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 16px;
+  text-align: center;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.teamNameA {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--color-a);
+  text-align: left;
+  flex: 1;
+}
+.teamNameB {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--color-b);
+  text-align: right;
+  flex: 1;
+}
+.tournament {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.setsWon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.setsCount { font-size: 2.5rem; font-weight: 800; line-height: 1; }
+.setsLabel { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+
+.setScores {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.setChip {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.setActive { border-color: var(--text-muted); }
+.setDash { color: var(--text-muted); font-weight: 400; font-size: 0.75rem; }
+
+.pointScore { border-top: 1px solid var(--border); padding-top: 12px; }
+.gameLabel { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+.pointDisplay { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+.server { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px; }
+.dotA { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-a); }
+.dotB { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-b); }
+
+.winner {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-win);
+}

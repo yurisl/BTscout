@@ -1,0 +1,97 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.back { font-size: 0.875rem; color: var(--text-muted); }
+.backToMatch { margin-left: auto; font-size: 0.8rem; color: var(--color-a); font-weight: 600; }
+
+/* Team comparison */
+.cmpSection {}
+.teamHeaders {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+.statRow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-top: 1px solid var(--border);
+}
+.statA { color: var(--color-a); font-weight: 700; font-size: 1rem; text-align: center; }
+.statB { color: var(--color-b); font-weight: 700; font-size: 1rem; text-align: center; }
+.statLabel { font-size: 0.75rem; color: var(--text-muted); text-align: center; white-space: nowrap; }
+
+.sectionTitle { margin: 20px 0 10px; font-size: 1rem; }
+
+/* Player cards — stacked full width */
+.playersList { display: flex; flex-direction: column; gap: 12px; }
+
+.playerCard {
+  border-radius: var(--radius);
+  padding: 14px;
+  border: 2px solid;
+}
+.cardA { background: #f0f5ff; border-color: var(--color-a); }
+.cardB { background: #fff5f5; border-color: var(--color-b); }
+
+.playerHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+.playerName { font-weight: 800; font-size: 1rem; }
+.playerTotal { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+
+/* Breakdown sections */
+.bSection { margin-bottom: 10px; }
+
+.bTitle {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 5px;
+}
+.bCount { font-weight: 600; opacity: 0.85; }
+
+.bRow {
+  display: grid;
+  grid-template-columns: 70px 24px 1fr 36px;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+}
+.bLabel { font-size: 0.8rem; color: var(--text-muted); }
+.bNum { font-size: 0.85rem; font-weight: 700; text-align: right; }
+.bBarWrap { background: var(--border); border-radius: 99px; height: 5px; overflow: hidden; }
+.bBar { height: 100%; border-radius: 99px; transition: width 0.3s; }
+.bPct { font-size: 0.75rem; color: var(--text-muted); text-align: right; }
+
+/* Bar colors */
+.barWin { background: var(--color-win); color: var(--color-win); }
+.barWin.bBar { background: var(--color-win); }
+.barErr { background: var(--color-err); color: var(--color-b-dark); }
+.barErr.bBar { background: var(--color-err); }
+.barForced { background: var(--color-forced); color: var(--color-forced); }
+.barServe { color: #0369a1; background: transparent; }
+
+/* Serve mini grid */
+.serveGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+}
+.serveItem { text-align: center; }
+.serveVal { display: block; font-size: 1rem; font-weight: 800; }
+.serveLbl { display: block; font-size: 0.62rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }

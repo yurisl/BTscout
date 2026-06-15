@@ -1,0 +1,9 @@
+{
+  "extends": "@beach-tennis-scout/config/typescript/base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src"],
+  "exclude": ["src/__tests__", "dist"]
+}

@@ -1,0 +1,111 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.back { font-size: 0.875rem; color: var(--text-muted); }
+
+.blocks { display: flex; flex-direction: column; gap: 16px; }
+
+/* Per-match block */
+.matchBlock {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+.matchBlockHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.matchIndex { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+.matchScore { font-size: 1rem; font-weight: 800; }
+.matchDate { font-size: 0.72rem; color: var(--text-muted); margin-left: auto; }
+.matchTitle { font-size: 0.85rem; font-weight: 600; margin-bottom: 2px; }
+.matchTournament { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px; }
+
+/* Stats table */
+.table {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  gap: 0;
+  margin-top: 10px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.col { display: flex; flex-direction: column; }
+.colLabels { background: var(--surface-2); }
+.colTeam {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  line-height: 1.2;
+}
+.colCell {
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 7px 10px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.labelCell {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: left;
+  font-weight: 400;
+}
+
+/* Player crossover */
+.crossover { margin-top: 24px; }
+.crossoverTitle { font-size: 1rem; font-weight: 700; margin-bottom: 12px; }
+
+.crossoverCard {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.crossoverName { font-size: 0.95rem; font-weight: 800; margin-bottom: 10px; }
+
+.crossoverGrid {
+  display: grid;
+  gap: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.crossoverHeader {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 7px 10px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+.crossoverLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 6px 10px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.crossoverValue {
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}

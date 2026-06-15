@@ -1,0 +1,92 @@
+.root { display: flex; flex-direction: column; gap: 12px; }
+
+.cancel {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding: 4px 8px;
+}
+
+/* Player selection */
+.playerGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.teamSection { display: flex; flex-direction: column; gap: 8px; }
+.teamLabel { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 0 2px; }
+
+.playerBtn {
+  padding: 14px 8px;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-weight: 700;
+  min-height: 60px;
+  width: 100%;
+  text-align: center;
+  word-break: break-word;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.playerBtnA {
+  background: var(--color-a-light);
+  color: var(--color-a-dark);
+  border: 2px solid var(--color-a);
+}
+.playerBtnB {
+  background: var(--color-b-light);
+  color: var(--color-b-dark);
+  border: 2px solid var(--color-b);
+}
+.serving {
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.15);
+}
+.servingBadge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+
+/* Subtype panel */
+.subtypePanel { display: flex; flex-direction: column; gap: 10px; }
+.selectedPlayer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  flex-wrap: wrap;
+}
+.serverTag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--text);
+  color: white;
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+.selectedDot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+.group { display: flex; flex-direction: column; gap: 6px; }
+.groupLabel { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.btnGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+
+.subBtn {
+  padding: 12px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 700;
+  min-height: 48px;
+  text-align: center;
+  line-height: 1.2;
+}
+.subBtnWin { background: var(--color-win-light); color: var(--color-win); border: 1.5px solid #86efac; }
+.subBtnErr { background: var(--color-b-light); color: var(--color-b-dark); border: 1.5px solid #fca5a5; }
+.subBtnForced { background: var(--color-forced-light); color: var(--color-forced); border: 1.5px solid #fcd34d; }
+.subBtnDisabled { opacity: 0.3; cursor: not-allowed; }

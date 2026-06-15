@@ -1,0 +1,3 @@
+- Estrutura de pastas corrigida
+- Obsidian, Cursor e Claude apontam para a mesma raiz
+- Arquitetura inicial aprovada

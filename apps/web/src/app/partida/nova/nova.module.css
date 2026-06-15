@@ -1,0 +1,58 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.back {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  padding: 6px 0;
+}
+
+.teamHeader { font-weight: 700; font-size: 0.9rem; }
+
+.segmented {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+.segItem {
+  flex: 1;
+  padding: 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  min-height: 44px;
+}
+.segActive {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+  background: var(--color-a);
+  min-height: 44px;
+}
+
+.detailsSummary {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  list-style: none;
+  padding: 4px 0;
+}
+.detailsSummary::-webkit-details-marker { display: none; }
+
+.error {
+  color: var(--color-err);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}

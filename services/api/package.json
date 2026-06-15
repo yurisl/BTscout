@@ -1,0 +1,17 @@
+{
+  "name": "@beach-tennis-scout/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'API skeleton — não implementada'",
+    "build": "echo 'API skeleton — não implementada'",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@beach-tennis-scout/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "@beach-tennis-scout/config": "workspace:*",
+    "typescript": "^5.4.5"
+  }
+}

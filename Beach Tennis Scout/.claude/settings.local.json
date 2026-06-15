@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.bt-tracker.com)",
+      "Bash(npm install *)",
+      "Bash(npx vitest *)",
+      "Bash(pnpm --version)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm test *)",
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm dev *)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s http://localhost:3000/partida/nova)",
+      "Bash(curl -s http://localhost:3000/partida/abc123)",
+      "Bash(curl -s http://localhost:3000/partida/abc123/resumo)",
+      "Bash(curl -sv http://localhost:3000/partida/nova)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(open *)",
+      "Bash(git *)"
+    ]
+  }
+}
