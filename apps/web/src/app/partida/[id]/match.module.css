@@ -99,6 +99,35 @@
   border: 2px solid var(--color-b);
 }
 
+/* AD-02 — painel de intervalo entre sets */
+.intervalPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px 0;
+}
+.intervalTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.intervalContinueBtn {
+  width: 100%;
+  padding: 16px;
+  background: var(--color-a);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 700;
+  min-height: 52px;
+}
+
 .finishedPanel {
   flex: 1;
   padding: 24px 16px;

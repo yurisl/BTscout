@@ -7,6 +7,7 @@ import type { Match, TransitionType } from '@beach-tennis-scout/domain';
 import { loadMatch, saveMatch } from '@/lib/storage';
 import Scoreboard from '@/components/Scoreboard';
 import PointRegistration from '@/components/PointRegistration';
+import AdBanner from '@/components/AdBanner';
 import styles from './match.module.css';
 
 const TRANSITION_LABELS: Record<TransitionType, string | null> = {
@@ -44,6 +45,7 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [choosingServer, setChoosingServer] = useState(false);
+  const [showIntervalAd, setShowIntervalAd] = useState(false);
 
   useEffect(() => {
     setMatch(loadMatch(matchId) ?? null);
@@ -72,6 +74,10 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
         const result = applyPoint(match, input);
         showToast(result.transitions);
 
+        const isSetInterval =
+          result.transitions.includes('set_won') &&
+          !result.transitions.includes('match_won');
+
         if (result.match.type === 'singles' && result.transitions.includes('game_won')) {
           // Singles: auto-deduz sacador do próximo game
           applyAndSave(autoSetServer(result.match));
@@ -82,6 +88,8 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
         } else {
           applyAndSave(result.match);
         }
+
+        if (isSetInterval) setShowIntervalAd(true);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Erro ao registrar ponto');
       }
@@ -93,6 +101,7 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
     if (!match) return;
     setError(null);
     setChoosingServer(false);
+    setShowIntervalAd(false);
     try {
       const result = undoPoint(match);
       applyAndSave(result.match);
@@ -157,7 +166,19 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
 
       {match.status === 'in_progress' ? (
         <div className={styles.registrationSection}>
-          {choosingServer ? (
+          {showIntervalAd ? (
+            /* AD-02 — Intervalo entre sets (único momento aceitável dentro da partida) */
+            <div className={styles.intervalPanel}>
+              <p className={styles.intervalTitle}>Intervalo entre Sets</p>
+              <AdBanner slotId="AD-02" size="rectangle" />
+              <button
+                className={styles.intervalContinueBtn}
+                onClick={() => setShowIntervalAd(false)}
+              >
+                Iniciar Próximo Set
+              </button>
+            </div>
+          ) : choosingServer ? (
             /* Overlay: escolher sacador do próximo game */
             <div className={styles.serverPicker}>
               <p className={styles.serverPickerTitle}>

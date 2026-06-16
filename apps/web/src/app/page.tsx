@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { Match } from '@beach-tennis-scout/domain';
 import { loadMatches, deleteMatch } from '@/lib/storage';
+import AdBanner from '@/components/AdBanner';
 import styles from './home.module.css';
 
 function teamLabel(match: Match, side: 'A' | 'B'): string {
@@ -125,20 +126,26 @@ export default function HomePage() {
           </div>
 
           <div className="stack" style={{ marginTop: 10 }}>
-            {finished.map((m) => (
-              <MatchCard
-                key={m.id}
-                match={m}
-                href={`/partida/${m.id}/resumo`}
-                comparing={comparing}
-                selected={selected.has(m.id)}
-                confirmDelete={confirmDelete}
-                onDeleteRequest={() => setConfirmDelete(m.id)}
-                onDeleteConfirm={() => handleDelete(m.id)}
-                onDeleteCancel={() => setConfirmDelete(null)}
-                onToggle={() => toggleSelect(m.id)}
-              />
-            ))}
+            {finished.flatMap((m, i) => {
+              const card = (
+                <MatchCard
+                  key={m.id}
+                  match={m}
+                  href={`/partida/${m.id}/resumo`}
+                  comparing={comparing}
+                  selected={selected.has(m.id)}
+                  confirmDelete={confirmDelete}
+                  onDeleteRequest={() => setConfirmDelete(m.id)}
+                  onDeleteConfirm={() => handleDelete(m.id)}
+                  onDeleteCancel={() => setConfirmDelete(null)}
+                  onToggle={() => toggleSelect(m.id)}
+                />
+              );
+              const showAd = (i + 1) % 5 === 0 && i < finished.length - 1;
+              return showAd
+                ? [card, <AdBanner key={`ad04-${i}`} slotId="AD-04" size="banner" />]
+                : [card];
+            })}
           </div>
 
           {comparing && (
@@ -157,6 +164,11 @@ export default function HomePage() {
           )}
         </section>
       )}
+
+      {/* AD-01 — Home rodapé, sempre visível */}
+      <div className={styles.adFooter}>
+        <AdBanner slotId="AD-01" size="banner" />
+      </div>
     </div>
   );
 }

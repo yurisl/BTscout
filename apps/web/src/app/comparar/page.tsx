@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import AdBanner from '@/components/AdBanner';
 import { calculateStats } from '@beach-tennis-scout/domain';
 import type { Match, TeamStats } from '@beach-tennis-scout/domain';
 import { loadMatch } from '@/lib/storage';
@@ -136,6 +137,11 @@ function CompararContent() {
       </div>
 
       <PlayerCrossover matches={matches} />
+
+      {/* AD-05 — Comparar (tela de análise pós-jogo) */}
+      <div style={{ marginTop: 16 }}>
+        <AdBanner slotId="AD-05" size="banner" />
+      </div>
 
       <Link href="/" className="btn btn-outline" style={{ marginTop: 16 }}>
         Voltar ao Início

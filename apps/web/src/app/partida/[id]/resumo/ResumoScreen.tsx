@@ -6,6 +6,7 @@ import { calculateStats } from '@beach-tennis-scout/domain';
 import type { Match, PlayerStats, TeamStats } from '@beach-tennis-scout/domain';
 import { loadMatch } from '@/lib/storage';
 import Scoreboard from '@/components/Scoreboard';
+import AdBanner from '@/components/AdBanner';
 import styles from './resumo.module.css';
 
 function pct(num: number, den: number): string {
@@ -244,6 +245,11 @@ export default function ResumoScreen({ matchId }: { matchId: string }) {
           const ps = stats.teamB.players.find((s) => s.playerId === p.id);
           return ps ? <PlayerCard key={p.id} name={p.name} stats={ps} side="B" /> : null;
         })}
+      </div>
+
+      {/* AD-03 — Resumo da Partida */}
+      <div style={{ marginTop: 16 }}>
+        <AdBanner slotId="AD-03" size="banner" />
       </div>
 
       <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
