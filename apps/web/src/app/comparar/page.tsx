@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { calculateStats } from '@beach-tennis-scout/domain';
@@ -96,7 +96,7 @@ function MatchBlock({ match, index }: { match: Match; index: number }) {
   );
 }
 
-export default function CompararPage() {
+function CompararContent() {
   const params = useSearchParams();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,13 +135,20 @@ export default function CompararPage() {
         ))}
       </div>
 
-      {/* Player crossover: players appearing in multiple matches */}
       <PlayerCrossover matches={matches} />
 
       <Link href="/" className="btn btn-outline" style={{ marginTop: 16 }}>
         Voltar ao Início
       </Link>
     </div>
+  );
+}
+
+export default function CompararPage() {
+  return (
+    <Suspense fallback={<div className="page"><p style={{ color: 'var(--text-muted)', marginTop: 32, textAlign: 'center' }}>Carregando…</p></div>}>
+      <CompararContent />
+    </Suspense>
   );
 }
 
