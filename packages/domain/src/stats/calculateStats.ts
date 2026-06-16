@@ -15,6 +15,8 @@ export interface WinnerStats {
   smash: number;
   drop: number;
   ace: number;
+  rainbow: number;
+  gancho: number;
   total: number;
 }
 
@@ -25,6 +27,9 @@ export interface ErrorStats {
   erroSmash: number;
   erroSaque: number;
   duplaFalta: number;
+  erroRainbow: number;
+  erroGancho: number;
+  erroForcado: number;
   total: number;
 }
 
@@ -82,11 +87,11 @@ export interface MatchStats {
 // ---------------------------------------------------------------------------
 
 function emptyWinnerStats(): WinnerStats {
-  return { winnerDir: 0, winnerEsq: 0, winnerPar: 0, winnerCru: 0, lob: 0, smash: 0, drop: 0, ace: 0, total: 0 };
+  return { winnerDir: 0, winnerEsq: 0, winnerPar: 0, winnerCru: 0, lob: 0, smash: 0, drop: 0, ace: 0, rainbow: 0, gancho: 0, total: 0 };
 }
 
 function emptyErrorStats(): ErrorStats {
-  return { erroDir: 0, erroEsq: 0, erroLob: 0, erroSmash: 0, erroSaque: 0, duplaFalta: 0, total: 0 };
+  return { erroDir: 0, erroEsq: 0, erroLob: 0, erroSmash: 0, erroSaque: 0, duplaFalta: 0, erroRainbow: 0, erroGancho: 0, erroForcado: 0, total: 0 };
 }
 
 function emptyServeStats(): ServeStats {
@@ -123,21 +128,26 @@ function applyActionStats(stats: PlayerStats, event: PointEvent): void {
       case 'WINNER_ESQ': w.winnerEsq += 1; break;
       case 'WINNER_PAR': w.winnerPar += 1; break;
       case 'WINNER_CRU': w.winnerCru += 1; break;
-      case 'LOB':        w.lob     += 1; break;
-      case 'SMASH':      w.smash   += 1; break;
-      case 'DROP':       w.drop    += 1; break;
-      case 'ACE':        w.ace     += 1; break;
+      case 'LOB':        w.lob       += 1; break;
+      case 'SMASH':      w.smash     += 1; break;
+      case 'DROP':       w.drop      += 1; break;
+      case 'ACE':        w.ace       += 1; break;
+      case 'RAINBOW':    w.rainbow   += 1; break;
+      case 'GANCHO':     w.gancho    += 1; break;
     }
   } else if (event.pointType === 'error') {
     const e = stats.errors;
     e.total += 1;
     switch (event.pointSubtype) {
-      case 'ERRO_DIR':    e.erroDir    += 1; break;
-      case 'ERRO_ESQ':    e.erroEsq    += 1; break;
-      case 'ERRO_LOB':    e.erroLob    += 1; break;
-      case 'ERRO_SMASH':  e.erroSmash  += 1; break;
-      case 'ERRO_SAQUE':  e.erroSaque  += 1; break;
-      case 'DUPLA_FALTA': e.duplaFalta += 1; break;
+      case 'ERRO_DIR':     e.erroDir     += 1; break;
+      case 'ERRO_ESQ':     e.erroEsq     += 1; break;
+      case 'ERRO_LOB':     e.erroLob     += 1; break;
+      case 'ERRO_SMASH':   e.erroSmash   += 1; break;
+      case 'ERRO_SAQUE':   e.erroSaque   += 1; break;
+      case 'DUPLA_FALTA':  e.duplaFalta  += 1; break;
+      case 'ERRO_RAINBOW': e.erroRainbow += 1; break;
+      case 'ERRO_GANCHO':  e.erroGancho  += 1; break;
+      case 'ERRO_FORCADO': e.erroForcado += 1; break;
     }
   } else if (event.pointType === 'forced_error') {
     stats.totalPoints += 1;

@@ -70,14 +70,17 @@ function PlayerCard({
   const totalActions = w.total + e.total + stats.forcedErrors;
 
   const winnerItems: BreakdownItem[] = [
-    { label: 'Dir', count: w.winnerDir },
-    { label: 'Esq', count: w.winnerEsq },
     { label: 'Paralela', count: w.winnerPar },
     { label: 'Cruzada', count: w.winnerCru },
     { label: 'Lob', count: w.lob },
     { label: 'Smash', count: w.smash },
     { label: 'Drop', count: w.drop },
     { label: 'Ace', count: w.ace },
+    { label: 'Rainbow', count: w.rainbow },
+    { label: 'Gancho', count: w.gancho },
+    // legado: exibir apenas se houver dados de partidas antigas
+    ...(w.winnerDir > 0 ? [{ label: 'Dir (legado)', count: w.winnerDir }] : []),
+    ...(w.winnerEsq > 0 ? [{ label: 'Esq (legado)', count: w.winnerEsq }] : []),
   ];
 
   const errorItems: BreakdownItem[] = [
@@ -86,6 +89,9 @@ function PlayerCard({
     { label: 'Lob', count: e.erroLob },
     { label: 'Smash', count: e.erroSmash },
     { label: 'Saque', count: e.erroSaque },
+    { label: 'Rainbow', count: e.erroRainbow },
+    { label: 'Gancho', count: e.erroGancho },
+    { label: 'Forçado', count: e.erroForcado },
   ];
 
   return (
