@@ -1,8 +1,8 @@
 # Backlog — Beach Tennis Scout MVP
 
-> **Versão:** 1.0
-> **Data:** 2026-06-14
-> **Fase:** MVP
+> **Versão:** 2.0
+> **Data:** 2026-07-13
+> **Fase:** MVP — revisado após validação do primeiro deploy
 
 ---
 
@@ -27,9 +27,9 @@
 | EP-05 | Estatísticas em Tempo Real | Alta |
 | EP-06 | Resumo Pós-Jogo | Média |
 | EP-07 | Persistência Offline | Alta |
-| EP-08 | Recuperação de Partida | Alta |
+| EP-08 | Pausar e Continuar Partida | Alta |
 | EP-09 | Histórico de Partidas | Média |
-| EP-10 | Publicidade | Baixa (pré-lançamento) |
+| EP-10 | Publicidade | **Removido do MVP** (pós-1º deploy) |
 
 ---
 

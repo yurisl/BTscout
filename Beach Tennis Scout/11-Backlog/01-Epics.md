@@ -13,11 +13,12 @@
 **Escopo:**
 - Seleção de modalidade: Simples (1 jogador/lado) ou Duplas (2 jogadores/lado)
 - Entrada de nomes dos jogadores com autocomplete do histórico local
-- Seleção do formato da partida (Melhor de 3 Sets, Pro Set, Melhor de 5 Sets)
+- Formato da partida fixo (não configurável pelo usuário): melhor de 3 sets, sets 1 e 2 até 6 games, tie-break em 6x6, 3º set sempre em super tie-break até 10 pontos, sistema No-Ad — ver [[08-Dominio/09-ScoringEngine]]
 - Seleção de quem saca primeiro
 - Dados opcionais de contexto (torneio, local, categoria, observações)
 
 **Fora do escopo (V2+):**
+- Formatos alternativos (Pro Set, Melhor de 5 Sets) ou qualquer configuração de regras
 - Perfis persistentes de jogadores com histórico linkado
 - Foto de perfil, número de classificação, clube
 
@@ -52,19 +53,19 @@
 **Valor:** Sem o engine correto, o placar fica errado. Placar errado invalida as estatísticas e destrói a confiança no produto. Este épico é a fundação técnica de tudo.
 
 **Escopo:**
-- Progressão de pontos dentro do game (0/15/30/40/Deuce/Vantagem)
-- Detecção de game vencido com deuce
+- Progressão de pontos dentro do game (0/15/30/40)
+- **Sistema No-Ad obrigatório:** em 40x40 (3x3 em pontos brutos), o próximo ponto encerra o game — **nunca há Deuce/Vantagem**. Regra fixa em `resolveGame`, não configurável
 - Progressão de games dentro do set
 - Detecção de set vencido (win by 2, até 6 games)
 - Tie-break a 6×6 (7 pontos, win by 2)
 - Super tie-break como set decisivo (10 pontos, win by 2)
-- Progressão de sets até o fim da partida
+- Progressão de sets até o fim da partida (melhor de 3 sets)
 - Rotação de saque (por game, a cada 2 pontos no tie-break)
-- Suporte aos 3 formatos: Melhor de 3, Pro Set, Melhor de 5
 - Undo: restaurar estado via scoreSnapshotBefore
 
 **Fora do escopo:**
-- Regras customizadas além dos 3 formatos suportados
+- Qualquer regra de tênis tradicional (Advantage) — este produto é exclusivo para Beach Tennis
+- Formatos alternativos (Pro Set, Melhor de 5) — não implementados; o MVP usa exclusivamente melhor de 3 com super tie-break no 3º set
 
 ---
 
@@ -95,18 +96,19 @@
 **Valor:** O técnico no banco precisa tomar decisões táticas durante a partida. Poder ver "DUPLA B cometeu 8 erros não-forçados no set 2" em 2 toques é o que diferencia o produto de uma planilha.
 
 **Escopo:**
-- Tela de estatísticas acessível via menu durante partida
-- Recálculo automático após cada PointEvent
-- Totalizadores: pontos ganhos, winners, erros não-forçados, forçou erro
+- Botão "Estatísticas" **sempre acessível** no header da tela de Scout — não escondido em menu
+- Abre um overlay (`StatsDrawer`): painel lateral em telas ≥768px, modal/bottom-sheet em <768px — nunca interrompe ou navega para fora do registro de pontos
+- Fechar o painel retorna exatamente ao estado de registro em que o usuário estava (nenhuma alteração de estado da partida ao abrir/fechar)
+- Recálculo automático após cada PointEvent (`calculateStats`)
+- Totalizadores: pontos disputados, winners, erros não-forçados, forçou erro, percentuais
 - Breakdown por subtipo (winner direita, esquerda, etc.)
 - Estatísticas de saque: % 1º saque, % 2º saque, aces, duplas faltas
-- Comparativo A vs B em tabela
-- Seletor de escopo: Partida total / por Set
+- Estatísticas por jogador e por dupla/time (comparativo A vs B)
 - Labels adaptativos: "DUPLA A/B" em duplas, nome do jogador em simples
-- Botão "Voltar ao Scout" sempre visível durante partida ativa
-- Sem publicidade durante partida ativa
+- Sem publicidade
 
 **Fora do escopo:**
+- Seletor de escopo por Set (Partida total / Set 1 / Set 2 / ...) — candidato a V2; MVP mostra apenas o total agregado da partida
 - Gráficos e visualizações (V2)
 - Comparação entre partidas diferentes (V2)
 - Exportação (V2)
@@ -115,16 +117,16 @@
 
 ## EP-06 — Resumo Pós-Jogo
 
-**Objetivo:** Exibir o resultado final da partida com vencedor em destaque, placar completo por set e estatísticas completas. Primeira exposição ao banner publicitário depois que a partida termina.
+**Objetivo:** Exibir o resultado final da partida com vencedor em destaque, placar completo por set e estatísticas completas.
 
 **Valor:** É a tela que justifica o uso do app — o momento em que o usuário vê o valor dos dados que coletou durante a partida. Se ele sair desta tela satisfeito, ele volta na próxima.
 
 **Escopo:**
 - Card de vencedor (fundo verde) com nome e placar final
 - Placar set a set com notação de tie-break: `7-6(4)`
-- Estatísticas completas (idênticas à tela de Estatísticas)
+- Estatísticas completas (mesmo componente `MatchStats` reaproveitado do painel ao vivo — EP-05)
 - Labels corretos: singular "venceu" em simples, plural "venceram" em duplas
-- AD-03 banner visível (primeiro anúncio após partida iniciada)
+- Sem publicidade
 - Botão Compartilhar: texto pré-formatado com placar e stats via `navigator.share()`
 - Botões: Nova Partida / Voltar ao Home
 
@@ -154,21 +156,22 @@
 
 ---
 
-## EP-08 — Recuperação de Partida em Andamento
+## EP-08 — Pausar e Continuar Partida
 
-**Objetivo:** Se o usuário fechar o app por acidente durante uma partida, ao reabrir deve ser oferecida a opção de continuar de onde parou.
+**Objetivo:** Permitir que o usuário pause uma partida a qualquer momento e a retome depois — seja por escolha própria (botão "Pausar"), seja por fechamento acidental do navegador.
 
-**Valor:** Acidentes acontecem — telefone caiu, bateria acabou, app foi fechado por engano. Perder uma partida no meio implica perder todos os dados coletados. Recuperação é proteção ao trabalho do scout.
+**Valor:** Acidentes acontecem — telefone caiu, bateria acabou, o usuário precisou atender algo e fechou o app. Perder uma partida no meio implica perder todos os dados coletados. Pausar/continuar é proteção ao trabalho do scout e também um fluxo deliberado (intervalo, troca de quadra, etc.).
 
 **Escopo:**
-- Ao abrir o Home, verificar se existe partida com status `in_progress`
-- Se sim: exibir modal/card de destaque "Partida em andamento — Continuar?"
-- "Continuar": navega direto para `/match/[id]/scout` com estado restaurado do IndexedDB
-- "Descartar": confirmação secundária → apaga partida e volta ao Home limpo
+- Botão "Pausar" na tela de Scout: volta para a Home. Como o autosave já grava o estado a cada ponto, pausar não requer nenhuma persistência adicional
+- Home: enquanto existir partida com status `in_progress`, exibir banner persistente "Existe uma partida em andamento" com botão "Continuar partida"
+- Ao reabrir o navegador em uma nova sessão (fechamento acidental ou não) com uma partida `in_progress` salva: a Home pergunta uma vez "Deseja continuar a partida em andamento?" (`sessionStorage`, no máximo 1× por sessão)
+- "Continuar partida" → navega direto para `/partida/[id]` com estado restaurado do `localStorage`
+- "Agora não" apenas fecha o diálogo — não descarta a partida; exclusão continua sendo uma ação explícita separada, a partir do card da partida
 - O estado restaurado é idêntico ao último autosave
 
 **Fora do escopo:**
-- Múltiplas partidas simultâneas em andamento (apenas 1 ativa por vez no MVP)
+- Múltiplas partidas simultâneas em andamento tratadas de forma diferenciada (o MVP suporta várias partidas `in_progress` salvas, mas o banner/diálogo de retomada sempre aponta para a mais recente)
 
 ---
 
@@ -191,25 +194,18 @@
 
 ---
 
-## EP-10 — Publicidade
+## EP-10 — Publicidade — **REMOVIDO DO MVP** (pós-primeiro-deploy)
 
-**Objetivo:** Integrar os banners publicitários nos 4 slots aprovados, sem impactar a experiência de scout.
+> **Status:** Cancelado para esta versão. Após validar o primeiro deploy, a decisão de produto foi remover toda publicidade do MVP — nenhuma tela reserva espaço para banner, intersticial ou qualquer placeholder de anúncio. Ver [[09-Negócio/02-Monetizacao]].
 
-**Valor:** Única fonte de receita do MVP. Necessária para que o produto seja sustentável desde o lançamento.
+**Objetivo original:** Integrar banners publicitários em 4 slots aprovados (Home, Intervalo entre Sets, Resumo, Histórico), sem impactar a experiência de scout.
 
-**Escopo:**
-- AD-01: Banner fixo no rodapé do Home (320×50 mobile / 728×90 desktop)
-- AD-02: Banner 300×250 na tela de intervalo de set (entre sets)
-- AD-03: Banner no topo do Resumo Pós-Jogo
-- AD-04: Banner no rodapé da tela de Histórico
-- Integração com Google AdMob (mobile) / AdSense (web)
-- Nenhum anúncio na tela Scout, na configuração ou no modal de undo
-- Sem anúncios com som, autoexpansão ou vídeo autoreprodutor
+**Por que foi removido:** nesta fase de validação, a prioridade é adoção e qualidade do registro de dados. O desenho original dos slots (`AD-01`–`AD-04`) é preservado em [[09-Negócio/02-Monetizacao]] como referência para uma eventual reintrodução em versão futura, condicionada a critérios explícitos de retenção/base de usuários — não é um trabalho pendente deste MVP.
 
-**Fora do escopo:**
+**Fora do escopo (também depois de uma eventual reintrodução):**
 - Publicidade segmentada por perfil de usuário (V2)
 - Venda direta de espaços publicitários (V2)
-- Versão sem anúncios (não existe no MVP)
+- Qualquer anúncio na tela de Scout, no painel de Estatísticas ao vivo, na configuração de partida ou no modal de undo — permanece proibido mesmo que a publicidade volte
 
 ---
 

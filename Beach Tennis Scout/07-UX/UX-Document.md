@@ -1,8 +1,8 @@
 # Beach Tennis Scout — Documento de UX
 
-> **Versão:** 2.0
-> **Data:** 2026-06-14
-> **Status:** MVP — Revisado com decisões de produto aprovadas
+> **Versão:** 3.0
+> **Data:** 2026-07-13
+> **Status:** MVP — Revisado após validação do primeiro deploy (regras No-Ad, estatísticas ao vivo, pausar/continuar partida, publicidade removida)
 
 ---
 
@@ -16,7 +16,7 @@
 6. [[#Componentes Principais]]
 7. [[#Navegação entre Telas]]
 8. [[#Estratégia de Registro Rápido — Modelo 2 Toques]]
-9. [[#Publicidade e Banners]]
+9. [[#9. Publicidade]]
 10. [[#Persistência e Recuperação de Partida]]
 11. [[#Adaptações por Dispositivo]]
 12. [[#Sugestão de Estrutura de Pastas]]
@@ -30,8 +30,8 @@ Esta seção documenta as decisões estratégicas que guiam todas as escolhas de
 ### Modelo de Negócio
 
 - **Produto gratuito:** Não há plano pago na V1. O app é 100% gratuito para todos os usuários.
-- **Monetização por publicidade:** A única fonte de receita no MVP é publicidade (banners e intersticiais em telas não-críticas).
-- **Sem Premium na V1:** Qualquer referência a "plano premium" ou "versão sem anúncios" está fora do escopo desta versão.
+- **Sem publicidade no MVP:** Após a validação do primeiro deploy, a decisão de produto foi remover toda publicidade (banners, intersticiais e qualquer placeholder de anúncio) da V1. O objetivo do MVP é validar adoção e qualidade do registro de dados — anúncios competiam com esse objetivo sem gerar receita relevante nesta fase. A infraestrutura de anúncios poderá ser reintroduzida em versão futura (ver [[02-Monetizacao]]), mas nenhuma tela do MVP reserva espaço para ela.
+- **Sem Premium na V1:** Qualquer referência a "plano premium" ou "versão sem anúncios" está fora do escopo desta versão (já que não há anúncios a remover).
 
 ### Objetivo do MVP
 
@@ -93,7 +93,9 @@ Esta seção documenta as decisões estratégicas que guiam todas as escolhas de
 | **Undo sem limite** | Desfazer qualquer quantidade de pontos, sempre disponível |
 | **Feedback imediato** | Vibração + som + animação a cada ponto registrado (≤ 100ms) |
 | **Dados nunca se perdem** | Autosave local após cada ponto, recuperação automática |
-| **Área de scout sem distrações** | Tela de registro livre de publicidade |
+| **Área de scout sem distrações** | Tela de registro 100% livre de publicidade — o MVP não exibe nenhum anúncio em nenhuma tela |
+| **Estatísticas sempre a um toque** | Botão "Estatísticas" sempre acessível durante a partida, sem interromper o registro |
+| **Pausar sem perder nada** | A partida pode ser pausada a qualquer momento; o estado já está salvo automaticamente |
 
 ---
 
@@ -147,9 +149,10 @@ Esta seção documenta as decisões estratégicas que guiam todas as escolhas de
 **Componentes:**
 - Header com logo e ícone de configurações
 - Botão CTA primário: **"Nova Partida"** (destaque visual, área generosa)
+- **Banner "Existe uma partida em andamento"** (quando houver): nome das duplas + botão **"Continuar partida"**, exibido em destaque logo abaixo do header
 - Lista das últimas 3 partidas com duplas, placar final e data
 - Link **"Ver Todas"** → Histórico
-- Banner de publicidade no rodapé (fora da área de interação principal)
+- Nenhum espaço reservado para publicidade
 
 ---
 
@@ -191,7 +194,9 @@ Esta seção documenta as decisões estratégicas que guiam todas as escolhas de
 
 ```
 ┌─────────────────────────────────────┐
-│  Set 1  •  Game 3  •  40 : 30  [↩] │  ← Header fixo (placar + undo)
+│ ← Início  Duplas  [📊 Estatísticas] │  ← Header fixo
+│           [⏸ Pausar]  [↩ Desfazer] │     (estatísticas sempre acessível)
+│  Set 1  •  Game 3  •  40 : 30       │  ← Placar
 │  ● Saque: Ana / Bia                 │  ← Indicador de saque
 ├─────────────────────────────────────┤
 │                                     │
@@ -233,7 +238,11 @@ Esta seção documenta as decisões estratégicas que guiam todas as escolhas de
 └─────────────────────────────────────┘
 ```
 
-> **Sem publicidade nesta tela.** Ver [[#Publicidade e Banners]] para justificativa.
+> **Sem publicidade nesta tela** — nem em nenhuma outra do MVP. Ver [[#9. Publicidade]].
+>
+> **Botão "Estatísticas" sempre acessível:** ao tocar, abre um painel lateral (desktop, telas ≥768px) ou modal/bottom-sheet (mobile) com pontos disputados, winners, erros, percentuais e detalhamento por jogador/dupla — sem sair da tela de registro nem perder o passo em que o usuário estava (jogador já selecionado, aguardando o tipo de ponto). Ver [[04-Estatisticas]].
+>
+> **Botão "Pausar":** salva o estado atual (já ocorre automaticamente a cada ponto) e volta para a Home, onde a partida aparece em destaque para retomada. Ver seção [[#10. Persistência e Recuperação de Partida]].
 
 **Fluxo de estado — 1 ponto registrado:**
 
@@ -274,14 +283,13 @@ Estado 0: Aguardando
 
 ### 5.5 Tela: Intervalo entre Sets
 
-**Propósito:** Pausa entre sets. Momento adequado para exibir publicidade.
+**Propósito:** Pausa entre sets.
 
 **Componentes:**
 - Placar do set encerrado (destaque visual)
 - Vencedor do set
 - Indicação de quem saca no próximo set
 - Lembrete de troca de lado (quando aplicável segundo o formato)
-- Banner de publicidade (300×250) — único momento dentro da partida onde isso é aceitável
 - Botão: **"Iniciar Próximo Set"**
 
 ---
@@ -299,7 +307,6 @@ Estado 0: Aguardando
   - Erros não-forçados por tipo (direita, esquerda, lob, smash, saque)
   - Pontos por erro do adversário (forçados)
 - Botões: `[Compartilhar]` `[Nova Partida]` `[Voltar ao Home]`
-- Banner de publicidade (728×90 no web / 320×50 no mobile) no topo ou rodapé da tela
 
 > Exportação de PDF é uma funcionalidade candidata para V2, não é prioridade do MVP.
 
@@ -313,7 +320,6 @@ Estado 0: Aguardando
 - Lista de partidas com: duplas, placar final, data, local/torneio (se preenchido)
 - Filtros simples: por data, por jogador, por torneio (quando disponível)
 - Tap na partida → Detalhe completo
-- Banner de publicidade entre itens da lista (a cada 5 itens)
 
 ---
 
@@ -536,35 +542,17 @@ Os botões do Passo 1 ficam na metade superior da tela. Os botões do Passo 2 oc
 
 ---
 
-## 9. Publicidade e Banners
+## 9. Publicidade
 
-### 9.1 Filosofia
+### 9.1 Decisão de produto (pós-validação do primeiro deploy)
 
-A tela de registro de pontos é uma ferramenta de trabalho profissional usada sob pressão, ao sol, com atenção dividida entre a quadra e o celular. Qualquer elemento de distração nessa tela compromete a qualidade dos dados registrados — que é o produto central do app.
+Após validar o primeiro deploy do MVP, a publicidade foi **removida por completo** do produto. Nenhuma tela exibe banner, intersticial ou qualquer placeholder reservando espaço para anúncio — inclusive as telas que antes previam banners (Home, Intervalo entre Sets, Resumo da Partida, Histórico).
 
-Publicidade mal posicionada não gera receita: gera cliques acidentais, dados incorretos e abandono do produto.
+**Motivação:** a tela de registro de pontos — e, por extensão, todo o fluxo ao redor dela — é uma ferramenta de trabalho profissional usada sob pressão, ao sol, com atenção dividida entre a quadra e o celular. Qualquer elemento de distração compromete a qualidade dos dados registrados, que é o produto central do app. Nesta fase de validação, a prioridade é adoção e confiabilidade dos dados, não receita publicitária.
 
-### 9.2 Onde anúncios aparecem (V1)
+### 9.2 Futuro
 
-| ID | Tela | Posição | Formato Mobile | Formato Desktop | Frequência |
-|---|---|---|---|---|---|
-| `AD-01` | Home | Rodapé | 320×50 | 728×90 | Sempre visível |
-| `AD-02` | Intervalo entre Sets | Centro da tela | 300×250 | 300×250 | 1× por set |
-| `AD-03` | Resumo da Partida | Topo ou rodapé | 320×50 | 728×90 | 1× por partida |
-| `AD-04` | Histórico de Partidas | Entre itens | 320×50 | 728×90 | A cada 5 itens |
-
-### 9.3 Onde anúncios NÃO aparecem
-
-- **Tela de Registro de Pontos** — área de trabalho ativa, sem distrações
-- **Tela de Configurar Partida** — fluxo de entrada, precisa de foco
-- **Modal de Undo** — ação crítica de correção
-- **Tela de Fim de Partida / Transição** — momento de atenção do usuário
-
-### 9.4 Regras gerais
-
-- Banners nunca deslocam ou reduzem a área dos botões de registro
-- Anúncios intersticiais (fullscreen) apenas na tela de Intervalo entre Sets
-- Nenhum anúncio em tela cheia durante uma partida ativa (entre pontos)
+A infraestrutura de anúncios **poderá ser reintroduzida em versão futura**, condicionada a validação de uso real e sem comprometer a tela de registro de pontos (que deve permanecer livre de anúncios mesmo se a monetização por publicidade for retomada). Ver [[02-Monetizacao]] para o racional de negócio.
 
 ---
 
@@ -577,28 +565,35 @@ Publicidade mal posicionada não gera receita: gera cliques acidentais, dados in
 - Não depende de conexão com internet
 - Tempo de gravação local deve ser imperceptível (< 50ms)
 
-### 10.2 Recuperação após Fechamento Inesperado
+### 10.2 Pausar Partida
 
-Quando o app é reaberto e detecta uma partida salva não encerrada, exibe imediatamente:
+- Botão **"Pausar"** disponível a qualquer momento na tela de registro (ver 5.3)
+- Como o autosave já grava o estado a cada ponto, pausar é apenas navegar para a Home — nenhum dado é perdido
+- Na Home, enquanto houver uma partida com status `in_progress`, um banner fixo é exibido: **"Existe uma partida em andamento"** com o botão **"Continuar partida"**
+
+### 10.3 Recuperação após Fechamento Inesperado (reabertura do navegador)
+
+Quando o app é reaberto em uma nova sessão do navegador (ex.: navegador foi fechado e reaberto) e existe uma partida salva com status `in_progress`, a Home exibe uma única vez o diálogo:
 
 ```
 ┌────────────────────────────────────────┐
 │                                        │
-│   Partida em andamento encontrada      │
+│  Deseja continuar a partida            │
+│  em andamento?                        │
 │                                        │
-│   Ana/Bia × Cris/Dani                 │
-│   Set 1 · Game 3 · 40:30              │
+│  Ana/Bia × Cris/Dani                  │
 │                                        │
-│   [  Continuar Partida  ]              │
-│   [  Descartar e ir ao Home  ]         │
+│   [  Agora não  ]  [ Continuar partida ]│
 │                                        │
 └────────────────────────────────────────┘
 ```
 
-- "Continuar Partida" → restaura exatamente o estado anterior
-- "Descartar" → solicita confirmação adicional antes de apagar
+- "Continuar partida" → navega direto para a tela de registro, exatamente no estado salvo
+- "Agora não" → fecha o diálogo; o banner da Home (10.2) continua disponível para retomar quando o usuário quiser
+- O diálogo é perguntado no máximo uma vez por sessão de navegador (controlado via `sessionStorage`), para não incomodar a cada visita à Home dentro da mesma sessão
+- Excluir a partida continua sendo uma ação explícita e separada, feita a partir do card da partida (não a partir deste diálogo)
 
-### 10.3 Comportamento por Dispositivo
+### 10.4 Comportamento por Dispositivo
 
 | Cenário | Mobile | Tablet | Desktop |
 |---|---|---|---|
@@ -653,26 +648,28 @@ Quando o app é reaberto e detecta uma partida salva não encerrada, exibe imedi
 - Layout em 3 colunas: histórico de pontos | registro | estatísticas
 - Registro de ponto via teclado (atalhos mapeados na seção 8.7)
 - Timeline completa de pontos visível na coluna esquerda durante a partida
-- Publicidade na coluna direita, abaixo das estatísticas (sem competir com a área de registro)
+- O botão "Estatísticas" abre o painel **como painel lateral fixo** (não modal) em telas ≥768px — comportamento nativo do componente `StatsDrawer`, que também é reutilizado nas telas de resumo pós-partida
 
 ```
 ┌─────────────────┬──────────────────────┬─────────────────┐
 │                 │                      │                 │
 │  HISTÓRICO      │   QUEM FEZ O PONTO?  │  ESTATÍSTICAS   │
-│  DO JOGO        │   [Ana] [Bia]        │                 │
-│                 │   [Cris][Dani]       │  Winners A: 5   │
-│  Set 1:         │                      │  Winners B: 3   │
-│  · Ana Win D    │   COMO FOI?          │  Erros A: 2     │
-│  · Cris Err E   │   [Win D][Win E]     │  Erros B: 4     │
-│  · Bia Ace      │   [Win P][Win C]     │                 │
+│  DO JOGO        │   [Ana] [Bia]        │  (painel lateral│
+│                 │   [Cris][Dani]       │   ao abrir)     │
+│  Set 1:         │                      │  Winners A: 5   │
+│  · Ana Win D    │   COMO FOI?          │  Winners B: 3   │
+│  · Cris Err E   │   [Win D][Win E]     │  Erros A: 2     │
+│  · Bia Ace      │   [Win P][Win C]     │  Erros B: 4     │
 │  · Dani Drop    │   [Lob  ][Smash ]    │                 │
-│  · ...          │   [Drop ][Ace   ]    │  [Banner AD]    │
+│  · ...          │   [Drop ][Ace   ]    │  Por jogador ↓  │
 │                 │   [Err D][Err E ]    │                 │
 │                 │   [Err L][Err S ]    │                 │
 │                 │   [ErrSq][Forçou]    │                 │
 │                 │                      │                 │
 └─────────────────┴──────────────────────┴─────────────────┘
 ```
+
+> Em mobile (<768px), o mesmo botão abre o painel como modal/bottom-sheet cobrindo a parte inferior da tela, preservando o placar visível acima.
 
 ---
 
@@ -683,7 +680,7 @@ Criar a pasta `09-Negocio` no vault com os seguintes documentos:
 ```
 09-Negocio/
 ├── Visao-Produto.md      ← Missão, público-alvo, proposta de valor, diferencial
-├── Monetizacao.md        ← Modelo de publicidade, slots, parceiros futuros, roadmap de receita
+├── Monetizacao.md        ← Publicidade removida no MVP; racional e critérios para reintrodução futura
 ├── Mercado.md            ← Tamanho de mercado, perfil de usuário, onde jogam, frequência
 └── Concorrentes.md       ← Ferramentas existentes, o que fazem bem, onde falham, nosso espaço
 ```
@@ -702,4 +699,4 @@ Criar a pasta `09-Negocio` no vault com os seguintes documentos:
 
 ---
 
-*Beach Tennis Scout — Documento de UX v2.0 — Uso interno*
+*Beach Tennis Scout — Documento de UX v3.0 — Uso interno*

@@ -3,7 +3,7 @@
 > **Tela:** Resumo Pós-Jogo
 > **Rota Next.js:** `/match/[id]/stats` (variante encerrada) — mesma rota de Estatísticas
 > **Prioridade:** Média-Alta — primeira impressão do valor gerado pelo app
-> **Publicidade:** AD-03 (banner no topo ou rodapé, partida encerrada)
+> **Publicidade:** Nenhuma — publicidade removida do MVP em todas as telas (ver [[02-Monetizacao]])
 
 ---
 
@@ -20,7 +20,6 @@ O Resumo é a variante encerrada da tela de Estatísticas. A rota é a mesma (`/
 | Componente | Tipo | Notas |
 |---|---|---|
 | Header com botão home | Fixo | Sem botão "voltar ao scout" |
-| Banner AD-03 | Publicidade | Topo ou rodapé, visível nesta tela |
 | Card de vencedor | Destaque visual | Fundo verde, nome grande |
 | Placar final por set | Display | Séries de sets horizontais |
 | Tabs de escopo | Tabs | Partida / Set 1 / Set 2 / ... |
@@ -42,10 +41,6 @@ O Resumo é a variante encerrada da tela de Estatísticas. A rota é a mesma (`/
 │                                         │    ícone home, não "voltar"
 ├─────────────────────────────────────────┤
 │                                         │
-│  ╔═════════════════════════════════╗   │
-│  ║  AD-03 · Banner 320×50        ║   │  ← publicidade topo
-│  ╚═════════════════════════════════╝   │    (primeira aparição desde
-│                                         │     que a partida começou)
 │  ┌─────────────────────────────────┐   │
 │  │  🏆  ANA / BIA VENCEU          │   │  ← card vencedor
 │  │                                 │   │    bg: #2E7D32 (verde)
@@ -138,9 +133,6 @@ O Resumo é a variante encerrada da tela de Estatísticas. A rota é a mesma (`/
 ┌──────────────────────────────────────────────────────┐
 │  [⌂]  Resumo da Partida                   [⚙]       │
 ├──────────────────────────────────────────────────────┤
-│  ╔════════════════════════════════════════════════╗  │
-│  ║   AD-03 · Banner 468×60                       ║  │
-│  ╚════════════════════════════════════════════════╝  │
 │                                                      │
 │  ┌──────────────────────────────────────────────┐   │
 │  │  🏆  ANA / BIA VENCEU    6 · 7(5) × 4 · 6   │   │
@@ -187,9 +179,6 @@ O Resumo é a variante encerrada da tela de Estatísticas. A rota é a mesma (`/
 ┌──────────────────────────────────────────────────────────────────┐
 │  [⌂]  Resumo da Partida                              [⚙]        │
 ├──────────────────────────────────────────────────────────────────┤
-│  ╔════════════════════════════════════════════════════════════╗  │
-│  ║   AD-03 · Banner 728×90                                   ║  │
-│  ╚════════════════════════════════════════════════════════════╝  │
 │                                                                  │
 │  ┌──────────────────────────────────────────────────────────┐   │
 │  │  🏆  ANA / BIA VENCEU                                   │   │
@@ -284,13 +273,9 @@ Fallback (sem `navigator.share()`): copia o texto para o clipboard e exibe toast
 
 ---
 
-## Regras de Publicidade
+## Publicidade
 
-- `AD-03` aparece no topo da tela, imediatamente abaixo do header.
-- O banner nunca aparece antes desta tela — é a primeira exposição a publicidade desde o início da partida.
-- O banner não é `position: fixed` — rola com o conteúdo no mobile.
-- No desktop, o banner fica fixo no topo após o header.
-- Nunca obstrui o card de vencedor, o placar ou os botões de ação.
+Nenhuma. Publicidade foi removida de todas as telas do MVP após a validação do primeiro deploy — inclusive desta, que anteriormente seria a primeira exposição a anúncio no fluxo. Ver [[02-Monetizacao]] para o racional e critérios de reintrodução futura.
 
 ---
 

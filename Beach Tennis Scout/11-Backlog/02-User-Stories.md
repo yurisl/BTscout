@@ -198,19 +198,15 @@
 
 - **Dado** que estou na tela de scout,
   **quando** o header é exibido,
-  **então** vejo: número do set atual, número do game atual, placar em formato `40 : 30` (ou `Vant.` / `Deuce`), indicador de saque com o nome do time/jogador sacante.
+  **então** vejo: número do set atual, número do game atual, placar em formato `40 : 30`, indicador de saque com o nome do time/jogador sacante.
 
 - **Dado** que um ponto é registrado e o game avança (ex: de 40:30 para 0:0 no próximo game),
   **quando** o header é atualizado,
   **então** o placar e o número do game são atualizados em menos de 100ms sem recarregar a tela.
 
-- **Dado** que o placar está em Deuce (3:3 em pontos internos),
+- **Dado** que o placar está empatado em 40:40 (3:3 em pontos internos),
   **quando** o header é exibido,
-  **então** o texto mostra "Deuce" em vez de "40:40".
-
-- **Dado** que o placar está em Vantagem (4:3 ou 3:4),
-  **quando** o header é exibido,
-  **então** o texto mostra "Vant. A" ou "Vant. B" conforme o lado.
+  **então** o texto mostra `40 : 40` — **nunca** "Deuce" ou "Vantagem", pois o sistema é No-Ad e não existe estado de vantagem (ver EP-03-01).
 
 ---
 
@@ -248,11 +244,11 @@
 
 ---
 
-### EP-03-01 🟢 — Progressão de pontos no game (0/15/30/40/Deuce/Vantagem)
+### EP-03-01 🟢 — Progressão de pontos no game com sistema No-Ad (0/15/30/40, sem Advantage)
 
 **Como** sistema,
-**quero** que cada PointEvent incremente corretamente a pontuação do game,
-**para que** o placar reflita as regras reais do beach tennis.
+**quero** que cada PointEvent incremente corretamente a pontuação do game seguindo o sistema No-Ad obrigatório do Beach Tennis,
+**para que** o placar reflita as regras reais do esporte — **nunca as do tênis tradicional (Advantage)**.
 
 **Critérios de aceitação:**
 
@@ -260,21 +256,21 @@
   **quando** o PointEvent é processado,
   **então** o placar vai para 40:30.
 
-- **Dado** que o game está em 40:40 (Deuce) e o lado A marca um ponto,
+- **Dado** que o game está em 40:40 (3:3 internamente) e o lado A marca o próximo ponto,
   **quando** o PointEvent é processado,
-  **então** o placar vai para Vantagem A (internamente: 4:3).
+  **então** o game é vencido imediatamente pelo lado A (internamente: 4:3) — é o **ponto decisivo**, sem passar por um estado de "Vantagem".
 
-- **Dado** que o placar está em Vantagem A e o lado B marca um ponto,
+- **Dado** que o game está em 40:40 e o lado B marca o próximo ponto,
   **quando** o PointEvent é processado,
-  **então** o placar volta para Deuce (internamente: 3:3).
-
-- **Dado** que o placar está em Vantagem A e o lado A marca um ponto,
-  **quando** o PointEvent é processado,
-  **então** o game é vencido pelo lado A (internamente: 4:3, diferença ≥ 2 com ambos ≥ 4).
+  **então** o game é vencido imediatamente pelo lado B (internamente: 3:4).
 
 - **Dado** que qualquer game começa,
   **quando** o primeiro ponto é registrado,
   **então** o placar vai de 0:0 para 15:0 (ou 0:15).
+
+- **Dado** que a regra No-Ad está implementada em `packages/domain` (`resolveGame`),
+  **quando** qualquer tela da UI exibe o placar,
+  **então** nenhuma lógica de pontuação é recalculada na interface — a UI apenas espelha o estado retornado pelo domínio.
 
 ---
 
@@ -338,7 +334,7 @@
 
 **Como** sistema,
 **quero** que o set decisivo seja disputado como super tie-break,
-**para que** a regra do beach tennis seja respeitada no formato Melhor de 3 e Melhor de 5.
+**para que** a regra do beach tennis seja respeitada: melhor de 3 sets, 3º set sempre em super tie-break até 10 pontos (vence por 2 de diferença).
 
 **Critérios de aceitação:**
 
@@ -356,7 +352,7 @@
 
 - **Dado** que o super tie-break está em 10:9,
   **quando** o lado B marca um ponto,
-  **então** o placar vai para 10:10 (Deuce do super tie-break) e o jogo continua.
+  **então** o placar vai para 10:10 (empate — o super tie-break exige 2 pontos de diferença) e o jogo continua.
 
 - **Dado** que o super tie-break está em 11:10,
   **quando** o lado A marca um ponto,
@@ -446,25 +442,25 @@
 
 ---
 
-### EP-05-01 — Acessar estatísticas durante a partida
+### EP-05-01 🟢 — Acessar estatísticas durante a partida sem interromper o registro
 
 **Como** técnico,
-**quero** acessar as estatísticas da partida em andamento via menu,
-**para que** eu tome decisões táticas baseadas em dados durante o jogo.
+**quero** acessar as estatísticas da partida em andamento com 1 toque, a qualquer momento,
+**para que** eu tome decisões táticas baseadas em dados durante o jogo sem perder o fluxo de registro.
 
 **Critérios de aceitação:**
 
-- **Dado** que estou na tela de scout,
-  **quando** toco no menu `[⋮]` e seleciono "Estatísticas",
-  **então** a tela de estatísticas abre mostrando os dados acumulados até o momento.
+- **Dado** que estou na tela de scout, em qualquer estado (aguardando jogador ou já com jogador selecionado),
+  **quando** toco no botão `[📊 Estatísticas]`, sempre visível no header,
+  **então** um painel com os dados acumulados até o momento abre sobre a tela atual — painel lateral em telas ≥768px, modal/bottom-sheet em <768px.
 
-- **Dado** que estou na tela de estatísticas durante partida ativa,
-  **quando** olho para a tela,
-  **então** o botão "Voltar ao Scout" está sempre visível e é o CTA principal.
+- **Dado** que o painel de estatísticas está aberto,
+  **quando** toco em fechar (✕, tecla `Esc` ou toque fora do painel),
+  **então** o painel fecha e eu vejo a tela de scout exatamente como estava antes de abrir — inclusive se um jogador já estava selecionado aguardando o Passo 2.
 
-- **Dado** que estou na tela de estatísticas,
-  **quando** toco em "Voltar ao Scout",
-  **então** retorno à tela de scout no mesmo estado em que deixei.
+- **Dado** que abro e fecho o painel de estatísticas,
+  **quando** verifico o estado da partida,
+  **então** nenhum ponto, saque ou placar foi alterado — o painel é somente leitura e não navega para outra rota.
 
 ---
 
@@ -512,7 +508,9 @@
 
 ---
 
-### EP-05-04 — Filtrar estatísticas por set
+### EP-05-04 — Filtrar estatísticas por set *(candidata a V2 — não implementada no MVP atual)*
+
+> O MVP atual mostra apenas o total agregado da partida no painel de estatísticas (ver EP-05-01). O seletor de escopo por set abaixo é uma extensão futura.
 
 **Como** técnico,
 **quero** ver as estatísticas de um set específico além do total da partida,
@@ -634,29 +632,69 @@
 
 ---
 
-### EP-08-01 🟢 — Detectar partida em andamento ao abrir o app
+### EP-08-01 🟢 — Pausar a partida a qualquer momento
 
 **Como** scout,
-**quero** ser avisado se existe uma partida em andamento ao abrir o app,
-**para que** eu retome o registro sem perder os pontos já registrados.
+**quero** pausar a partida e voltar para a Home sem perder nenhum dado,
+**para que** eu possa interromper o registro (intervalo, imprevisto) e continuar depois de onde parei.
 
 **Critérios de aceitação:**
 
-- **Dado** que existe uma partida com `status: in_progress` no IndexedDB,
+- **Dado** que estou na tela de scout com a partida em andamento,
+  **quando** toco no botão `[⏸ Pausar]`, sempre visível no header,
+  **então** volto para a Home imediatamente — sem diálogo de confirmação, pois o estado já está salvo (autosave a cada ponto).
+
+- **Dado** que pausei a partida,
+  **quando** volto à tela de scout dessa partida (pelo banner da Home ou pelo card na lista "Em andamento"),
+  **então** o placar, o saque e o histórico de pontos estão exatamente como estavam no momento da pausa.
+
+---
+
+### EP-08-02 🟢 — Banner de partida em andamento na Home
+
+**Como** scout,
+**quero** ver um aviso destacado na Home sempre que houver uma partida em andamento,
+**para que** eu retome o registro sem precisar procurá-la na lista.
+
+**Critérios de aceitação:**
+
+- **Dado** que existe uma partida com `status: in_progress` salva,
   **quando** o Home é carregado,
-  **então** um card de destaque amarelo (#F57F17) aparece no topo com: nomes dos times, set e game atual, placar, e os botões "Continuar Partida" e "Descartar".
+  **então** um banner "Existe uma partida em andamento" aparece em destaque, com os nomes das duplas e o botão "Continuar partida".
 
-- **Dado** que toco em "Continuar Partida",
+- **Dado** que toco em "Continuar partida" no banner,
   **quando** a navegação ocorre,
-  **então** vou direto para `/match/[id]/scout` com o estado restaurado do IndexedDB, no exato ponto onde parei.
-
-- **Dado** que toco em "Descartar",
-  **quando** um modal de confirmação aparece e confirmo,
-  **então** a partida é marcada como descartada, o card desaparece e o Home fica limpo.
+  **então** vou direto para `/partida/[id]` com o estado restaurado do `localStorage`, no exato ponto onde parei.
 
 - **Dado** que não existe nenhuma partida em andamento,
   **quando** o Home é carregado,
-  **então** o card de recuperação não aparece.
+  **então** o banner não aparece.
+
+---
+
+### EP-08-03 🟢 — Perguntar sobre continuar ao reabrir o navegador
+
+**Como** scout,
+**quero** ser avisado ao reabrir o navegador se havia uma partida em andamento,
+**para que** eu não esqueça de retomá-la após um fechamento acidental.
+
+**Critérios de aceitação:**
+
+- **Dado** que existe uma partida `in_progress` salva e esta é a primeira vez que a Home carrega nesta sessão de navegador,
+  **quando** o Home termina de carregar,
+  **então** um diálogo pergunta "Deseja continuar a partida em andamento?" com os botões "Agora não" e "Continuar partida".
+
+- **Dado** que toco em "Continuar partida" no diálogo,
+  **quando** a navegação ocorre,
+  **então** vou direto para a tela de scout dessa partida.
+
+- **Dado** que toco em "Agora não",
+  **quando** o diálogo fecha,
+  **então** permaneço na Home e o banner da EP-08-02 continua visível para retomar quando eu quiser — nenhuma partida é excluída.
+
+- **Dado** que já respondi ao diálogo nesta sessão de navegador (ou não há partida em andamento),
+  **quando** volto para a Home novamente na mesma sessão,
+  **então** o diálogo não aparece de novo (controlado via `sessionStorage`).
 
 ---
 
@@ -703,56 +741,14 @@
   **então** todas as partidas encerradas são listadas em ordem cronológica reversa com placar e data.
 
 - **Dado** que a lista de histórico tem scroll,
-  **quando** rolo para baixo,
-  **então** AD-04 (banner publicitário) aparece no rodapé da tela (não no meio da lista).
+  **quando** rolo até o fim,
+  **então** não há nenhum banner publicitário — a lista termina sem elemento de anúncio.
 
 ---
 
-## EP-10 — Publicidade
+## EP-10 — Publicidade — **removido do MVP**
 
----
-
-### EP-10-01 — Banner AD-01 no Home
-
-**Como** produto,
-**quero** exibir um banner no rodapé do Home,
-**para que** o app gere receita desde o primeiro uso.
-
-**Critérios de aceitação:**
-
-- **Dado** que o Home é carregado,
-  **quando** o SDK de anúncios retorna um banner,
-  **então** AD-01 aparece fixo no rodapé (abaixo do safe area do iOS).
-
-- **Dado** que o banner está no rodapé,
-  **quando** vejo a lista de partidas recentes,
-  **então** o conteúdo da lista tem padding-bottom suficiente para não ficar oculto atrás do banner.
-
-- **Dado** que o SDK de anúncios demora ou falha,
-  **quando** o Home carrega,
-  **então** o espaço do banner permanece em branco (sem quebrar o layout) e o app funciona normalmente.
-
----
-
-### EP-10-02 — Banner AD-02 na tela de intervalo de set
-
-**Como** produto,
-**quero** exibir um anúncio entre sets,
-**para que** o momento de pausa natural entre sets seja aproveitado para receita sem impactar o registro.
-
-**Critérios de aceitação:**
-
-- **Dado** que um set é encerrado e ainda há sets a disputar,
-  **quando** a transição `set_won` é emitida,
-  **então** uma tela intermediária aparece com: placar do set encerrado, placar da partida em sets, e o banner AD-02 (300×250).
-
-- **Dado** que a tela de intervalo está visível,
-  **quando** toco em "Continuar" (ou aguardo 5 segundos),
-  **então** a tela de scout é reaberta para o novo set.
-
-- **Dado** que a partida termina (não apenas um set),
-  **quando** a transição `match_won` é emitida,
-  **então** a tela de intervalo com AD-02 **não** aparece — o app vai direto para o Resumo.
+> Todas as stories originalmente planejadas para este épico (`EP-10-01` a `EP-10-04`, banners `AD-01`–`AD-04`) foram **canceladas** para esta versão após a decisão de produto pós-primeiro-deploy de remover toda publicidade do MVP. Nenhuma tela reserva espaço para anúncio. O desenho original permanece documentado em [[09-Negócio/02-Monetizacao]] apenas como referência para uma eventual reintrodução futura — não há trabalho pendente aqui.
 
 ---
 

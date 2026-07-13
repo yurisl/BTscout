@@ -103,22 +103,21 @@ SAÍDA: (newMatchState, transitions[])
 
 ### Camada 1: Ponto → Game
 
-**Game Regular:**
+**Game Regular (No-Ad — regra obrigatória do Beach Tennis, nunca há Advantage):**
 
 | pointsA | pointsB | Situação |
 |---|---|---|
-| < 3 ou diferença ≥ 2 | — | Sem deuce ainda |
-| 3 | 3 | Deuce (40:40) |
-| 4 | 3 | Vantagem A |
-| 3 | 4 | Vantagem B |
-| 4 | 4+ (empate) | Deuce novamente |
-| Diferença = 2 após deuce | — | Game vencido |
+| < 3 | — | Progressão normal (0/15/30) |
+| 3 | 3 | 40x40 — ponto decisivo (o próximo ponto já encerra o game, para qualquer lado) |
+| 4 | 3 | Game vencido por A |
+| 3 | 4 | Game vencido por B |
 
 Condição de vitória:
 ```
-(pointsA >= 4 OR pointsB >= 4)
-AND abs(pointsA - pointsB) >= 2
+pointsA >= 4 OR pointsB >= 4
 ```
+
+Não há exigência de diferença mínima de 2 pontos no game regular. Como o engine resolve o game a cada ponto (nunca deixa o placar avançar além do necessário), o único caminho até `pointsX = 4` com o adversário em 3 é vindo de 3x3 — por isso essa condição simples já implementa corretamente o ponto decisivo do 40x40, sem jamais passar por um estado de "Vantagem".
 
 **Game de Tie-Break:**
 
@@ -307,7 +306,9 @@ Sem o snapshot, o undo exigiria recalcular o estado percorrendo toda a lista de 
    - `playerId` que não pertence ao `winnerSide` declarado
    - `winnerSide` inválido (não é `A` nem `B`)
 
-6. **Formatos de partida são configuráveis via `MatchFormat`.** O engine não tem valores hardcoded — ele lê o formato da partida para tomar todas as decisões. Isso permite suportar Pro Set, Melhor de 3 e qualquer variante futura sem alterar o engine.
+6. **Formatos de partida são configuráveis via `MatchFormat`** (games por set, pontos de tie-break, etc.) — o engine lê o formato para essas decisões. **Exceção deliberada:** o sistema No-Ad (ausência de Advantage no game regular) **não é configurável** — é uma regra fixa de `resolveGame`, porque este produto é exclusivamente para Beach Tennis e o No-Ad é obrigatório no esporte. Não existe (nem deve existir) uma opção de UI ou de `MatchFormat` para "ativar Advantage".
+
+7. **Nenhuma regra de pontuação vive na UI.** `apps/web` apenas chama `applyPoint`/`undoPoint`/`resolveGame`/`toDisplayScore` de `packages/domain` e renderiza o resultado. Isso garante uma única fonte de verdade para as regras do Beach Tennis (melhor de 3, sets até 6 games, tie-break em 6x6, No-Ad, super tie-break de 10 pontos no 3º set).
 
 ---
 

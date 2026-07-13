@@ -7,6 +7,8 @@ import type { Match, TransitionType } from '@beach-tennis-scout/domain';
 import { loadMatch, saveMatch } from '@/lib/storage';
 import Scoreboard from '@/components/Scoreboard';
 import PointRegistration from '@/components/PointRegistration';
+import StatsDrawer from '@/components/StatsDrawer';
+import MatchStats from '@/components/MatchStats';
 import styles from './match.module.css';
 
 const TRANSITION_LABELS: Record<TransitionType, string | null> = {
@@ -44,6 +46,7 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [choosingServer, setChoosingServer] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
 
   useEffect(() => {
     setMatch(loadMatch(matchId) ?? null);
@@ -138,20 +141,34 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
         <span className={styles.matchType}>
           {match.type === 'doubles' ? 'Duplas' : 'Simples'}
         </span>
-        {match.status === 'in_progress' && (
-          <button
-            className={styles.undoBtn}
-            onClick={handleUndo}
-            disabled={match.pointEvents.length === 0 && !choosingServer}
-          >
-            ↩ Desfazer
+        <div className={styles.topBarActions}>
+          <button className={styles.statsBtn} onClick={() => setStatsOpen(true)}>
+            📊 Estatísticas
           </button>
-        )}
+          {match.status === 'in_progress' && (
+            <>
+              <Link href="/" className={styles.pauseBtn}>
+                ⏸ Pausar
+              </Link>
+              <button
+                className={styles.undoBtn}
+                onClick={handleUndo}
+                disabled={match.pointEvents.length === 0 && !choosingServer}
+              >
+                ↩ Desfazer
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className={styles.scoreSection}>
         <Scoreboard match={match} />
       </div>
+
+      <StatsDrawer open={statsOpen} title="Estatísticas" onClose={() => setStatsOpen(false)}>
+        <MatchStats match={match} />
+      </StatsDrawer>
 
       {error && <p className={styles.error}>{error}</p>}
 

@@ -1,8 +1,8 @@
 # Monetização
 
-> **Versão:** 1.0
-> **Data:** 2026-06-14
-> **Fase:** MVP
+> **Versão:** 2.0
+> **Data:** 2026-07-13
+> **Fase:** MVP — publicidade removida após validação do primeiro deploy
 
 ---
 
@@ -10,36 +10,38 @@
 
 O Beach Tennis Scout é **100% gratuito para usuários finais** na V1.
 
-Não existe plano pago, não existe remoção de anúncios, não existe funcionalidade bloqueada por paywall. A única fonte de receita no MVP é publicidade.
+Não existe plano pago, não existe funcionalidade bloqueada por paywall. **E, desde a revisão pós-primeiro-deploy, o MVP não exibe nenhuma publicidade** — nenhuma tela reserva espaço para banner, intersticial ou qualquer placeholder de anúncio. Nesta fase, o produto não tem fonte de receita própria; o foco é validar adoção e qualidade dos dados registrados.
 
-Essa decisão é estratégica, não técnica: o objetivo do MVP é **validar adoção**, e qualquer barreira de entrada — mesmo que pequena — reduz a velocidade de chegada ao mercado e dificulta a leitura dos dados de uso.
+Essa decisão é estratégica, não técnica: o objetivo do MVP é **validar adoção**, e qualquer barreira de entrada ou distração — mesmo que pequena — reduz a velocidade de chegada ao mercado, dificulta a leitura dos dados de uso e compromete a qualidade do registro de pontos (o produto central do app).
+
+A infraestrutura de anúncios descrita neste documento **poderá ser reintroduzida em versão futura**, mas fica fora do MVP atual. O restante deste documento preserva o desenho original dos slots de anúncio como referência para essa reintrodução — nada abaixo está implementado hoje.
 
 ---
 
-## Estratégia de Publicidade
+## Estratégia de Publicidade (V2+ — não implementada no MVP)
 
 ### Princípio orientador
 
-A publicidade deve ser compatível com o uso profissional do produto. O app é uma ferramenta de trabalho — usado sob pressão, ao sol, com atenção dividida. Um anúncio no lugar errado não gera receita: gera toque acidental, dado errado e usuário que desinstala.
+Caso a publicidade seja reintroduzida no futuro, ela deve ser compatível com o uso profissional do produto. O app é uma ferramenta de trabalho — usado sob pressão, ao sol, com atenção dividida. Um anúncio no lugar errado não gera receita: gera toque acidental, dado errado e usuário que desinstala.
 
-Por isso a estratégia de publicidade parte de uma restrição, não de uma ambição: **onde os anúncios não podem aparecer define onde eles podem**.
+Por isso a estratégia parte de uma restrição, não de uma ambição: **onde os anúncios não podem aparecer define onde eles poderiam aparecer**.
 
-### O que fica protegido de publicidade
+### O que ficaria protegido de publicidade
 
-A tela de Registro de Pontos é **integralmente livre de anúncios**. Nenhum banner, nenhum intersticial, nenhum elemento que possa deslocar ou obscurecer os botões de registro. Isso inclui:
+A tela de Registro de Pontos deve permanecer **integralmente livre de anúncios**, mesmo se a publicidade for reintroduzida. Nenhum banner, nenhum intersticial, nenhum elemento que possa deslocar ou obscurecer os botões de registro. Isso inclui:
 
 - A área dos botões de seleção de jogador (Passo 1)
 - A área dos botões de tipo de ponto (Passo 2)
-- O placar e o indicador de saque
+- O placar, o indicador de saque e o painel de Estatísticas ao vivo
 - O botão de Undo
 
-A tela de Configuração de Partida também fica livre — o usuário está preenchendo dados, qualquer distração aumenta o risco de configuração incorreta.
+A tela de Configuração de Partida também ficaria livre — o usuário está preenchendo dados, qualquer distração aumenta o risco de configuração incorreta.
 
 ---
 
-## Locais de Exibição de Anúncios
+## Locais de Exibição de Anúncios (desenho de referência para reintrodução futura)
 
-### Slots aprovados para o MVP
+### Slots desenhados originalmente (nenhum ativo no MVP atual)
 
 | ID | Tela | Posição | Formato Mobile | Formato Web | Momento |
 |---|---|---|---|---|---|
@@ -111,8 +113,9 @@ A introdução de um plano pago que remove anúncios só faz sentido depois que 
 
 ### O que não fazer
 
-- **Não vender espaço publicitário manualmente no MVP.** A operação de venda direta de anúncios tem custo de gestão que não faz sentido na escala do MVP. Redes de anúncios programáticas (Google AdMob para mobile, Google AdSense para web) são o caminho inicial.
+- **Não vender espaço publicitário manualmente no MVP.** A operação de venda direta de anúncios tem custo de gestão que não faz sentido na escala do MVP. Redes de anúncios programáticas (Google AdMob para mobile, Google AdSense para web) são o caminho inicial, caso e quando a publicidade for reintroduzida.
 - **Não projetar receita publicitária como fonte primária de sustentabilidade no curto prazo.** Com a base de usuários inicial de um MVP, a receita de publicidade será marginal. O objetivo é aprender, não lucrar.
+- **Não reintroduzir publicidade sem antes revalidar o impacto na retenção e na qualidade do registro de pontos.** A remoção de anúncios pós-primeiro-deploy foi uma decisão de produto deliberada; reverter isso exige critério explícito (ex: base de usuários mínima, dados de retenção), não apenas disponibilidade técnica.
 
 ---
 

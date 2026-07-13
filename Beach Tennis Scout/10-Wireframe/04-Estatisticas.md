@@ -1,17 +1,20 @@
 # Wireframe — Estatísticas em Tempo Real
 
-> **Tela:** Estatísticas
-> **Rota Next.js:** `/match/[id]/stats`
-> **Prioridade:** Média — complementar à tela de Scout
-> **Publicidade:** Sem publicidade durante partida ativa; AD-03 no rodapé quando partida encerrada
+> **Tela/Componente:** Estatísticas
+> **Durante a partida:** overlay (`StatsDrawer`) sobre o Scout — painel lateral em telas ≥768px, modal/bottom-sheet em <768px. **Não é uma navegação de rota.**
+> **Partida encerrada:** página própria de Resumo — rota `/partida/[id]/resumo`
+> **Prioridade:** Alta — acessível a 1 toque a qualquer momento durante o registro
+> **Publicidade:** Nenhuma, em nenhum dos dois estados (ver [[02-Monetizacao]])
 
 ---
 
 ## Objetivo
 
-Exibir as estatísticas acumuladas da partida em andamento ou encerrada. Durante a partida, é acessada via menu `[⋮]` e permite voltar ao scout. Quando a partida é encerrada, esta tela se torna o Resumo Final.
+Exibir as estatísticas acumuladas da partida em andamento ou encerrada, calculadas exclusivamente a partir dos `PointEvent`s registrados (`calculateStats`, `packages/domain`) — nenhum dado é gravado manualmente aqui.
 
-Esta tela é calculada exclusivamente a partir dos `PointEvent`s registrados — nenhum dado é gravado manualmente aqui.
+**Durante a partida:** o botão `[📊 Estatísticas]`, sempre visível no header do Scout (ver [[03-Scout]]), abre o mesmo conteúdo como um painel sobreposto (`StatsDrawer`), sem navegar para outra rota. Fechar o painel (✕, tecla `Esc` ou toque fora) retorna exatamente ao estado do Scout em que o usuário estava — inclusive se um jogador já havia sido selecionado no Passo 1 do registro, aguardando o Passo 2.
+
+**Quando a partida é encerrada:** o mesmo conteúdo (componente `MatchStats`) é reaproveitado na página de Resumo (`/partida/[id]/resumo`), acrescido do placar final e dos botões de ação pós-jogo.
 
 ---
 
@@ -26,18 +29,19 @@ Esta tela é calculada exclusivamente a partir dos `PointEvent`s registrados —
 | Tabela de winners por subtipo | Tabela | Sempre |
 | Tabela de erros por subtipo | Tabela | Sempre |
 | Estatísticas de saque | Seção | Sempre |
-| Banner AD-03 | Publicidade | Apenas partida encerrada |
-| Botão "Voltar ao Scout" | CTA | Apenas partida ativa |
+| Botão fechar `[✕]` (overlay) | CTA | Apenas partida ativa — fecha o painel/modal sem navegar |
 | Botões pós-jogo (Compartilhar / Nova Partida) | CTAs | Apenas partida encerrada |
 
 ---
 
 ## Comportamento — Mobile (< 768px)
 
+**Partida ativa (overlay/modal sobre o Scout, não é uma tela própria):**
+
 ```
 ┌─────────────────────────────────────────┐
-│  [←]  Estatísticas              [⋮]    │  ← header 56px
-│                                         │
+│  Estatísticas                    [✕]   │  ← header do modal, 56px
+│  (Scout permanece por trás, intacto)   │
 ├─────────────────────────────────────────┤
 │                                         │
 │  ┌─────────────────────────────────┐   │
@@ -97,24 +101,18 @@ Esta tela é calculada exclusivamente a partir dos `PointEvent`s registrados —
 │  │  Duplas Faltas 0   1           │   │
 │  └─────────────────────────────────┘   │
 │                                         │
-│  ┌─────────────────────────────────┐   │
-│  │       VOLTAR AO SCOUT           │   │  ← apenas partida ativa
-│  └─────────────────────────────────┘   │    bg: #1565C0
-│                                         │
 │  [espaço safe area]                     │
 └─────────────────────────────────────────┘
 ```
 
-**Quando partida encerrada — diferenças:**
+> Não há botão "Voltar ao Scout": o modal é um overlay, então tocar `[✕]`, fora do modal ou `Esc` simplesmente o fecha — o Scout já está por trás, no exato estado em que estava.
+
+**Quando a partida é encerrada — página própria de Resumo (`/partida/[id]/resumo`), não overlay:**
 
 ```
 ┌─────────────────────────────────────────┐
-│  [←]  Resumo Final              [⋮]    │  ← título muda
+│  [←]  Resumo Final                     │  ← título muda
 ├─────────────────────────────────────────┤
-│                                         │
-│  ╔═════════════════════════════════╗   │  ← AD-03 aparece APENAS
-│  ║  AD-03 · Banner 320×50        ║   │     quando partida encerrada
-│  ╚═════════════════════════════════╝   │
 │                                         │
 │  [ VENCEDOR: ANA / BIA ]               │  ← destaque em verde
 │                                         │
@@ -136,9 +134,11 @@ Esta tela é calculada exclusivamente a partir dos `PointEvent`s registrados —
 
 ## Comportamento — Tablet (768px–1199px)
 
+> Conteúdo do painel `StatsDrawer` durante partida ativa (`[←]` abaixo = fechar o painel, não navegação) ou da página de Resumo quando a partida está encerrada.
+
 ```
 ┌──────────────────────────────────────────────────────┐
-│  [←]  Estatísticas                        [⋮]       │
+│  [←]  Estatísticas                                   │
 ├──────────────────────────────────────────────────────┤
 │                                                      │
 │  ┌──────────────────────────────────────────────┐   │
@@ -170,8 +170,8 @@ Esta tela é calculada exclusivamente a partir dos `PointEvent`s registrados —
 │  └────────────────────┘  └────────────────────┘      │
 │                                                      │
 │  ┌──────────────────────────────────────────────┐   │
-│  │                VOLTAR AO SCOUT               │   │
-│  └──────────────────────────────────────────────┘   │
+│  │              FECHAR ESTATÍSTICAS             │   │  ← só existe durante
+│  └──────────────────────────────────────────────┘   │    partida ativa (overlay)
 │                                                      │
 └──────────────────────────────────────────────────────┘
 ```
@@ -180,9 +180,11 @@ Esta tela é calculada exclusivamente a partir dos `PointEvent`s registrados —
 
 ## Comportamento — Desktop (≥ 1200px)
 
+> Em telas ≥768px o `StatsDrawer` é um **painel lateral fixo** (não centralizado/modal) — o conteúdo abaixo representa esse painel.
+
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  [←]  Estatísticas da Partida                        [⚙]        │
+│  [✕]  Estatísticas da Partida                                    │
 ├──────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ANA/BIA  ×  CRIS/DANI          [ Partida ] [ Set 1 ] [ Set 2 ] │
@@ -211,7 +213,7 @@ Esta tela é calculada exclusivamente a partir dos `PointEvent`s registrados —
 │  └──────────────────────────────┘                                │
 │                                                                  │
 │         ┌──────────────────────────────────────────┐            │
-│         │              VOLTAR AO SCOUT              │            │
+│         │           FECHAR ESTATÍSTICAS             │            │
 │         └──────────────────────────────────────────┘            │
 │                                                                  │
 └──────────────────────────────────────────────────────────────────┘
@@ -233,25 +235,22 @@ Esta tela é calculada exclusivamente a partir dos `PointEvent`s registrados —
 
 ---
 
-## Regras de Publicidade
+## Publicidade
 
-- **Durante partida ativa:** nenhuma publicidade — o usuário pode voltar ao scout a qualquer momento e distração compromete a continuidade.
-- **Partida encerrada:** `AD-03` (320×50 mobile / 728×90 desktop) exibido no topo da tela, acima do placar final. Não obstrui estatísticas.
-- Banner `AD-03` nunca aparece sobreposto aos botões de ação pós-jogo.
+Nenhuma, nem durante a partida ativa (overlay) nem na página de Resumo pós-jogo — decisão de produto pós-primeiro-deploy (ver [[02-Monetizacao]]).
 
 ---
 
 ## Fluxo de Navegação
 
 ```
-Estatísticas (partida ativa)
- ├── [←]                        → Scout (/match/[id]/scout)
- └── [VOLTAR AO SCOUT]          → Scout (/match/[id]/scout)
+Estatísticas (partida ativa — overlay, sem navegação de rota)
+ └── [✕] ou toque fora ou Esc   → fecha o painel, permanece no Scout exatamente como estava
 
-Estatísticas (partida encerrada)
+Estatísticas (partida encerrada — página /partida/[id]/resumo)
  ├── [←]                        → Home (/)
  ├── [COMPARTILHAR]             → share dialog nativo
- ├── [NOVA PARTIDA]             → /match/new
+ ├── [NOVA PARTIDA]             → /partida/nova
  └── [VOLTAR AO HOME]           → /
 ```
 
@@ -271,13 +270,13 @@ Estatísticas (partida encerrada)
 
 ## Notas de Implementação (Next.js)
 
-- Rota: `app/match/[id]/stats/page.tsx`
-- Dados calculados via `Statistics.calculate(pointEvents, scopeFilter)` do `packages/domain`
-- A mesma rota serve para partida ativa e partida encerrada — o status `match.status` determina qual variante renderizar
-- Tabs de escopo: estado local com `useState`, sem troca de rota
-- Compartilhar: `navigator.share()` com fallback para copiar texto ao clipboard
-- Sem SSR para esta rota — dados vêm do IndexedDB, sempre client-side
+- Componente compartilhado: `apps/web/src/components/MatchStats.tsx` — renderiza comparativo por dupla + cartões por jogador a partir de `calculateStats(match)` (`packages/domain`)
+- Durante a partida: `MatchStats` é renderizado dentro de `StatsDrawer` (`apps/web/src/components/StatsDrawer.tsx`), aberto a partir do botão `[📊]` no header do Scout (`MatchScreen.tsx`) — controlado por estado local (`statsOpen`), sem rota própria
+- `StatsDrawer` é responsivo via CSS (media query `min-width: 768px`): painel lateral fixo no desktop, modal/bottom-sheet no mobile — mesmo componente, sem branch de código por dispositivo
+- Partida encerrada: rota `/partida/[id]/resumo/page.tsx` reaproveita o mesmo `MatchStats`
+- Sem SSR — dados vêm do `localStorage` (`apps/web/src/lib/storage.ts`), sempre client-side
 - Tabelas de winners e erros devem usar `font-variant-numeric: tabular-nums` para alinhamento correto dos números
+- Tabs de escopo por set (Partida / Set 1 / Set 2 / ...) descritas nesta wireframe são candidatas para V2 — a implementação atual do MVP mostra apenas o total agregado da partida
 
 ---
 

@@ -18,12 +18,14 @@ Ponto de entrada do aplicativo. Deve permitir iniciar uma nova partida ou retoma
 |---|---|---|
 | Header com logo | Estático | Sim |
 | Ícone de configurações | Ícone-botão | Sim |
-| Modal de partida em andamento | Modal condicional | Condicional |
+| Banner "Existe uma partida em andamento" | Card persistente | Condicional (enquanto houver partida `in_progress`) |
+| Diálogo "Deseja continuar a partida em andamento?" | Modal, perguntado 1× por sessão | Condicional |
 | Botão "Nova Partida" | CTA primário | Sim |
 | Lista de últimas partidas | Lista dinâmica | Sim (vazia no 1º uso) |
 | Link "Ver Todas" | Link de navegação | Sim |
-| Banner publicitário | AD-01 | Sim |
 | Indicador offline | Badge condicional | Condicional |
+
+> Sem publicidade nesta ou em nenhuma outra tela do MVP — decisão de produto pós-validação do primeiro deploy.
 
 ---
 
@@ -63,17 +65,11 @@ Ponto de entrada do aplicativo. Deve permitir iniciar uma nova partida ou retoma
 │                                         │
 │                    [Ver Todas →]        │  ← link direita, 14px
 │                                         │
-├─────────────────────────────────────────┤
-│                                         │
-│  ╔═════════════════════════════════╗   │
-│  ║   AD-01 · Banner 320×50        ║   │  ← publicidade rodapé
-│  ╚═════════════════════════════════╝   │     fixo no bottom
-│                                         │
 └─────────────────────────────────────────┘
-   ↑ altura total: 100dvh
+   ↑ altura total: 100dvh — sem banner de publicidade
 ```
 
-**Comportamento condicional — Partida em andamento:**
+**Comportamento condicional — Partida em andamento (banner persistente na Home):**
 
 ```
 ┌─────────────────────────────────────────┐
@@ -81,13 +77,11 @@ Ponto de entrada do aplicativo. Deve permitir iniciar uma nova partida ou retoma
 ├─────────────────────────────────────────┤
 │                                         │
 │  ╭─────────────────────────────────╮   │
-│  │  ⚡ Partida em andamento        │   │  ← modal/card de destaque
-│  │                                 │   │     bg: #F57F17 (amarelo)
-│  │  Ana/Bia × Cris/Dani           │   │
-│  │  Set 1 · Game 3 · 40:30       │   │
+│  │  Existe uma partida em          │   │  ← banner de destaque
+│  │  andamento                      │   │     bg: --color-a-light
+│  │  Ana/Bia vs Cris/Dani           │   │     border: --color-a
 │  │                                 │   │
-│  │  [ CONTINUAR PARTIDA ]          │   │  ← botão principal, azul
-│  │  [ Descartar ]                  │   │  ← link secundário, cinza
+│  │       [ Continuar partida ]     │   │  ← botão principal, azul
 │  ╰─────────────────────────────────╯   │
 │                                         │
 │  ┌─────────────────────────────────┐   │
@@ -98,6 +92,28 @@ Ponto de entrada do aplicativo. Deve permitir iniciar uma nova partida ou retoma
 │                                         │
 └─────────────────────────────────────────┘
 ```
+
+**Comportamento condicional — Diálogo de retomada (1× por sessão do navegador):**
+
+```
+┌─────────────────────────────────────────┐
+│              ░░░░░░░░░░░░              │  ← backdrop
+│         ╭───────────────────╮          │
+│         │ Deseja continuar   │          │
+│         │ a partida em       │          │
+│         │ andamento?         │          │
+│         │                    │          │
+│         │ Ana/Bia vs         │          │
+│         │ Cris/Dani          │          │
+│         │                    │          │
+│         │ [Agora não] [Continuar partida]│
+│         ╰───────────────────╯          │
+└─────────────────────────────────────────┘
+```
+
+- Exibido apenas quando a Home carrega em uma nova sessão de navegador (`sessionStorage`) **e** existe uma partida `in_progress`
+- "Agora não" apenas fecha o diálogo — o banner persistente acima continua disponível
+- "Continuar partida" → navega direto para `/partida/[id]`, exatamente no ponto salvo
 
 ---
 
@@ -128,10 +144,6 @@ Ponto de entrada do aplicativo. Deve permitir iniciar uma nova partida ou retoma
 │  │ 12/06            │                               │
 │  └──────────────────┘        [Ver Todas →]          │
 │                                                      │
-├──────────────────────────────────────────────────────┤
-│  ╔════════════════════════════════════════════════╗  │
-│  ║   AD-01 · Banner 468×60                       ║  │
-│  ╚════════════════════════════════════════════════╝  │
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -161,10 +173,6 @@ Ponto de entrada do aplicativo. Deve permitir iniciar uma nova partida ou retoma
 │                                                                  │
 │                                           [Ver Todas →]         │
 │                                                                  │
-├──────────────────────────────────────────────────────────────────┤
-│  ╔════════════════════════════════════════════════════════════╗  │
-│  ║   AD-01 · Banner 728×90                                   ║  │
-│  ╚════════════════════════════════════════════════════════════╝  │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -184,23 +192,20 @@ Home
 
 ---
 
-## Regras de Publicidade
+## Publicidade
 
-- `AD-01` posicionado no rodapé fixo (`position: fixed; bottom: 0`)
-- Banner não empurra o conteúdo — o layout reserva `50px` de padding-bottom no conteúdo principal
-- O banner nunca aparece sobreposto ao botão "Nova Partida"
-- Em dispositivos com safe area (iPhone com notch), adicionar `padding-bottom: env(safe-area-inset-bottom)` ao container do banner
+Nenhuma. A Home não reserva espaço para banner, intersticial ou qualquer placeholder de anúncio — decisão de produto pós-validação do primeiro deploy (ver [[02-Monetizacao]]).
 
 ---
 
 ## Notas de Implementação (Next.js)
 
-- Rota: `app/page.tsx`
-- Dados das partidas recentes: lidos do IndexedDB via hook `useRecentMatches(limit: 3)`
-- Partida em andamento: verificada via `useActiveMatch()` no carregamento da página
-- O CTA "Nova Partida" deve ter `prefetch` da rota `/match/new`
+- Rota: `app/page.tsx` (implementação real em `apps/web/src/app/page.tsx`)
+- Dados das partidas: lidos do `localStorage` via `loadMatches()` (`apps/web/src/lib/storage.ts`)
+- Partida em andamento: `matches.filter(m => m.status === 'in_progress')`, a mais recente exibida no banner
+- Diálogo de retomada: exibido no máximo 1× por sessão de navegador, controlado por uma flag em `sessionStorage` (`bts:resume-asked`)
+- O CTA "Nova Partida" navega para `/partida/nova`
 - Estado vazio (primeiro uso): exibir mensagem "Nenhuma partida registrada ainda. Comece agora!" no lugar da lista
-- O banner AD-01 é carregado de forma assíncrona e não bloqueia o render da página
 
 ---
 

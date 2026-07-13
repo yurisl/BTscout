@@ -32,6 +32,8 @@ Esta é a única tela do sistema onde **zero elementos de publicidade são permi
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
+> Desde a revisão pós-primeiro-deploy, esta regra deixou de ser específica da tela de Scout: **nenhuma tela do MVP exibe publicidade** (ver [[01-Home]], [[04-Estatisticas]], [[05-Resumo]] e [[02-Monetizacao]]).
+
 ---
 
 ## Variantes por Modalidade
@@ -411,7 +413,7 @@ Em simples os 2 botões do Passo 1 ficam lado a lado com largura total da coluna
 ```
 ┌───────────────────────────────────────────────────────┐
 │                                                       │
-│  Set 1 · Game 4 · 40 : 30                  [↩]  [⋮] │
+│  Set 1 · Game 4 · 40 : 30        [📊] [⏸] [↩]  [⋮] │
 │  ● Saque: Ana / Bia                                   │
 │                                                       │
 └───────────────────────────────────────────────────────┘
@@ -423,8 +425,10 @@ Em simples os 2 botões do Passo 1 ficam lado a lado com largura total da coluna
 | Fonte do placar | 18px bold, branco, `font-variant-numeric: tabular-nums` |
 | Fonte do saque | 13px, cinza claro (#9E9E9E) |
 | Background | #121212 (fundo escuro para contraste ao sol) |
+| `[📊]` Estatísticas | **Sempre acessível.** Abre painel lateral (desktop) ou modal/bottom-sheet (mobile) com estatísticas ao vivo, sem sair do Scout nem perder o estado de registro. Ver [[04-Estatisticas]] |
+| `[⏸]` Pausar | Volta à Home. Como o estado já é salvo a cada ponto, pausar não perde nenhum dado |
 | `[↩]` Undo | 44×44px touch target, ícone 20px, cinza #757575 |
-| `[⋮]` Menu | 44×44px touch target, ícone 20px, cinza #757575 |
+| `[⋮]` Menu | 44×44px touch target, ícone 20px, cinza #757575 — demais opções (encerrar, editar configuração) |
 
 ### Botões de Jogador (Passo 1)
 
@@ -530,10 +534,6 @@ Exibida automaticamente pelo ScoringEngine quando um set é encerrado.
 │   Próximo set: saque de CRIS / DANI     │
 │   ↔  Troque de lado                    │
 │                                         │
-│  ╔═════════════════════════════════╗    │
-│  ║  AD-02 · Banner 300×250        ║    │  ← ÚNICO momento de anúncio
-│  ╚═════════════════════════════════╝    │    dentro do fluxo da partida
-│                                         │
 │   ┌──────────────────────────────────┐  │
 │   │       INICIAR SET 2             │  │  ← CTA, verde
 │   └──────────────────────────────────┘  │
@@ -547,12 +547,13 @@ Exibida automaticamente pelo ScoringEngine quando um set é encerrado.
 ┌──────────────────────────────────┐
 │  ⋮ Opções da Partida             │
 │  ────────────────────────────    │
-│  📊  Ver Estatísticas            │  → /match/[id]/stats
 │  ✏   Editar Configuração         │  (desativado após 1º ponto)
 │  ⚡  Encerrar Partida Agora      │  → confirmar → /match/[id]/stats
 │  ✕   Cancelar                    │
 └──────────────────────────────────┘
 ```
+
+> "Ver Estatísticas" saiu do menu — agora é o botão `[📊]` sempre visível no header (ver acima), para não exigir 2 toques para acessar a informação mais consultada durante a partida.
 
 ---
 
@@ -647,7 +648,9 @@ Scout
 - `router.back()` e botão físico Android: interceptar com `beforeunload` / `popstate`
 - Cooldown: `useRef` para timestamp do último ponto, checado antes de processar toque
 - A tela deve ser exibida em **modo landscape** no tablet quando a resolução permitir (media query)
-- **Nenhum componente de publicidade deve ser importado ou renderizado nesta página**
+- **Nenhum componente de publicidade deve ser importado ou renderizado em nenhuma página do MVP** (política global, não específica desta tela)
+- Botão `[📊]` abre `StatsDrawer` (painel lateral ≥768px / modal <768px) renderizando `MatchStats`, calculado via `calculateStats(match)` — puramente apresentacional, não altera o estado da partida
+- Botão `[⏸]` navega para a Home; nenhuma chamada adicional de persistência é necessária pois o autosave já ocorre a cada `applyPoint`
 - Service worker deve cachear esta rota para funcionamento offline completo
 
 ---

@@ -229,10 +229,9 @@ Nova Partida
 
 ---
 
-## Regras de Publicidade
+## Publicidade
 
-- **Nenhum anúncio nesta tela.**
-- Justificativa: o usuário está configurando dados da partida. Qualquer distração aumenta risco de nome errado, formato errado ou saque inicial errado — o que compromete todo o registro de pontos subsequente.
+**Nenhum anúncio nesta tela** — e, desde a revisão pós-primeiro-deploy, em nenhuma tela do MVP (ver [[02-Monetizacao]]). Mesmo antes dessa decisão global, esta tela já era protegida: o usuário está configurando dados da partida e qualquer distração aumenta risco de nome errado, formato errado ou saque inicial errado — o que compromete todo o registro de pontos subsequente.
 
 ---
 

@@ -73,8 +73,8 @@ describe('Progressão de pontos — game regular', () => {
 });
 
 // ---------------------------------------------------------------------------
-describe('Deuce e Vantagem', () => {
-  it('3x3 não encerra o game (deuce)', () => {
+describe('No-Ad (Beach Tennis — sem Advantage)', () => {
+  it('3x3 (40x40) não encerra o game', () => {
     let match = makeMatch();
     match = scorePoints(match, 'A', 3);
     match = scorePoints(match, 'B', 3);
@@ -85,61 +85,53 @@ describe('Deuce e Vantagem', () => {
     expect(game.winner).toBeNull();
   });
 
-  it('4x3 após deuce = vantagem A (ainda in_progress)', () => {
+  it('em 40x40, o próximo ponto encerra o game imediatamente (ponto decisivo, sem vantagem)', () => {
     let match = makeMatch();
     match = scorePoints(match, 'A', 3);
     match = scorePoints(match, 'B', 3);
-    match = scorePoints(match, 'A', 1); // vantagem A
-    const game = currentGame(match);
+    const { match: final, transitions } = applyPoint(match, {
+      winnerSide: 'A', playerId: playerA(match),
+      pointType: 'winner', pointSubtype: 'WINNER_DIR', isFirstServe: true,
+    });
+    const game = final.sets[0]!.games.find((g) => g.gameNumber === 1)!;
     expect(game.pointsA).toBe(4);
     expect(game.pointsB).toBe(3);
-    expect(game.status).toBe('in_progress');
+    expect(game.status).toBe('finished');
+    expect(game.winner).toBe('A');
+    expect(transitions).toContain('game_won');
+    expect(final.sets[0]!.gamesA).toBe(1);
   });
 
-  it('4x3 → 4x4 = deuce novamente', () => {
+  it('em 40x40, o ponto decisivo também pode ser vencido por quem estava sacando o ponto seguinte para o lado B', () => {
     let match = makeMatch();
     match = scorePoints(match, 'A', 3);
     match = scorePoints(match, 'B', 3);
-    match = scorePoints(match, 'A', 1); // vantagem A
-    match = scorePoints(match, 'B', 1); // volta ao deuce
-    const game = currentGame(match);
-    expect(game.pointsA).toBe(4);
+    const { match: final, transitions } = applyPoint(match, {
+      winnerSide: 'B', playerId: playerB(match),
+      pointType: 'winner', pointSubtype: 'WINNER_DIR', isFirstServe: false,
+    });
+    const game = final.sets[0]!.games.find((g) => g.gameNumber === 1)!;
+    expect(game.pointsA).toBe(3);
     expect(game.pointsB).toBe(4);
-    expect(game.status).toBe('in_progress');
+    expect(game.status).toBe('finished');
+    expect(game.winner).toBe('B');
+    expect(transitions).toContain('game_won');
+    expect(final.sets[0]!.gamesB).toBe(1);
   });
 
-  it('5x3 após deuce encerra o game para A', () => {
+  it('nunca exige 2 pontos de diferença acima de 40x40 (sem Advantage)', () => {
+    // Caminho até 4x3 só existe via 3x3 — não há estado intermediário "vantagem".
     let match = makeMatch();
     match = scorePoints(match, 'A', 3);
     match = scorePoints(match, 'B', 3);
-    match = scorePoints(match, 'A', 1); // 4x3 vantagem A
-    const { match: final, transitions } = applyPoint(match, {
-      winnerSide: 'A', playerId: playerA(match),
-      pointType: 'winner', pointSubtype: 'SMASH', isFirstServe: false,
-    });
-    expect(transitions).toContain('game_won');
-    expect(final.sets[0]!.gamesA).toBe(1);
-  });
-
-  it('deuce múltiplo: 3 deuces antes de fechar', () => {
-    let match = makeMatch();
-    // Levar a 3x3
-    match = scorePoints(match, 'A', 3);
-    match = scorePoints(match, 'B', 3);
-    // 1º deuce → vantagem A → deuce
-    match = scorePoints(match, 'A', 1);
-    match = scorePoints(match, 'B', 1);
-    // 2º deuce → vantagem B → deuce
-    match = scorePoints(match, 'B', 1);
-    match = scorePoints(match, 'A', 1);
-    // 3º deuce → vantagem A → game A
-    match = scorePoints(match, 'A', 1);
-    const { match: final, transitions } = applyPoint(match, {
-      winnerSide: 'A', playerId: playerA(match),
-      pointType: 'winner', pointSubtype: 'ACE', isFirstServe: true,
-    });
-    expect(transitions).toContain('game_won');
-    expect(final.sets[0]!.gamesA).toBe(1);
+    match = scorePoints(match, 'A', 1); // 4x3 — já decide o game
+    const set = match.sets[0]!;
+    expect(set.gamesA).toBe(1);
+    expect(set.status).toBe('in_progress'); // 1 game não fecha o set
+    const finishedGame = set.games.find((g) => g.gameNumber === 1)!;
+    expect(finishedGame.pointsA).toBe(4);
+    expect(finishedGame.pointsB).toBe(3);
+    expect(finishedGame.status).toBe('finished');
   });
 });
 

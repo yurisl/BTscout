@@ -1,12 +1,14 @@
 # Game — Game
 
-> Representa uma subdivisão de um set composta por pontos. O time que atingir 4 pontos com vantagem mínima de 2 vence o game.
+> Representa uma subdivisão de um set composta por pontos. Beach Tennis usa **No-Ad**: o time que atingir 4 pontos vence o game — em 40x40, o próximo ponto já decide, sem vantagem.
 
 ---
 
 ## Objetivo
 
-`Game` é a menor unidade de placar visível no marcador principal (0, 15, 30, 40, Vantagem). Cada game acumula pontos até que um time vença. O resultado do game incrementa o placar de games do set correspondente.
+`Game` é a menor unidade de placar visível no marcador principal (0, 15, 30, 40). Cada game acumula pontos até que um time vença. O resultado do game incrementa o placar de games do set correspondente.
+
+> **Beach Tennis nunca usa Advantage.** O sistema oficial é No-Ad: em 40x40, o ponto seguinte é decisivo e encerra o game imediatamente, para qualquer um dos dois lados. Esta regra é centralizada em `packages/domain` (`resolveGame`) e a UI apenas exibe o resultado — nenhuma tela implementa lógica própria de pontuação.
 
 Há três tipos de game no domínio: o game regular, o tie-break e o super tie-break. As regras de pontuação diferem entre eles.
 
@@ -15,7 +17,6 @@ Há três tipos de game no domínio: o game regular, o tie-break e o super tie-b
 ## Responsabilidades
 
 - Armazenar o placar de pontos de cada time no game atual
-- Saber se está em vantagem (`deuce`/`advantage`)
 - Saber se é um game regular, tie-break ou super tie-break
 - Determinar quando foi encerrado e quem venceu
 - Registrar a sequência de eventos de ponto que o compõem
@@ -44,7 +45,7 @@ Há três tipos de game no domínio: o game regular, o tie-break e o super tie-b
 
 ### Game Regular
 
-A pontuação de um game regular usa a nomenclatura tradicional do tênis:
+A pontuação de um game regular usa a nomenclatura tradicional do tênis, mas o sistema de vitória é **No-Ad** (sem vantagem), obrigatório em Beach Tennis:
 
 | Pontos brutos | Exibição |
 |---|---|
@@ -52,20 +53,19 @@ A pontuação de um game regular usa a nomenclatura tradicional do tênis:
 | 1 | 15 |
 | 2 | 30 |
 | 3 | 40 |
-| 3 vs 3 | Deuce (40:40) |
-| 4 vs 3 (após deuce) | Vantagem Time A |
-| 3 vs 4 (após deuce) | Vantagem Time B |
+| 3 vs 3 | 40:40 (ponto decisivo — não existe "Deuce" como estado de disputa contínua) |
 
-**Regra de vitória — Game Regular:**
-- Sem deuce: o primeiro time a atingir 4 pontos (equivalente a 40 + mais 1) vence o game.
-- Com deuce (3x3): o time que primeiro abrir 2 pontos de vantagem vence. Não há limite de deuces.
+**Regra de vitória — Game Regular (No-Ad):**
+- O primeiro time a atingir 4 pontos vence o game, **sem exigir 2 pontos de diferença**.
+- Em 40x40 (3x3), o ponto seguinte já encerra o game (4x3 ou 3x4) — é o "ponto decisivo". Não há "Vantagem" nem deuces repetidos.
+- Esta regra é **fixa e obrigatória** para todo o produto: não existe configuração para habilitar Advantage.
 
 ```
-Fluxo sem deuce:
+Fluxo até o game:
   0:0 → 15:0 → 30:0 → 40:0 → Game Time A
 
-Fluxo com deuce:
-  40:40 → Vantagem A → 40:40 (A errou) → Vantagem B → Game Time B
+Fluxo com ponto decisivo (40x40):
+  40:40 → próximo ponto → Game (4x3 para quem venceu o ponto, sem vantagem)
 ```
 
 ### Tie-Break (7 pontos)
@@ -116,9 +116,9 @@ Modelagem:
 
 2. **O tipo do game é definido pelo `ScoringEngine` no momento da criação.** Um game nunca muda de tipo após criado.
 
-3. **A pontuação bruta (inteiros) é o dado armazenado.** A conversão para 0/15/30/40/Vantagem é responsabilidade da camada de apresentação (UI), não do domínio.
+3. **A pontuação bruta (inteiros) é o dado armazenado.** A conversão para 0/15/30/40 é responsabilidade da camada de apresentação (UI), não do domínio.
 
-4. **Em deuce, os pontos brutos continuam incrementando** — o domínio armazena 3, 4, 5, 6... e a UI converte para "Deuce" ou "Vantagem" conforme a diferença.
+4. **O game regular nunca ultrapassa 4 pontos brutos para o vencedor.** Como o No-Ad decide o game assim que um time atinge 4, o único empate possível é 3x3 (40x40) — não existem estados 4x4, 5x4 etc. A UI (`toDisplayScore`) apenas espelha essa regra: não converte nada para "Deuce" ou "Vantagem" porque esses estados nunca ocorrem no domínio.
 
 5. **O saque muda ao final de cada game regular.** No tie-break, o saque alterna a cada 2 pontos. O `ScoringEngine` é responsável por calcular e atualizar o `servingTeam`.
 

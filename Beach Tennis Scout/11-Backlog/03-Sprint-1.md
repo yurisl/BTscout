@@ -4,6 +4,8 @@
 >
 > **Duração sugerida:** 2 semanas
 > **Critério de conclusão:** Um único usuário consegue registrar uma partida real de duplas (formato Melhor de 3 Sets) do início ao fim, com placar correto, undo funcionando e dados persistidos offline.
+>
+> **Nota (2026-07-13):** Este documento é um snapshot histórico do corte de escopo do Sprint 1. Desde então, EP-05 (Estatísticas) e EP-08 (Pausar/Continuar) foram implementados, o motor de placar foi corrigido para o sistema No-Ad correto (ver [[01-Epics]], EP-03-01), e EP-10 (Publicidade) deixou de ser apenas "cortado deste sprint" — foi **cancelado para todo o MVP**. Ver [[00-Indice]] para o estado atual dos épicos.
 
 ---
 

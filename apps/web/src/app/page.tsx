@@ -28,15 +28,28 @@ function matchDate(match: Match): string {
   });
 }
 
+const RESUME_ASKED_KEY = 'bts:resume-asked';
+
 export default function HomePage() {
   const router = useRouter();
   const [matches, setMatches] = useState<Match[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [comparing, setComparing] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [resumePrompt, setResumePrompt] = useState<Match | null>(null);
 
   useEffect(() => {
-    setMatches(loadMatches().sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
+    const all = loadMatches().sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    setMatches(all);
+
+    // Ao reabrir o navegador (nova sessão), pergunta uma única vez se o usuário
+    // quer continuar a partida em andamento mais recente.
+    const alreadyAsked = typeof window !== 'undefined' && sessionStorage.getItem(RESUME_ASKED_KEY);
+    if (!alreadyAsked) {
+      const live = all.find((m) => m.status === 'in_progress');
+      if (live) setResumePrompt(live);
+      sessionStorage.setItem(RESUME_ASKED_KEY, '1');
+    }
   }, []);
 
   function refresh() {
@@ -84,6 +97,21 @@ export default function HomePage() {
           <p>Nenhuma partida registrada.</p>
           <Link href="/partida/nova" className={`btn btn-primary ${styles.emptyBtn}`}>
             Iniciar primeira partida
+          </Link>
+        </div>
+      )}
+
+      {/* Banner de partida pausada/em andamento */}
+      {live.length > 0 && (
+        <div className={styles.resumeBanner}>
+          <div>
+            <p className={styles.resumeBannerTitle}>Existe uma partida em andamento</p>
+            <p className={styles.resumeBannerSubtitle}>
+              {teamLabel(live[0]!, 'A')} vs {teamLabel(live[0]!, 'B')}
+            </p>
+          </div>
+          <Link href={`/partida/${live[0]!.id}`} className={`btn btn-primary ${styles.resumeBannerBtn}`}>
+            Continuar partida
           </Link>
         </div>
       )}
@@ -156,6 +184,31 @@ export default function HomePage() {
             </div>
           )}
         </section>
+      )}
+
+      {resumePrompt && (
+        <div className={styles.resumeDialogBackdrop}>
+          <div className={styles.resumeDialog}>
+            <p className={styles.resumeDialogText}>Deseja continuar a partida em andamento?</p>
+            <p className={styles.resumeDialogSubtitle}>
+              {teamLabel(resumePrompt, 'A')} vs {teamLabel(resumePrompt, 'B')}
+            </p>
+            <div className={styles.resumeDialogActions}>
+              <button
+                className="btn btn-outline"
+                onClick={() => setResumePrompt(null)}
+              >
+                Agora não
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => router.push(`/partida/${resumePrompt.id}`)}
+              >
+                Continuar partida
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
