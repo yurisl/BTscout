@@ -3,14 +3,16 @@ import type { TeamSide } from './Team.js';
 export type PointType = 'winner' | 'error' | 'forced_error';
 
 export type WinnerSubtype =
-  | 'WINNER_DIR'
-  | 'WINNER_ESQ'
+  | 'WINNER_DIR'   // legado — mantido para compatibilidade
+  | 'WINNER_ESQ'   // legado — mantido para compatibilidade
   | 'WINNER_PAR'
   | 'WINNER_CRU'
   | 'LOB'
   | 'SMASH'
   | 'DROP'
-  | 'ACE';
+  | 'ACE'
+  | 'RAINBOW'
+  | 'GANCHO';
 
 export type ErrorSubtype =
   | 'ERRO_DIR'
@@ -18,7 +20,10 @@ export type ErrorSubtype =
   | 'ERRO_LOB'
   | 'ERRO_SMASH'
   | 'ERRO_SAQUE'
-  | 'DUPLA_FALTA';
+  | 'DUPLA_FALTA'
+  | 'ERRO_RAINBOW'
+  | 'ERRO_GANCHO'
+  | 'ERRO_FORCADO';
 
 export type ForcedErrorSubtype = 'FORCOU_ERRO';
 

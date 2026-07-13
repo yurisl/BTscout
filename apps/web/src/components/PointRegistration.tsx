@@ -17,37 +17,42 @@ interface Props {
   onPoint: (result: PointResult) => void;
 }
 
+// Botões de winners puros (PointType = 'winner')
 const WINNERS: { subtype: PointSubtype; label: string }[] = [
-  { subtype: 'WINNER_DIR', label: 'Dir' },
-  { subtype: 'WINNER_ESQ', label: 'Esq' },
   { subtype: 'WINNER_PAR', label: 'Paralela' },
   { subtype: 'WINNER_CRU', label: 'Cruzada' },
-  { subtype: 'LOB', label: 'Lob' },
-  { subtype: 'SMASH', label: 'Smash' },
-  { subtype: 'DROP', label: 'Drop' },
-  { subtype: 'ACE', label: 'Ace' },
+  { subtype: 'LOB',        label: 'Lob' },
+  { subtype: 'SMASH',      label: 'Smash' },
+  { subtype: 'DROP',       label: 'Drop' },
+  { subtype: 'ACE',        label: 'Ace' },
+  { subtype: 'RAINBOW',    label: 'Rainbow' },
+  { subtype: 'GANCHO',     label: 'Gancho' },
+];
+
+// Forçou erro — PointType = 'forced_error', renderizado no grupo de winners
+const FORCED: { subtype: PointSubtype; label: string }[] = [
+  { subtype: 'FORCOU_ERRO', label: 'Forçou Erro do Adversário' },
 ];
 
 // Beach tennis: apenas 1 saque. Sem dupla falta.
 const ERRORS: { subtype: PointSubtype; label: string }[] = [
-  { subtype: 'ERRO_DIR', label: 'Direita' },
-  { subtype: 'ERRO_ESQ', label: 'Esquerda' },
-  { subtype: 'ERRO_LOB', label: 'Lob' },
-  { subtype: 'ERRO_SMASH', label: 'Smash' },
-  { subtype: 'ERRO_SAQUE', label: 'Erro de Saque' },
-];
-
-const FORCED: { subtype: PointSubtype; label: string }[] = [
-  { subtype: 'FORCOU_ERRO', label: 'Forçou Erro' },
+  { subtype: 'ERRO_DIR',     label: 'Direita' },
+  { subtype: 'ERRO_ESQ',     label: 'Esquerda' },
+  { subtype: 'ERRO_LOB',     label: 'Lob' },
+  { subtype: 'ERRO_SMASH',   label: 'Smash' },
+  { subtype: 'ERRO_SAQUE',   label: 'Erro de Saque' },
+  { subtype: 'ERRO_RAINBOW', label: 'Rainbow' },
+  { subtype: 'ERRO_GANCHO',  label: 'Gancho' },
+  { subtype: 'ERRO_FORCADO', label: 'Erro Forçado' },
 ];
 
 const WINNER_SET = new Set(WINNERS.map((w) => w.subtype));
-const ERROR_SET = new Set(ERRORS.map((e) => e.subtype));
+const ERROR_SET  = new Set(ERRORS.map((e) => e.subtype));
 
 function subtypeToPointType(sub: PointSubtype): PointType {
   if (WINNER_SET.has(sub)) return 'winner';
-  if (ERROR_SET.has(sub)) return 'error';
-  return 'forced_error';
+  if (ERROR_SET.has(sub))  return 'error';
+  return 'forced_error'; // FORCOU_ERRO
 }
 
 function playerTeam(player: Player, match: Match): TeamSide {
@@ -132,49 +137,48 @@ export default function PointRegistration({ match, onPoint }: Props) {
             <div className={styles.groupLabel}>Winners</div>
             <div className={styles.btnGrid}>
               {WINNERS.map(({ subtype, label }) => {
-                const isAce = subtype === 'ACE';
-                const aceBlocked = isAce && !isServer(selectedPlayer);
+                const blocked = subtype === 'ACE' && !isServer(selectedPlayer);
                 return (
                   <button
                     key={subtype}
-                    className={`${styles.subBtn} ${styles.subBtnWin} ${aceBlocked ? styles.subBtnDisabled : ''}`}
-                    onClick={() => !aceBlocked && handleSubtype(subtype)}
-                    disabled={aceBlocked}
-                    title={aceBlocked ? 'Ace só é possível para quem está sacando' : undefined}
+                    className={`${styles.subBtn} ${styles.subBtnWin} ${blocked ? styles.subBtnDisabled : ''}`}
+                    onClick={() => !blocked && handleSubtype(subtype)}
+                    disabled={blocked}
+                    title={blocked ? 'Ace só é possível para quem está sacando' : undefined}
                   >
                     {label}
                   </button>
                 );
               })}
+              {FORCED.map(({ subtype, label }) => (
+                <button
+                  key={subtype}
+                  className={`${styles.subBtn} ${styles.subBtnForced} ${styles.subBtnFull}`}
+                  onClick={() => handleSubtype(subtype)}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
 
           <div className={styles.group}>
             <div className={styles.groupLabel}>Erros</div>
             <div className={styles.btnGrid}>
-              {ERRORS.map(({ subtype, label }) => (
-                <button
-                  key={subtype}
-                  className={`${styles.subBtn} ${styles.subBtnErr}`}
-                  onClick={() => handleSubtype(subtype)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.group}>
-            <div className={styles.btnGrid}>
-              {FORCED.map(({ subtype, label }) => (
-                <button
-                  key={subtype}
-                  className={`${styles.subBtn} ${styles.subBtnForced}`}
-                  onClick={() => handleSubtype(subtype)}
-                >
-                  {label}
-                </button>
-              ))}
+              {ERRORS.map(({ subtype, label }) => {
+                const blocked = subtype === 'ERRO_SAQUE' && !isServer(selectedPlayer);
+                return (
+                  <button
+                    key={subtype}
+                    className={`${styles.subBtn} ${styles.subBtnErr} ${blocked ? styles.subBtnDisabled : ''}`}
+                    onClick={() => !blocked && handleSubtype(subtype)}
+                    disabled={blocked}
+                    title={blocked ? 'Erro de saque só é possível para quem está sacando' : undefined}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

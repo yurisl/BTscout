@@ -86,7 +86,9 @@
   text-align: center;
   line-height: 1.2;
 }
-.subBtnWin { background: var(--color-win-light); color: var(--color-win); border: 1.5px solid #86efac; }
-.subBtnErr { background: var(--color-b-light); color: var(--color-b-dark); border: 1.5px solid #fca5a5; }
+.subBtnWin    { background: var(--color-win-light);    color: var(--color-win);    border: 1.5px solid #86efac; }
+.subBtnErr    { background: var(--color-b-light);      color: var(--color-b-dark); border: 1.5px solid #fca5a5; }
 .subBtnForced { background: var(--color-forced-light); color: var(--color-forced); border: 1.5px solid #fcd34d; }
 .subBtnDisabled { opacity: 0.3; cursor: not-allowed; }
+/* ocupa as 3 colunas do grid — para botões com texto longo */
+.subBtnFull { grid-column: 1 / -1; }
