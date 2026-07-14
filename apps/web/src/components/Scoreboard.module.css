@@ -70,7 +70,7 @@
   gap: 10px;
   margin-bottom: 10px;
 }
-.setsCount { font-size: 2.75rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.setsCount { font-size: 2.75rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; font-variation-settings: 'wdth' 118; }
 .setsCountA { color: var(--ocean-dark); }
 .setsCountB { color: var(--coral-dark); }
 .setChipA { color: var(--ocean-dark); }
@@ -108,6 +108,7 @@
   letter-spacing: -0.03em;
   margin-bottom: 8px;
   font-variant-numeric: tabular-nums;
+  font-variation-settings: 'wdth' 118;
   line-height: 1;
   color: var(--ink);
 }
@@ -133,4 +134,74 @@
   font-size: 1.15rem;
   font-weight: 650;
   color: var(--victory-dark);
+}
+
+/* ==========================================================================
+   Variante compacta — estilo transmissão esportiva (canto superior esquerdo
+   da tela de Scout). Ocupa aproximadamente o espaço vertical do antigo
+   header; o placar deixa de ser o elemento hero da tela para dar lugar aos
+   botões de ação, que passam a ser o conteúdo dominante.
+   ========================================================================== */
+.compact {
+  display: inline-flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid var(--line);
+  box-shadow: var(--sh-sm);
+  min-width: 220px;
+  max-width: 300px;
+}
+.compactRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+}
+.compactRowA { background: var(--ocean-tint); }
+.compactRowB { background: var(--coral-tint); }
+.compactDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.compactRowA .compactDot { color: var(--ocean-dark); }
+.compactRowB .compactDot { color: var(--coral-dark); }
+.compactName {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.compactRowA .compactName { color: var(--ocean-dark); }
+.compactRowB .compactName { color: var(--coral-dark); }
+.compactCell {
+  flex-shrink: 0;
+  min-width: 18px;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+.compactCellActive { color: var(--ink); }
+.compactCellPoint {
+  min-width: 24px;
+  font-weight: 800;
+  color: var(--ink);
+  font-variation-settings: 'wdth' 112;
+}
+.compactFooter {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+  padding: 3px 8px 5px;
+  border-top: 1px solid var(--line);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

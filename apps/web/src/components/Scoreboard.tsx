@@ -40,6 +40,27 @@ function serverName(match: Match): string {
   return all.find((p) => p.id === match.servingPlayerId)?.name ?? '';
 }
 
+const POINT_LABELS = ['0', '15', '30', '40'];
+function pointLabel(points: number): string {
+  return POINT_LABELS[Math.min(points, 3)] ?? '40';
+}
+
+/**
+ * Placar do game ativo, separado por lado, para a coluna final do placar
+ * compacto (broadcast). `null` quando não há um "game" com pontos a
+ * mostrar à parte — no Super Tie-Break o placar já é ponto a ponto e vive
+ * na própria coluna de set, então não existe coluna extra.
+ */
+function compactPointCells(match: Match): { a: string; b: string } | null {
+  if (match.status !== 'in_progress') return null;
+  const set = match.sets[match.currentSetIndex];
+  if (!set || set.type === 'super_tiebreak') return null;
+  const game = activeGame(set);
+  if (!game) return null;
+  if (game.type === 'tiebreak') return { a: String(game.pointsA), b: String(game.pointsB) };
+  return { a: pointLabel(game.pointsA), b: pointLabel(game.pointsB) };
+}
+
 interface SuperTiebreakHeaderInfo {
   /** Quantos saques (incluindo o próximo) restam para o sacador atual */
   remaining: number;
@@ -60,7 +81,15 @@ function superTiebreakHeaderInfo(match: Match): SuperTiebreakHeaderInfo | null {
   };
 }
 
-export default function Scoreboard({ match }: { match: Match }) {
+interface Props {
+  match: Match;
+  /** 'hero' (padrão): card grande, usado no Resumo pós-partida.
+   *  'compact': tabela densa estilo transmissão esportiva, ancorada no
+   *  canto superior esquerdo da tela de Scout — ver MatchScreen. */
+  variant?: 'hero' | 'compact';
+}
+
+export default function Scoreboard({ match, variant = 'hero' }: Props) {
   const setsA = match.sets.filter((s) => s.winner === 'A').length;
   const setsB = match.sets.filter((s) => s.winner === 'B').length;
   const teamAName = match.teamA.players.map((p) => p.name).join(' / ');
@@ -68,6 +97,43 @@ export default function Scoreboard({ match }: { match: Match }) {
   const stbInfo = superTiebreakHeaderInfo(match);
   const isSuperTiebreak = match.sets[match.currentSetIndex]?.type === 'super_tiebreak'
     && match.status === 'in_progress';
+
+  if (variant === 'compact') {
+    const pointCells = compactPointCells(match);
+    const servingA = match.status === 'in_progress' && match.servingTeam === 'A';
+    const servingB = match.status === 'in_progress' && match.servingTeam === 'B';
+    return (
+      <div className={styles.compact}>
+        <div className={`${styles.compactRow} ${styles.compactRowA}`}>
+          {servingA && <span className={styles.compactDot} />}
+          <span className={styles.compactName}>{teamAName}</span>
+          {match.sets.map((s) => (
+            <span key={s.id} className={`${styles.compactCell} ${s.status === 'in_progress' ? styles.compactCellActive : ''}`}>
+              {s.type === 'super_tiebreak' ? s.tiebreakScoreA : s.gamesA}
+            </span>
+          ))}
+          {pointCells && <span className={`${styles.compactCell} ${styles.compactCellPoint}`}>{pointCells.a}</span>}
+        </div>
+        <div className={`${styles.compactRow} ${styles.compactRowB}`}>
+          {servingB && <span className={styles.compactDot} />}
+          <span className={styles.compactName}>{teamBName}</span>
+          {match.sets.map((s) => (
+            <span key={s.id} className={`${styles.compactCell} ${s.status === 'in_progress' ? styles.compactCellActive : ''}`}>
+              {s.type === 'super_tiebreak' ? s.tiebreakScoreB : s.gamesB}
+            </span>
+          ))}
+          {pointCells && <span className={`${styles.compactCell} ${styles.compactCellPoint}`}>{pointCells.b}</span>}
+        </div>
+        {(match.context?.tournamentName || match.status === 'finished') && (
+          <div className={styles.compactFooter}>
+            {match.status === 'finished' && match.winner
+              ? `${match.winner === 'A' ? teamAName : teamBName} venceu`
+              : match.context?.tournamentName}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={`${styles.board} ${isSuperTiebreak ? styles.boardStb : ''}`}>

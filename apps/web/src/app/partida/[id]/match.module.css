@@ -29,54 +29,13 @@
   to   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
-.topBar {
+/* Placar compacto ancorado à esquerda — não estica a largura toda, ocupa
+   aproximadamente o espaço vertical que o header antigo ocupava. */
+.scoreTopArea {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 20px 10px;
-  background: var(--white);
-  border-bottom: 1px solid var(--line);
-  flex-wrap: wrap;
+  justify-content: flex-start;
+  padding: 12px 20px 0;
 }
-.back { font-size: 0.875rem; color: var(--ink-muted); font-weight: 600; }
-.matchType {
-  font-size: 0.72rem;
-  color: var(--ink-muted);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  background: var(--card-grey);
-  padding: 4px 10px;
-  border-radius: var(--r-pill);
-}
-
-.topBarActions {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Sem borda — o preenchimento (cinza neutro / azul-tint no destaque)
-   já diferencia as ações. */
-.statsBtn,
-.pauseBtn,
-.undoBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 14px;
-  border-radius: var(--r-md);
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: var(--card-grey);
-  color: var(--ink);
-  min-height: 40px;
-  white-space: nowrap;
-}
-.statsBtn { color: var(--ocean-dark); background: var(--ocean-tint); }
-
-.scoreSection { padding: 16px 20px 0; }
 
 .error {
   margin: 10px 20px 0;
@@ -88,15 +47,17 @@
   font-weight: 600;
 }
 
-.registrationSection {
+/* Área principal — os botões de ação (quem fez o ponto, o que fez) são o
+   conteúdo dominante da tela, ocupando todo o espaço entre o placar
+   compacto e o rodapé de navegação. */
+.mainArea {
   flex: 1;
-  padding: 16px 20px 28px;
+  padding: 14px 20px 20px;
   overflow-y: auto;
 }
 
 .finishedPanel {
-  flex: 1;
-  padding: 28px 20px;
+  padding: 28px 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -108,4 +69,43 @@
   font-weight: 650;
   color: var(--victory-dark);
   padding-bottom: 8px;
+}
+
+/* Rodapé fixo — navegação e ações auxiliares (Início, tipo de partida,
+   Estatísticas, Pausar, Desfazer). Fica no fim do fluxo flex da tela, que
+   já ocupa 100dvh — não precisa de position:fixed. */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 4px;
+  padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+  background: var(--white);
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.footerItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px;
+  min-width: 52px;
+  color: var(--ink-muted);
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+.footerItem:hover { color: var(--ink); }
+.footerItem:disabled { opacity: 0.4; }
+
+.matchTypeChip {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--card-grey);
+  padding: 4px 8px;
+  align-self: center;
 }

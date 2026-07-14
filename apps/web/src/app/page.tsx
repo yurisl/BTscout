@@ -102,7 +102,7 @@ export default function HomePage() {
   const finished = matches.filter((m) => m.status === 'finished');
 
   return (
-    <div className="page">
+    <div className={`page ${styles.page}`}>
       <header className={styles.header}>
         <div>
           <h1>Beach Tennis Scout</h1>

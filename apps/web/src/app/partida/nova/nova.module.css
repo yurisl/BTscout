@@ -1,3 +1,13 @@
+/* Laranja Escuro no lugar do Azul Oceano nesta tela — o toggle Simples/
+   Duplas selecionado e o foco dos inputs (regra global em globals.css)
+   herdam o novo valor automaticamente. "Time A" continua azul: é
+   identidade de dupla, não CTA — ver nova de página. */
+.page {
+  --ocean: var(--ember);
+  --ocean-dark: var(--ember-dark);
+  --ocean-tint: var(--ember-tint);
+}
+
 .header {
   display: flex;
   align-items: center;

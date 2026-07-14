@@ -4,12 +4,24 @@
 
 ## Pilha de fontes
 
+> **Revisão de 2026-07-14:** a decisão original (só fonte de sistema, zero webfont) foi substituída por um pedido explícito de identidade mais "descolada": **Roboto Flex**, uma fonte variável do Google Fonts, carregada via `next/font/google` em `apps/web/src/app/layout.tsx`.
+
 ```css
-font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
-             "Inter", "Segoe UI", Roboto, sans-serif;
+font-family: var(--font-roboto-flex), -apple-system, BlinkMacSystemFont,
+             "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
 ```
 
-Fontes de sistema, não webfont carregada. SF Pro no iOS/Mac, Segoe UI no Windows, Roboto no Android — Inter como referência de design (mesma métrica e proporção da SF Pro, mas nunca precisa ser baixada). Zero custo de carregamento, renderização nativa perfeita em cada plataforma. Decisão deliberada para um produto que também será PWA/App Store/Play Store: cada SO já tem a fonte certa instalada.
+- **Por que ainda é seguro para PWA/offline:** `next/font` faz *self-host* do arquivo da fonte no próprio build — não existe request para `fonts.googleapis.com` em runtime, então a garantia de funcionamento offline da decisão original continua válida. A diferença é que agora existe um arquivo de fonte para baixar/cachear no primeiro carregamento (mitigado por `display: 'swap'` e fallback com métricas casadas, gerado automaticamente pelo Next — sem *layout shift* perceptível).
+- **Eixo variável `wdth`:** Roboto Flex é uma fonte de eixo variável; o produto usa o eixo de largura (`wdth`) para dar um tratamento mais largo/expressivo — "descolado" — a títulos, botões e ao placar, sem precisar de uma segunda família tipográfica. Corpo de texto fica no eixo padrão (100), para não comprometer a leitura.
+
+| Elemento | `font-variation-settings` |
+|---|---|
+| Placar (`.pointDisplay`, `.setsCount`) | `'wdth' 118` |
+| H1 | `'wdth' 112` |
+| H2 | `'wdth' 110` |
+| H3 | `'wdth' 108` |
+| Botões (`.btn`) | `'wdth' 108` |
+| Corpo, labels, legendas | padrão (100) — sem override |
 
 ---
 

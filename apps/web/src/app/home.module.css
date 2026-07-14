@@ -1,3 +1,13 @@
+/* Laranja Escuro no lugar do Azul Oceano nesta tela — todo componente que
+   já usa var(--ocean)/var(--ocean-dark)/var(--ocean-tint) (botão primário,
+   foco de input, chip "Comparar" ativo, checkbox marcado) herda o novo
+   valor automaticamente, sem precisar reescrever cada componente. */
+.page {
+  --ocean: var(--ember);
+  --ocean-dark: var(--ember-dark);
+  --ocean-tint: var(--ember-tint);
+}
+
 .header {
   display: flex;
   align-items: flex-start;
@@ -126,7 +136,9 @@
   font-size: 0.92rem;
   flex-wrap: wrap;
 }
-.teamA { color: var(--ocean-dark); }
+/* Cor literal (não var(--ocean-dark)) — identidade da Dupla A não pode
+   mudar junto com o CTA desta tela, que agora é Laranja Escuro. */
+.teamA { color: #0F5FA8; }
 .teamB { color: var(--coral-dark); }
 .vs { color: var(--ink-muted); font-size: 0.75rem; font-weight: 400; }
 

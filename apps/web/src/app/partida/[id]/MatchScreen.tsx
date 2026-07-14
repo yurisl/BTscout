@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { ChartColumnIncreasing, Pause, Undo2 } from 'lucide-react';
+import { ChartColumnIncreasing, Pause, Undo2, ChevronLeft } from 'lucide-react';
 import { applyPoint, undoPoint, configureFirstServer, configureNextServer } from '@beach-tennis-scout/domain';
 import type { Match, TransitionType, TeamSide } from '@beach-tennis-scout/domain';
 import { loadMatch, saveMatch } from '@/lib/storage';
@@ -157,34 +157,12 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
     <div className={styles.screen}>
       {toast && <div className={styles.toast}>{toast}</div>}
 
-      <div className={styles.topBar}>
-        <Link href="/" className={styles.back}>← Início</Link>
-        <span className={styles.matchType}>
-          {match.type === 'doubles' ? 'Duplas' : 'Simples'}
-        </span>
-        <div className={styles.topBarActions}>
-          <button className={styles.statsBtn} onClick={() => setStatsOpen(true)}>
-            <ChartColumnIncreasing size={18} strokeWidth={2} /> Estatísticas
-          </button>
-          {match.status === 'in_progress' && (
-            <>
-              <Link href="/" className={styles.pauseBtn}>
-                <Pause size={18} strokeWidth={2} /> Pausar
-              </Link>
-              <button
-                className={styles.undoBtn}
-                onClick={handleUndo}
-                disabled={match.pointEvents.length === 0}
-              >
-                <Undo2 size={18} strokeWidth={2} /> Desfazer
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.scoreSection}>
-        <Scoreboard match={match} />
+      {/* Placar compacto, estilo transmissão — canto superior esquerdo,
+          no lugar que o header ocupava. Os botões de ação (registro de
+          ponto) são o conteúdo dominante da tela; a navegação vai para o
+          rodapé fixo, ver `.footer` abaixo. */}
+      <div className={styles.scoreTopArea}>
+        <Scoreboard match={match} variant="compact" />
       </div>
 
       <StatsDrawer open={statsOpen} title="Estatísticas" onClose={() => setStatsOpen(false)}>
@@ -193,26 +171,56 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
 
       {error && <p className={styles.error}>{error}</p>}
 
-      {match.status === 'in_progress' ? (
-        <div className={styles.registrationSection}>
+      <div className={styles.mainArea}>
+        {match.status === 'in_progress' ? (
           <PointRegistration match={match} onPoint={handlePoint} />
-        </div>
-      ) : (
-        <div className={styles.finishedPanel}>
-          <p className={styles.finishedText}>
-            {match.winner === 'A'
-              ? match.teamA.players.map((p) => p.name).join(' / ')
-              : match.teamB.players.map((p) => p.name).join(' / ')}{' '}
-            venceu a partida!
-          </p>
-          <Link href={`/partida/${match.id}/resumo`} className="btn btn-primary">
-            Ver Estatísticas
-          </Link>
-          <Link href="/" className="btn btn-outline">
-            Voltar ao Início
-          </Link>
-        </div>
-      )}
+        ) : (
+          <div className={styles.finishedPanel}>
+            <p className={styles.finishedText}>
+              {match.winner === 'A'
+                ? match.teamA.players.map((p) => p.name).join(' / ')
+                : match.teamB.players.map((p) => p.name).join(' / ')}{' '}
+              venceu a partida!
+            </p>
+            <Link href={`/partida/${match.id}/resumo`} className="btn btn-primary">
+              Ver Estatísticas
+            </Link>
+            <Link href="/" className="btn btn-outline">
+              Voltar ao Início
+            </Link>
+          </div>
+        )}
+      </div>
+
+      <footer className={styles.footer}>
+        <Link href="/" className={styles.footerItem}>
+          <ChevronLeft size={18} strokeWidth={2} />
+          <span>Início</span>
+        </Link>
+        <span className={styles.matchTypeChip}>
+          {match.type === 'doubles' ? 'Duplas' : 'Simples'}
+        </span>
+        <button className={styles.footerItem} onClick={() => setStatsOpen(true)}>
+          <ChartColumnIncreasing size={18} strokeWidth={2} />
+          <span>Estatísticas</span>
+        </button>
+        {match.status === 'in_progress' && (
+          <>
+            <Link href="/" className={styles.footerItem}>
+              <Pause size={18} strokeWidth={2} />
+              <span>Pausar</span>
+            </Link>
+            <button
+              className={styles.footerItem}
+              onClick={handleUndo}
+              disabled={match.pointEvents.length === 0}
+            >
+              <Undo2 size={18} strokeWidth={2} />
+              <span>Desfazer</span>
+            </button>
+          </>
+        )}
+      </footer>
 
       {initialServeNeeded && (
         <InitialServeDialog match={match} isSuperTiebreak={isSuperTiebreak} onConfirm={handleInitialServe} />

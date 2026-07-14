@@ -52,7 +52,7 @@ export default function NovaPartidaPage() {
   }
 
   return (
-    <div className="page">
+    <div className={`page ${styles.page}`}>
       <header className={styles.header}>
         <button onClick={() => router.back()} className={styles.back}>← Voltar</button>
         <h1>Nova Partida</h1>
@@ -82,7 +82,8 @@ export default function NovaPartidaPage() {
 
         {/* Times */}
         <div className="card stack">
-          <div className={styles.teamHeader} style={{ color: 'var(--color-a)' }}>Time A</div>
+          {/* Cor literal — identidade da Dupla A não muda com o CTA laranja desta tela */}
+          <div className={styles.teamHeader} style={{ color: '#0F5FA8' }}>Time A</div>
           <div>
             <label>Jogador 1</label>
             <input value={a1} onChange={(e) => setA1(e.target.value)} placeholder="Nome" />

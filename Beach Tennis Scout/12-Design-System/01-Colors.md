@@ -31,11 +31,22 @@
 
 | Nome | Hex | Uso |
 |---|---|---|
-| Azul Oceano | `#1E88E5` | CTA primário · Dupla A |
+| Azul Oceano | `#1E88E5` | Dupla A · CTA primário fora das telas de pré-jogo |
 | Turquesa Mar | `#00ACC1` | Destaques secundários · cabeçalho do Super Tie-Break |
 | Verde Vitória | `#2E7D32` | Winner · Forçou erro do adversário · Sucesso |
 | Laranja Dupla B | `#FB8500` | Dupla B — **nunca vermelho** (substitui o antigo "Coral" `#FF7043`) |
 | Laranja Areia | `#F59E0B` | Avisos, indicador de troca de lado no Super Tie-Break |
+| Laranja Escuro ("Ember") | `#B45309` | CTA das telas de pré-jogo (Home e Nova Partida) — ver nota abaixo |
+
+### Laranja Escuro — CTA de Home e Nova Partida
+
+A partir da revisão de layout de 2026-07-14, o Azul Oceano deixou de ser o CTA das duas telas de configuração pré-partida (Home e Nova Partida): botões primários, foco de input, toggle "Simples/Duplas" selecionado e estados de seleção nessas duas telas usam **Laranja Escuro** (`#B45309`, tom escuro/queimado — Tailwind `orange-700`), não o Azul Oceano nem o Laranja Dupla B.
+
+- **Por quê um terceiro laranja?** Precisava ser visualmente distinto do Laranja Dupla B (`#FB8500`, mais claro/vívido) para não ser confundido com a identidade da Dupla B quando os dois aparecem próximos (ex: rótulo "Time B" ao lado do botão "Iniciar Partida" em Nova Partida).
+- **Escopo:** só Home e Nova Partida. O Azul Oceano continua a cor da Dupla A e o CTA padrão em todas as outras telas (Scout, Resumo, Comparar).
+- **Implementação:** as duas telas fazem *shadow* local das variáveis `--ocean`/`--ocean-dark`/`--ocean-tint` para `--ember`/`--ember-dark`/`--ember-tint` (ver `home.module.css`/`nova.module.css`), então qualquer componente que já usa Azul Oceano herda o Laranja Escuro automaticamente nessas telas. Os dois pontos onde a cor da Dupla A realmente aparece nessas telas (nome da Dupla A no cartão de partida da Home; rótulo "Time A" em Nova Partida) usam a cor **literal** (`#0F5FA8`), não a variável — por isso não são afetados pelo shadow.
+
+Tokens CSS: `--ember: #B45309; --ember-dark: #92400E; --ember-tint: #FDECD3;`
 
 ## Estados
 
@@ -105,6 +116,7 @@ O antigo "Coral" (`#FF7043`) e o Erro (`#E53935`) eram matizes vizinhos (~12° d
 --victory: #2E7D32;    --victory-dark: #1B5E20; --victory-tint: #E5F3E6;
 --coral: #FB8500;      --coral-dark: #B35C00;   --coral-tint: #FFF1DE;
 --dune: #F59E0B;       --dune-dark: #92660A;    --dune-tint: #FEF3D9;
+--ember: #B45309;      --ember-dark: #92400E;   --ember-tint: #FDECD3;
 
 --success: #2E7D32;
 --error: #E53935;      --error-tint: #FDE7E6;
