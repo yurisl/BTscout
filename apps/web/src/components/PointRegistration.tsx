@@ -31,7 +31,7 @@ const WINNERS: { subtype: PointSubtype; label: string }[] = [
 
 // Forçou erro — PointType = 'forced_error', renderizado no grupo de winners
 const FORCED: { subtype: PointSubtype; label: string }[] = [
-  { subtype: 'FORCOU_ERRO', label: 'Forçou Erro do Adversário' },
+  { subtype: 'FORCOU_ERRO', label: 'Forçou o erro' },
 ];
 
 // Beach tennis: apenas 1 saque. Sem dupla falta.
@@ -153,7 +153,7 @@ export default function PointRegistration({ match, onPoint }: Props) {
               {FORCED.map(({ subtype, label }) => (
                 <button
                   key={subtype}
-                  className={`${styles.subBtn} ${styles.subBtnForced} ${styles.subBtnFull}`}
+                  className={`${styles.subBtn} ${styles.subBtnForced}`}
                   onClick={() => handleSubtype(subtype)}
                 >
                   {label}

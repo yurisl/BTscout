@@ -109,5 +109,3 @@
 .subBtnErr:hover { background: #fbd7d5; }
 
 .subBtnDisabled { opacity: 0.35; cursor: not-allowed; }
-/* ocupa as 3 colunas do grid — para botões com texto longo */
-.subBtnFull { grid-column: 1 / -1; }
