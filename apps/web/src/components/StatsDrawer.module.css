@@ -43,7 +43,7 @@
   flex-shrink: 0;
   background: var(--white);
 }
-.title { font-size: 1.1rem; font-weight: 750; }
+.title { font-size: 1.1rem; font-weight: 600; }
 .closeBtn {
   display: inline-flex;
   align-items: center;

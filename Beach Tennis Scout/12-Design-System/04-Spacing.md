@@ -21,12 +21,16 @@ Regra geral pedida no briefing — "mais respiro, menos informação competindo"
 
 ## Raio de borda
 
+> **Zerado em todo o produto** — identidade "caixas quadradas". Todos os tokens de raio valem `0`; mantidos como variáveis (em vez de removidos) só para não obrigar a reescrever cada `border-radius: var(--r-…)` do código caso a decisão mude no futuro.
+
 | Token | Valor | Uso |
 |---|---|---|
-| `--r-sm` | 12px | Inputs, chips, ícone-botão |
-| `--r-md` | 16px | Botões |
-| `--r-lg` | 20px | **Todos os cards** (fixo, conforme pedido no briefing) |
-| `--r-pill` | 999px | Badges, indicador de saque, tags |
+| `--r-sm` | 0 | Inputs, chips, ícone-botão |
+| `--r-md` | 0 | Botões |
+| `--r-lg` | 0 | **Todos os cards** |
+| `--r-pill` | 0 | Badges, indicador de saque, tags — apesar do nome "pill", também são quadrados |
+
+Exceção deliberada: indicadores puramente decorativos e pequenos (≤10px) como o ponto de saque (`.dotA`/`.dotB`) e o marcador de jogador selecionado permanecem circulares (`border-radius: 50%`) — lêem como "dot", não como "caixa", e todo design system consultado como referência (Strava incluso) mantém esses indicadores redondos mesmo em interfaces de cantos retos.
 
 ## Sombras
 

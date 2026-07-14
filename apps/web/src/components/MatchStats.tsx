@@ -81,6 +81,7 @@ function PlayerCard({
     { label: 'Esquerda', count: e.erroEsq },
     { label: 'Lob', count: e.erroLob },
     { label: 'Smash', count: e.erroSmash },
+    { label: 'Drop', count: e.erroDrop },
     { label: 'Saque', count: e.erroSaque },
     { label: 'Rainbow', count: e.erroRainbow },
     { label: 'Gancho', count: e.erroGancho },
@@ -169,10 +170,10 @@ function TeamComparison({ match, sA, sB }: { match: Match; sA: TeamStats; sB: Te
   return (
     <div className={`card ${styles.cmpSection}`}>
       <div className={styles.teamHeaders}>
-        <span style={{ color: 'var(--color-a)', fontWeight: 700 }}>
+        <span style={{ color: 'var(--color-a)', fontWeight: 650 }}>
           {match.teamA.players.map((p) => p.name).join(' / ')}
         </span>
-        <span style={{ color: 'var(--color-b)', fontWeight: 700 }}>
+        <span style={{ color: 'var(--color-b)', fontWeight: 650 }}>
           {match.teamB.players.map((p) => p.name).join(' / ')}
         </span>
       </div>

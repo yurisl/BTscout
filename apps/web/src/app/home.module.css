@@ -24,12 +24,12 @@
   gap: 14px;
   flex-wrap: wrap;
   background: var(--ocean-tint);
-  border: 1.5px solid var(--ocean);
+  border: 1px solid var(--ocean);
   border-radius: var(--r-lg);
   padding: 16px 18px;
   margin-bottom: 24px;
 }
-.resumeBannerTitle { font-weight: 750; color: var(--ocean-dark); font-size: 0.97rem; }
+.resumeBannerTitle { font-weight: 650; color: var(--ocean-dark); font-size: 0.97rem; }
 .resumeBannerSubtitle { font-size: 0.82rem; color: var(--ink-muted); margin-top: 3px; }
 .resumeBannerBtn { width: auto; white-space: nowrap; padding: 11px 18px; min-height: 46px; }
 
@@ -46,6 +46,7 @@
 }
 .resumeDialog {
   background: var(--white);
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
   box-shadow: var(--sh-lg);
   padding: 24px;
@@ -53,7 +54,7 @@
   max-width: 360px;
   text-align: center;
 }
-.resumeDialogText { font-weight: 750; font-size: 1.05rem; }
+.resumeDialogText { font-weight: 650; font-size: 1.05rem; }
 .resumeDialogSubtitle { font-size: 0.86rem; color: var(--ink-muted); margin-top: 8px; }
 .resumeDialogActions { display: flex; gap: 10px; margin-top: 20px; }
 
@@ -65,51 +66,47 @@
   justify-content: space-between;
   margin-bottom: 0;
 }
-.sectionTitle { font-size: 0.85rem; font-weight: 800; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+.sectionTitle { font-size: 0.85rem; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px; }
 
+/* Sem borda — o preenchimento (cinza/azul-tint) diferencia o estado */
 .compareToggle {
   font-size: 0.8rem;
-  font-weight: 750;
+  font-weight: 600;
   padding: 7px 14px;
   border-radius: var(--r-pill);
-  border: 1.5px solid var(--line);
   color: var(--ink-muted);
-  background: var(--white);
+  background: var(--card-grey);
   min-height: 34px;
 }
 .compareToggleActive {
-  border-color: var(--ocean);
   color: var(--ocean-dark);
   background: var(--ocean-tint);
 }
 
-/* Match card */
+/* Match card — borda hairline como separador, sem sombra em repouso */
 .matchCard {
   display: flex;
   align-items: stretch;
   gap: 12px;
   background: var(--white);
   border-radius: var(--r-lg);
-  box-shadow: var(--sh-sm);
   padding: 14px 16px;
-  border: 2px solid transparent;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  border: 1px solid var(--line);
+  transition: border-color 0.15s, background 0.15s;
 }
 .matchCardSelected { border-color: var(--ocean); background: var(--ocean-tint); }
-.matchCard:hover { box-shadow: var(--sh-md); }
-.matchCard:active { border-color: var(--ocean); }
+.matchCard:hover { border-color: var(--ocean); }
 
 .checkbox {
   width: 24px;
   height: 24px;
   flex-shrink: 0;
-  border-radius: 7px;
-  border: 2px solid var(--line);
+  border: 1.5px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
-  font-weight: 800;
+  font-weight: 650;
   align-self: center;
   background: var(--white);
 }
@@ -125,7 +122,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 0.92rem;
   flex-wrap: wrap;
 }
@@ -139,52 +136,9 @@
   justify-content: space-between;
   margin-top: 8px;
 }
-.score { font-size: 1.18rem; font-weight: 750; font-variant-numeric: tabular-nums; }
+.score { font-size: 1.18rem; font-weight: 650; font-variant-numeric: tabular-nums; }
 .matchDate { font-size: 0.75rem; color: var(--ink-muted); }
 .tournament { font-size: 0.72rem; color: var(--ink-muted); margin-top: 5px; }
-
-/* Delete */
-.deleteArea {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.deleteBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border-radius: var(--r-sm);
-  color: var(--ink-muted);
-  background: transparent;
-}
-.deleteBtn:hover { background: var(--error-tint); color: var(--error-dark); }
-.confirmRow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
-.confirmLabel { font-size: 0.7rem; font-weight: 700; color: var(--ink-muted); }
-.confirmYes {
-  font-size: 0.75rem;
-  font-weight: 750;
-  padding: 5px 11px;
-  border-radius: var(--r-sm);
-  background: var(--error);
-  color: white;
-  min-height: 28px;
-}
-.confirmNo {
-  font-size: 0.75rem;
-  font-weight: 750;
-  padding: 5px 11px;
-  border-radius: var(--r-sm);
-  background: var(--card-grey);
-  color: var(--ink);
-  min-height: 28px;
-}
 
 /* Compare bar */
 .compareBar {
@@ -195,7 +149,7 @@
   padding: 14px 16px;
   background: var(--white);
   border-radius: var(--r-lg);
-  border: 1.5px solid var(--ocean);
+  border: 1px solid var(--ocean);
 }
 .compareCount { font-size: 0.85rem; color: var(--ink-muted); flex: 1; }
 .compareBtn { width: auto; padding: 11px 20px; min-height: 46px; }

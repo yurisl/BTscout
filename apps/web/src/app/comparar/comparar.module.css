@@ -11,8 +11,8 @@
 /* Per-match block */
 .matchBlock {
   background: var(--white);
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  box-shadow: var(--sh-sm);
   padding: 16px;
 }
 .matchBlockHeader {
@@ -21,10 +21,10 @@
   gap: 8px;
   margin-bottom: 4px;
 }
-.matchIndex { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-muted); }
-.matchScore { font-size: 1rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.matchIndex { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-muted); }
+.matchScore { font-size: 1rem; font-weight: 650; font-variant-numeric: tabular-nums; }
 .matchDate { font-size: 0.72rem; color: var(--ink-muted); margin-left: auto; }
-.matchTitle { font-size: 0.85rem; font-weight: 700; margin-bottom: 2px; }
+.matchTitle { font-size: 0.85rem; font-weight: 600; margin-bottom: 2px; }
 .matchTournament { font-size: 0.72rem; color: var(--ink-muted); margin-bottom: 8px; }
 
 /* Stats table */
@@ -41,7 +41,7 @@
 .colLabels { background: var(--card-grey); }
 .colTeam {
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 600;
   padding: 8px 10px;
   border-bottom: 1px solid var(--line);
   min-height: 36px;
@@ -51,7 +51,7 @@
 }
 .colCell {
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 600;
   padding: 7px 10px;
   border-top: 1px solid var(--line);
   text-align: center;
@@ -59,24 +59,23 @@
 }
 .labelCell {
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--ink-muted);
   text-align: left;
-  font-weight: 400;
 }
 
 /* Player crossover */
 .crossover { margin-top: 28px; }
-.crossoverTitle { font-size: 1.05rem; font-weight: 750; margin-bottom: 14px; }
+.crossoverTitle { font-size: 1.05rem; font-weight: 600; margin-bottom: 14px; }
 
 .crossoverCard {
   background: var(--white);
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  box-shadow: var(--sh-sm);
   padding: 16px;
   margin-bottom: 14px;
 }
-.crossoverName { font-size: 0.97rem; font-weight: 800; margin-bottom: 10px; }
+.crossoverName { font-size: 0.97rem; font-weight: 650; margin-bottom: 10px; }
 
 .crossoverGrid {
   display: grid;
@@ -87,9 +86,9 @@
 }
 .crossoverHeader {
   font-size: 0.7rem;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   color: var(--ink-muted);
   padding: 7px 10px;
   background: var(--card-grey);
@@ -105,7 +104,7 @@
 }
 .crossoverValue {
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 600;
   padding: 6px 10px;
   border-top: 1px solid var(--line);
   text-align: center;

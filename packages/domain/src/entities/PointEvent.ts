@@ -20,6 +20,7 @@ export type ErrorSubtype =
   | 'ERRO_ESQ'
   | 'ERRO_LOB'
   | 'ERRO_SMASH'
+  | 'ERRO_DROP'
   | 'ERRO_SAQUE'
   | 'DUPLA_FALTA'
   | 'ERRO_RAINBOW'

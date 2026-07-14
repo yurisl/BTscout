@@ -3,14 +3,21 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import type { Match } from '@beach-tennis-scout/domain';
-import { loadMatches, deleteMatch } from '@/lib/storage';
+import { loadMatches, saveMatch, deleteMatch } from '@/lib/storage';
+import MatchMenu from '@/components/MatchMenu';
+import DeleteMatchModal from '@/components/DeleteMatchModal';
+import Snackbar from '@/components/Snackbar';
 import styles from './home.module.css';
 
 function teamLabel(match: Match, side: 'A' | 'B'): string {
   const team = side === 'A' ? match.teamA : match.teamB;
   return team.players.map((p) => p.name).join(' / ');
+}
+
+function matchLabel(match: Match): string {
+  return `${teamLabel(match, 'A')} vs ${teamLabel(match, 'B')}`;
 }
 
 function setsScore(match: Match): string {
@@ -34,7 +41,9 @@ const RESUME_ASKED_KEY = 'bts:resume-asked';
 export default function HomePage() {
   const router = useRouter();
   const [matches, setMatches] = useState<Match[]>([]);
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Match | null>(null);
+  const [deletedMatch, setDeletedMatch] = useState<Match | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [comparing, setComparing] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [resumePrompt, setResumePrompt] = useState<Match | null>(null);
@@ -57,10 +66,21 @@ export default function HomePage() {
     setMatches(loadMatches().sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
   }
 
-  function handleDelete(id: string) {
-    deleteMatch(id);
-    setConfirmDelete(null);
-    setSelected((prev) => { const s = new Set(prev); s.delete(id); return s; });
+  function handleDeleteConfirm() {
+    if (!pendingDelete) return;
+    deleteMatch(pendingDelete.id);
+    setSelected((prev) => { const s = new Set(prev); s.delete(pendingDelete.id); return s; });
+    setDeletedMatch(pendingDelete);
+    setPendingDelete(null);
+    setSnackbarOpen(true);
+    refresh();
+  }
+
+  function handleUndoDelete() {
+    if (!deletedMatch) return;
+    saveMatch(deletedMatch);
+    setDeletedMatch(null);
+    setSnackbarOpen(false);
     refresh();
   }
 
@@ -129,10 +149,7 @@ export default function HomePage() {
                 href={`/partida/${m.id}`}
                 comparing={false}
                 selected={false}
-                confirmDelete={confirmDelete}
-                onDeleteRequest={() => setConfirmDelete(m.id)}
-                onDeleteConfirm={() => handleDelete(m.id)}
-                onDeleteCancel={() => setConfirmDelete(null)}
+                onDeleteRequest={() => setPendingDelete(m)}
                 onToggle={() => {}}
               />
             ))}
@@ -161,10 +178,7 @@ export default function HomePage() {
                 href={`/partida/${m.id}/resumo`}
                 comparing={comparing}
                 selected={selected.has(m.id)}
-                confirmDelete={confirmDelete}
-                onDeleteRequest={() => setConfirmDelete(m.id)}
-                onDeleteConfirm={() => handleDelete(m.id)}
-                onDeleteCancel={() => setConfirmDelete(null)}
+                onDeleteRequest={() => setPendingDelete(m)}
                 onToggle={() => toggleSelect(m.id)}
               />
             ))}
@@ -211,6 +225,21 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      <DeleteMatchModal
+        open={!!pendingDelete}
+        matchLabel={pendingDelete ? matchLabel(pendingDelete) : ''}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setPendingDelete(null)}
+      />
+
+      <Snackbar
+        open={snackbarOpen}
+        message="Partida excluída."
+        actionLabel="DESFAZER"
+        onAction={handleUndoDelete}
+        onClose={() => { setSnackbarOpen(false); setDeletedMatch(null); }}
+      />
     </div>
   );
 }
@@ -222,25 +251,16 @@ function MatchCard({
   href,
   comparing,
   selected,
-  confirmDelete,
   onDeleteRequest,
-  onDeleteConfirm,
-  onDeleteCancel,
   onToggle,
 }: {
   match: Match;
   href: string;
   comparing: boolean;
   selected: boolean;
-  confirmDelete: string | null;
   onDeleteRequest: () => void;
-  onDeleteConfirm: () => void;
-  onDeleteCancel: () => void;
   onToggle: () => void;
 }) {
-  const isConfirming = confirmDelete === match.id;
-  const isFinished = match.status === 'finished';
-
   const inner = (
     <div className={`${styles.matchCard} ${selected ? styles.matchCardSelected : ''}`}>
       {/* Checkbox (compare mode) */}
@@ -265,26 +285,13 @@ function MatchCard({
         )}
       </div>
 
-      {/* Delete controls (finished matches only, not in compare mode) */}
-      {isFinished && !comparing && (
-        <div className={styles.deleteArea}>
-          {isConfirming ? (
-            <div className={styles.confirmRow}>
-              <span className={styles.confirmLabel}>Excluir?</span>
-              <button className={styles.confirmYes} onClick={(e) => { e.preventDefault(); onDeleteConfirm(); }}>Sim</button>
-              <button className={styles.confirmNo} onClick={(e) => { e.preventDefault(); onDeleteCancel(); }}>Não</button>
-            </div>
-          ) : (
-            <button
-              className={styles.deleteBtn}
-              onClick={(e) => { e.preventDefault(); onDeleteRequest(); }}
-              title="Excluir partida"
-              aria-label="Excluir partida"
-            >
-              <Trash2 size={17} strokeWidth={2} />
-            </button>
-          )}
-        </div>
+      {!comparing && (
+        <MatchMenu
+          status={match.status}
+          continueHref={`/partida/${match.id}`}
+          statsHref={`/partida/${match.id}/resumo`}
+          onDeleteRequest={onDeleteRequest}
+        />
       )}
     </div>
   );

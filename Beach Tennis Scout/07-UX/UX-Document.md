@@ -416,7 +416,7 @@ Mostra **apenas os 2 jogadores da dupla que ainda não tem sacador definido nest
 - Mostra o nome do jogador (não "Jogador 1")
 - Cor de fundo por dupla (ver [[12-Design-System/01-Colors]]):
   - Dupla A → Azul Oceano (`#1E88E5`)
-  - Dupla B → Coral (`#FF7043`) — **nunca vermelho**, reservado exclusivamente ao estado de erro
+  - Dupla B → Laranja Dupla B (`#FB8500`) — **nunca vermelho**, reservado exclusivamente ao estado de erro
 - Estado selecionado: contorno reforçado + destaque
 - Estado aguardando: todos os 4 botões visíveis e ativos
 

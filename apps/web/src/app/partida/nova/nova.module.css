@@ -11,20 +11,20 @@
   padding: 6px 0;
 }
 
-.teamHeader { font-weight: 750; font-size: 0.92rem; }
+.teamHeader { font-weight: 650; font-size: 0.92rem; }
 
 .segmented {
   display: flex;
   gap: 8px;
   margin-top: 8px;
 }
+/* Sem borda — o preenchimento diferencia selecionado/não selecionado */
 .segItem {
   flex: 1;
   padding: 11px;
-  border: 1.5px solid var(--line);
   border-radius: var(--r-md);
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--ink-muted);
   background: var(--card-grey);
   min-height: 46px;
@@ -32,10 +32,9 @@
 .segActive {
   flex: 1;
   padding: 11px;
-  border: none;
   border-radius: var(--r-md);
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 600;
   color: white;
   background: var(--ocean);
   min-height: 46px;
@@ -43,7 +42,7 @@
 
 .detailsSummary {
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--ink-muted);
   cursor: pointer;
   list-style: none;
@@ -54,6 +53,6 @@
 .error {
   color: var(--error-dark);
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 600;
   text-align: center;
 }

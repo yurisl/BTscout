@@ -42,9 +42,9 @@
 .matchType {
   font-size: 0.72rem;
   color: var(--ink-muted);
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   background: var(--card-grey);
   padding: 4px 10px;
   border-radius: var(--r-pill);
@@ -57,6 +57,8 @@
   gap: 8px;
 }
 
+/* Sem borda — o preenchimento (cinza neutro / azul-tint no destaque)
+   já diferencia as ações. */
 .statsBtn,
 .pauseBtn,
 .undoBtn {
@@ -66,14 +68,13 @@
   padding: 9px 14px;
   border-radius: var(--r-md);
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 600;
   background: var(--card-grey);
-  border: 1.5px solid var(--line);
   color: var(--ink);
   min-height: 40px;
   white-space: nowrap;
 }
-.statsBtn { color: var(--ocean-dark); background: var(--ocean-tint); border-color: transparent; }
+.statsBtn { color: var(--ocean-dark); background: var(--ocean-tint); }
 
 .scoreSection { padding: 16px 20px 0; }
 
@@ -84,7 +85,7 @@
   color: var(--error-dark);
   border-radius: var(--r-md);
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .registrationSection {
@@ -104,7 +105,7 @@
 .finishedText {
   text-align: center;
   font-size: 1.2rem;
-  font-weight: 750;
+  font-weight: 650;
   color: var(--victory-dark);
   padding-bottom: 8px;
 }

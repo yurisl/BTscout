@@ -5,7 +5,7 @@
 > **Prioridade:** CRÍTICA — tela mais importante do sistema
 > **Publicidade:** NENHUMA — área de trabalho protegida
 
-> ⚠️ **Nota de identidade visual (2026-07-14):** os valores de cor citados neste documento (`#1565C0`, `#C62828`, fundo `#121212`, categorias de cor separadas por tipo de winner) são de uma versão anterior à nova identidade "Areia & Oceano" e **estão superados**. A paleta oficial vigente é [[../12-Design-System/01-Colors|12-Design-System/01-Colors]]: Dupla A = Azul Oceano `#1E88E5`, Dupla B = Coral `#FF7043` (nunca vermelho), fundo sempre claro (nunca `#121212`), e todos os winners — incluindo Ace e Drop Shot — usam a mesma cor Verde Vitória `#2E7D32`, junto com "Forçou Erro do Adversário". Os mockups ASCII abaixo preservam a estrutura de layout, que continua válida; apenas os valores de cor citados devem ser lidos como referência histórica.
+> ⚠️ **Nota de identidade visual (2026-07-14):** os valores de cor citados neste documento (`#1565C0`, `#C62828`, fundo `#121212`, categorias de cor separadas por tipo de winner) são de uma versão anterior à nova identidade "Areia & Oceano" e **estão superados**. A paleta oficial vigente é [[../12-Design-System/01-Colors|12-Design-System/01-Colors]]: Dupla A = Azul Oceano `#1E88E5`, Dupla B = Laranja Dupla B `#FB8500` (nunca vermelho), fundo sempre claro (nunca `#121212`), e todos os winners — incluindo Ace e Drop — usam a mesma cor Verde Vitória `#2E7D32`, junto com "Forçou Erro do Adversário". Cantos são retos em todo o produto (raio 0) e botões não têm borda — ver [[../12-Design-System/03-Components|12-Design-System/03-Components]]. Os mockups ASCII abaixo preservam a estrutura de layout, que continua válida; apenas os valores de cor/raio citados devem ser lidos como referência histórica.
 
 ---
 
@@ -668,7 +668,7 @@ Exibida automaticamente pelo ScoringEngine quando um set é encerrado.
 | Texto principal | Grafite `#22303C` | Alto contraste sobre areia, sem o peso visual de um fundo preto |
 | Texto secundário | Cinza Médio `#6B7280` | Legível sem competir com ações |
 | Botões de jogador — Dupla A | `#1E88E5` (Azul Oceano) com texto `#0F5FA8` sobre tint `#E4F1FC` | Identidade de dupla, nunca vermelho |
-| Botões de jogador — Dupla B | `#FF7043` (Coral) com texto `#C1440E` sobre tint `#FFE9E0` | Identidade de dupla — vermelho é exclusivo de erro |
+| Botões de jogador — Dupla B | `#FB8500` (Laranja Dupla B) com texto `#B35C00` sobre tint `#FFF1DE` | Identidade de dupla — vermelho é exclusivo de erro |
 | Botões winners / Forçou Erro | Verde Vitória `#2E7D32` — idênticos entre si | Mesmo destaque para as duas categorias de "ponto ganho" |
 | Botões erros | Erro `#E53935` | Única categoria vermelha da tela |
 | Font size mínimo botões | 13px bold | Legível com tela a ~50cm |

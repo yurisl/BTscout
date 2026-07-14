@@ -34,7 +34,7 @@
 | Azul Oceano | `#1E88E5` | CTA primário · Dupla A |
 | Turquesa Mar | `#00ACC1` | Destaques secundários · cabeçalho do Super Tie-Break |
 | Verde Vitória | `#2E7D32` | Winner · Forçou erro do adversário · Sucesso |
-| Coral | `#FF7043` | Dupla B — **nunca vermelho** |
+| Laranja Dupla B | `#FB8500` | Dupla B — **nunca vermelho** (substitui o antigo "Coral" `#FF7043`) |
 | Laranja Areia | `#F59E0B` | Avisos, indicador de troca de lado no Super Tie-Break |
 
 ## Estados
@@ -52,7 +52,7 @@
 | Dupla | Nome | Hex |
 |---|---|---|
 | A | Azul Oceano | `#1E88E5` |
-| B | Coral | `#FF7043` |
+| B | Laranja Dupla B | `#FB8500` |
 
 **Regra:** vermelho nunca representa uma dupla. Fica reservado exclusivamente para o estado de erro.
 
@@ -77,7 +77,7 @@ Necessários para fundos de badge (tom claro) e texto sobre fundo claro (tom esc
 | Azul Oceano | `#E4F1FC` | `#0F5FA8` |
 | Turquesa Mar | `#DFF6F9` | `#007887` |
 | Verde Vitória | `#E5F3E6` | `#1B5E20` |
-| Coral | `#FFE9E0` | `#C1440E` |
+| Laranja Dupla B | `#FFF1DE` | `#B35C00` |
 | Laranja Areia | `#FEF3D9` | `#92660A` |
 | Erro | `#FDE7E6` | `#B3221D` |
 
@@ -85,7 +85,7 @@ Necessários para fundos de badge (tom claro) e texto sobre fundo claro (tom esc
 
 ## Nota de acessibilidade
 
-Coral (`#FF7043`) e Erro (`#E53935`) são matizes vizinhos (laranja-avermelhado vs. vermelho puro). Como nenhuma dupla é identificada apenas pela cor — sempre há nome do jogador e rótulo textual — essa proximidade não gera ambiguidade funcional. Ainda assim, todo componente novo deve manter o Coral visivelmente mais quente/alaranjado que o Erro, nunca aproximando os dois tons.
+O antigo "Coral" (`#FF7043`) e o Erro (`#E53935`) eram matizes vizinhos (~12° de distância no círculo cromático — laranja-avermelhado vs. vermelho puro), o que gerava confusão visual em contextos onde os dois apareciam próximos (nome da Dupla B ao lado de um botão de erro vermelho, por exemplo). O Laranja Dupla B (`#FB8500`) foi escolhido deliberadamente ~30° mais distante do Erro no círculo cromático — lê como laranja inequívoco, não como "vermelho errado". A cor de erro nunca representa uma dupla; a cor de dupla nunca é usada para sinalizar erro.
 
 ---
 
@@ -103,7 +103,7 @@ Coral (`#FF7043`) e Erro (`#E53935`) são matizes vizinhos (laranja-avermelhado 
 --ocean: #1E88E5;      --ocean-dark: #0F5FA8;   --ocean-tint: #E4F1FC;
 --lagoon: #00ACC1;     --lagoon-dark: #007887;  --lagoon-tint: #DFF6F9;
 --victory: #2E7D32;    --victory-dark: #1B5E20; --victory-tint: #E5F3E6;
---coral: #FF7043;      --coral-dark: #C1440E;   --coral-tint: #FFE9E0;
+--coral: #FB8500;      --coral-dark: #B35C00;   --coral-tint: #FFF1DE;
 --dune: #F59E0B;       --dune-dark: #92660A;    --dune-tint: #FEF3D9;
 
 --success: #2E7D32;
@@ -112,6 +112,8 @@ Coral (`#FF7043`) e Erro (`#E53935`) são matizes vizinhos (laranja-avermelhado 
 --info: #1E88E5;
 --disabled: #B0BEC5;
 ```
+
+> O token CSS mantém o nome `--coral` por compatibilidade com o código existente, mas o valor e o nome de exibição no Design System são "Laranja Dupla B".
 
 ---
 

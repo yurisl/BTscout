@@ -68,23 +68,29 @@ Registrar:
 
 ## Winners
 
-- Direita
-- Esquerda
-- Paralelo
-- Cruzado
-- Drop shot
+- Paralela
+- Cruzada
 - Lob
 - Smash
-- Ace
+- Drop
+- Ace (exclusivo do sacador)
+- Rainbow
+- Gancho
+- Forçou o erro (categoria própria, `forced_error`, visualmente idêntica ao Winner)
 
 ## Erros
 
+9 itens — mesma contagem do grupo Winners+Forçou, para que a grade de botões (3 colunas) feche em 3×3 sem sobra em ambos os grupos:
+
 - Direita
 - Esquerda
-- Smash
 - Lob
-- Saque
-- Dupla falta
+- Smash
+- Drop *(adicionado — espelha o Winner "Drop"; novo subtipo de domínio `ERRO_DROP`)*
+- Erro de Saque (exclusivo do sacador)
+- Rainbow
+- Gancho
+- Erro Forçado
 
 ## Estatísticas
 
@@ -104,6 +110,13 @@ Registrar:
 - Botão "Pausar partida" disponível durante o registro — o estado já está salvo automaticamente a cada ponto (autosave), então pausar apenas retorna à Home
 - Home: enquanto existir uma partida com status `in_progress`, exibe banner "Existe uma partida em andamento" com botão "Continuar partida"
 - Ao reabrir o navegador (nova sessão) com uma partida em andamento salva, a Home pergunta uma vez: "Deseja continuar a partida em andamento?"
+
+## Excluir partida
+
+- Cada cartão de partida na Home (em andamento ou encerrada) tem um menu de contexto (ícone "⋮") com as opções "Continuar partida"/"Ver estatísticas" (conforme o status) e "Excluir partida"
+- "Excluir partida" abre um modal de confirmação (não uma nova tela) explicando que a ação é permanente
+- Ao confirmar: a partida some da lista imediatamente e um snackbar aparece com "Partida excluída." e uma ação "Desfazer"
+- "Desfazer" restaura a partida exatamente como estava, sem nova confirmação — a janela de desfazer expira sozinha (~6s) junto com o snackbar
 
 ## Publicidade
 

@@ -25,6 +25,7 @@ export interface ErrorStats {
   erroEsq: number;
   erroLob: number;
   erroSmash: number;
+  erroDrop: number;
   erroSaque: number;
   duplaFalta: number;
   erroRainbow: number;
@@ -91,7 +92,7 @@ function emptyWinnerStats(): WinnerStats {
 }
 
 function emptyErrorStats(): ErrorStats {
-  return { erroDir: 0, erroEsq: 0, erroLob: 0, erroSmash: 0, erroSaque: 0, duplaFalta: 0, erroRainbow: 0, erroGancho: 0, erroForcado: 0, total: 0 };
+  return { erroDir: 0, erroEsq: 0, erroLob: 0, erroSmash: 0, erroDrop: 0, erroSaque: 0, duplaFalta: 0, erroRainbow: 0, erroGancho: 0, erroForcado: 0, total: 0 };
 }
 
 function emptyServeStats(): ServeStats {
@@ -143,6 +144,7 @@ function applyActionStats(stats: PlayerStats, event: PointEvent): void {
       case 'ERRO_ESQ':     e.erroEsq     += 1; break;
       case 'ERRO_LOB':     e.erroLob     += 1; break;
       case 'ERRO_SMASH':   e.erroSmash   += 1; break;
+      case 'ERRO_DROP':    e.erroDrop    += 1; break;
       case 'ERRO_SAQUE':   e.erroSaque   += 1; break;
       case 'DUPLA_FALTA':  e.duplaFalta  += 1; break;
       case 'ERRO_RAINBOW': e.erroRainbow += 1; break;
