@@ -42,7 +42,7 @@ beach-tennis-scout/
 │   ├── ui/                     # Design system compartilhado (React)
 │   ├── api-client/             # Cliente tipado para a API (gerado ou tRPC)
 │   ├── database/               # Schema Prisma + migrations
-│   └── config/                 # ESLint, TypeScript, Tailwind compartilhados
+│   └── config/                 # ESLint, TypeScript compartilhados
 │
 ├── services/
 │   └── api/                    # Backend NestJS ou Fastify
@@ -154,20 +154,24 @@ match_stats           -- materialized / calculado (V2 cache)
 - Botões grandes para winner/erro (mínimo 48px touch target).
 - Fluxo em 2 toques: **quem ganhou** → **como foi o ponto**.
 - **Undo** do último ponto (essencial em quadra).
-- Modo escuro / alto contraste para sol forte.
+- **Tema claro, sempre** — alto contraste sobre fundo areia, nunca fundo escuro (o Beach Tennis é jogado de dia, sob sol forte). Ver [[../12-Design-System/00-Indice|12-Design-System]].
 - **Offline-first**: partida continua sem internet; sync quando voltar online.
 
 ### Stack frontend
 
+> Esta tabela descreve a stack **real em uso** no MVP (corrigida em 2026-07-14 — versões anteriores deste documento citavam Tailwind/shadcn/Zustand/TanStack Query, que nunca foram adotados).
+
 | Camada | Escolha |
 |---|---|
-| Framework | Next.js 15 |
-| UI | React 19 + Tailwind CSS |
-| Componentes | shadcn/ui (customizável) |
-| Estado local (scout) | Zustand (leve, ideal para placar em tempo real) |
-| Estado servidor | TanStack Query |
-| PWA / offline | next-pwa ou Serwist + Dexie |
-| Formulários | React Hook Form + Zod (validação alinhada ao `domain`) |
+| Framework | Next.js 15 (App Router) |
+| UI | React 19 + **CSS Modules** (sem framework de utilitários) |
+| Design tokens | Custom properties CSS em `globals.css` — fonte de verdade documentada em [[../12-Design-System/00-Indice|12-Design-System]] |
+| Estado local (scout) | `useState`/`useCallback` do React — sem Zustand/Redux; o estado da partida é serializável e pequeno o suficiente para não precisar de uma lib de estado global |
+| Persistência (MVP) | `localStorage` (`apps/web/src/lib/storage.ts`) — IndexedDB/Dexie é candidato de evolução, não implementado ainda |
+| Ícones | `lucide-react` |
+| Formulários | Componentes controlados nativos — sem React Hook Form/Zod no MVP |
+
+**V2+ (ainda não implementado, mantido como direção):** TanStack Query e Dexie/IndexedDB quando houver backend real para sincronizar; React Hook Form + Zod se os formulários crescerem em complexidade.
 
 ### Pacote `packages/ui`
 

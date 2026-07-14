@@ -4,6 +4,8 @@
 > **Rota Next.js:** `/match/new`
 > **Prioridade:** Alta — portão de entrada para o fluxo de scout
 
+> ⚠️ Cores citadas neste documento (ex: `#1565C0`, `#C62828`) são de versão anterior à identidade "Areia & Oceano". Paleta oficial: [[../12-Design-System/01-Colors|12-Design-System/01-Colors]] — Dupla A Azul Oceano `#1E88E5`, Dupla B Coral `#FF7043` (nunca vermelho).
+
 ---
 
 ## Objetivo

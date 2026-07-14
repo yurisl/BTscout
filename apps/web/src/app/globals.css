@@ -1,25 +1,79 @@
 :root {
-  --color-a: #1d4ed8;
-  --color-a-light: #dbeafe;
-  --color-a-dark: #1e3a8a;
-  --color-b: #dc2626;
-  --color-b-light: #fee2e2;
-  --color-b-dark: #991b1b;
-  --color-win: #16a34a;
-  --color-win-light: #dcfce7;
-  --color-err: #dc2626;
-  --color-forced: #d97706;
-  --color-forced-light: #fef3c7;
-  --bg: #f1f5f9;
-  --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-lg: 0 4px 6px rgba(0,0,0,0.07), 0 10px 15px rgba(0,0,0,0.1);
+  /* ==================================================================
+     Beach Tennis Scout — Design Tokens
+     Fonte de verdade: Beach Tennis Scout/12-Design-System (Obsidian)
+     Tema único, claro — não implementar prefers-color-scheme: dark.
+     ================================================================== */
+
+  /* Fundos */
+  --sand-clear: #f6f3ee;
+  --sand-soft: #f1e7d7;
+  --white: #ffffff;
+  --card-grey: #f8f8f6;
+  --line: #e7decb;
+
+  /* Texto */
+  --ink: #22303c;
+  --ink-muted: #6b7280;
+
+  /* Cores principais */
+  --ocean: #1e88e5;   --ocean-dark: #0f5fa8;   --ocean-tint: #e4f1fc;
+  --lagoon: #00acc1;  --lagoon-dark: #007887;  --lagoon-tint: #dff6f9;
+  --victory: #2e7d32; --victory-dark: #1b5e20; --victory-tint: #e5f3e6;
+  --coral: #ff7043;   --coral-dark: #c1440e;   --coral-tint: #ffe9e0;
+  --dune: #f59e0b;    --dune-dark: #92660a;    --dune-tint: #fef3d9;
+
+  /* Estados */
+  --success: #2e7d32;
+  --error: #e53935;   --error-dark: #b3221d;   --error-tint: #fde7e6;
+  --warning: #f59e0b;
+  --info: #1e88e5;
+  --disabled: #b0bec5;
+
+  /* Raios */
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+
+  /* Sombras — tingidas de grafite quente, nunca preto puro */
+  --sh-sm: 0 1px 2px rgba(34, 48, 60, 0.05), 0 1px 1px rgba(34, 48, 60, 0.04);
+  --sh-md: 0 6px 20px rgba(34, 48, 60, 0.08), 0 2px 6px rgba(34, 48, 60, 0.05);
+  --sh-lg: 0 20px 48px rgba(34, 48, 60, 0.14), 0 6px 16px rgba(34, 48, 60, 0.07);
+
+  /* Espaçamento */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+
+  /* Fonte — pilha de sistema, sem webfont a carregar */
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, sans-serif;
+
+  /* ------------------------------------------------------------------
+     Aliases legados — mantidos para que os módulos CSS existentes
+     continuem funcionando sem precisar trocar cada var(--…) um a um.
+     Componentes novos devem preferir os tokens acima diretamente.
+     ------------------------------------------------------------------ */
+  --color-a: var(--ocean);
+  --color-a-light: var(--ocean-tint);
+  --color-a-dark: var(--ocean-dark);
+  --color-b: var(--coral);
+  --color-b-light: var(--coral-tint);
+  --color-b-dark: var(--coral-dark);
+  --color-win: var(--victory);
+  --color-win-light: var(--victory-tint);
+  --color-err: var(--error);
+  --color-forced: var(--victory);
+  --color-forced-light: var(--victory-tint);
+  --bg: var(--sand-clear);
+  --surface: var(--white);
+  --surface-2: var(--card-grey);
+  --text: var(--ink);
+  --text-muted: var(--ink-muted);
+  --border: var(--line);
+  --radius: var(--r-lg);
+  --radius-sm: var(--r-md);
+  --shadow: var(--sh-sm);
+  --shadow-lg: var(--sh-lg);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,11 +81,12 @@
 html { font-size: 16px; -webkit-text-size-adjust: 100%; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  font-family: var(--font);
+  background: var(--sand-clear);
+  color: var(--ink);
   min-height: 100dvh;
-  line-height: 1.5;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
 a { color: inherit; text-decoration: none; }
@@ -41,62 +96,76 @@ button {
   cursor: pointer;
   border: none;
   background: none;
-  border-radius: var(--radius-sm);
-  transition: opacity 0.1s, transform 0.1s;
+  border-radius: var(--r-md);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease, border-color 0.15s ease, opacity 0.1s ease;
   -webkit-tap-highlight-color: transparent;
 }
-button:active { opacity: 0.8; transform: scale(0.97); }
-button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+button:active { transform: scale(0.97); }
+button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+a:focus-visible, button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+  outline: 2.5px solid var(--ocean);
+  outline-offset: 2px;
+}
 
 input, select, textarea {
   font: inherit;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 13px 14px;
   width: 100%;
-  background: var(--surface);
-  color: var(--text);
+  background: var(--white);
+  color: var(--ink);
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-input:focus, select:focus, textarea:focus { border-color: var(--color-a); }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--ocean);
+  box-shadow: 0 0 0 4px var(--ocean-tint);
+}
 
-label { font-size: 0.875rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px; }
+label { font-size: 0.875rem; font-weight: 700; color: var(--ink-muted); display: block; margin-bottom: 6px; }
 
-h1 { font-size: 1.5rem; font-weight: 700; }
-h2 { font-size: 1.25rem; font-weight: 700; }
-h3 { font-size: 1rem; font-weight: 600; }
+h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.375rem; font-weight: 750; letter-spacing: -0.015em; }
+h3 { font-size: 1.0625rem; font-weight: 700; }
 
-.page { max-width: 480px; margin: 0 auto; padding: 16px; }
+.page { max-width: 480px; margin: 0 auto; padding: 20px; }
 
 .card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 16px;
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-sm);
+  padding: 18px;
 }
 
 .btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 14px 20px;
+  gap: 8px;
+  padding: 15px 20px;
   font-size: 1rem;
-  font-weight: 600;
-  border-radius: var(--radius-sm);
+  font-weight: 750;
+  border-radius: var(--r-md);
   min-height: 52px;
   width: 100%;
 }
-.btn-primary { background: var(--color-a); color: white; }
-.btn-outline {
-  background: transparent;
-  border: 1.5px solid var(--border);
-  color: var(--text);
+.btn-primary {
+  background: var(--ocean);
+  color: white;
+  box-shadow: 0 8px 20px -8px rgba(30, 136, 229, 0.55);
 }
-.btn-danger { background: var(--color-err); color: white; }
-.btn-sm { padding: 8px 14px; font-size: 0.875rem; min-height: 38px; }
+.btn-primary:hover { background: var(--ocean-dark); }
+.btn-outline {
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  color: var(--ink);
+}
+.btn-outline:hover { border-color: var(--ocean); color: var(--ocean-dark); }
+.btn-danger { background: var(--error); color: white; }
+.btn-sm { padding: 9px 14px; font-size: 0.875rem; min-height: 40px; }
 
-.stack { display: flex; flex-direction: column; gap: 12px; }
-.row { display: flex; align-items: center; gap: 8px; }
+.stack { display: flex; flex-direction: column; gap: var(--sp-4); }
+.row { display: flex; align-items: center; gap: var(--sp-2); }
 .spacer { flex: 1; }

@@ -1,9 +1,11 @@
 # Wireframe — Scout / Registro de Pontos
 
 > **Tela:** Scout
-> **Rota Next.js:** `/match/[id]/scout`
+> **Rota Next.js:** `/match/[id]/scout` (implementação real: `/partida/[id]`)
 > **Prioridade:** CRÍTICA — tela mais importante do sistema
 > **Publicidade:** NENHUMA — área de trabalho protegida
+
+> ⚠️ **Nota de identidade visual (2026-07-14):** os valores de cor citados neste documento (`#1565C0`, `#C62828`, fundo `#121212`, categorias de cor separadas por tipo de winner) são de uma versão anterior à nova identidade "Areia & Oceano" e **estão superados**. A paleta oficial vigente é [[../12-Design-System/01-Colors|12-Design-System/01-Colors]]: Dupla A = Azul Oceano `#1E88E5`, Dupla B = Coral `#FF7043` (nunca vermelho), fundo sempre claro (nunca `#121212`), e todos os winners — incluindo Ace e Drop Shot — usam a mesma cor Verde Vitória `#2E7D32`, junto com "Forçou Erro do Adversário". Os mockups ASCII abaixo preservam a estrutura de layout, que continua válida; apenas os valores de cor citados devem ser lidos como referência histórica.
 
 ---
 
@@ -507,11 +509,11 @@ Mobile — Estado selecionado:
 
 | Categoria | Cor de fundo | Exemplos |
 |---|---|---|
-| Winners | `#2E7D32` verde escuro | Win Direita, Win Esq, Win Par, Win Cruz, Lob, Smash |
-| Drop Shot | `#00838F` ciano | Drop Shot |
-| Ace | `#6A1B9A` roxo | Ace |
-| Erros | `#E65100` laranja | Erro Dir, Erro Esq, Erro Lob, Erro Smash, Erro Saque |
-| Forçou Erro | `#F57F17` amarelo escuro | Forçou Erro |
+| Winners | Verde Vitória `#2E7D32` (tint `#E5F3E6`) | Paralela, Cruzada, Lob, Smash, Drop, Ace, Rainbow, Gancho |
+| Forçou Erro do Adversário | Verde Vitória `#2E7D32` — **idêntico ao Winner**, mesma cor/peso/altura de botão | Forçou Erro do Adversário |
+| Erros | Erro `#E53935` (tint `#FDE7E6`) | Direita, Esquerda, Lob, Smash, Erro de Saque, Rainbow, Gancho, Erro Forçado |
+
+Todas as categorias de winner usam a mesma cor — não há mais distinção visual entre Ace (antes roxo) ou Drop Shot (antes ciano) e os demais winners. Ver [[../12-Design-System/01-Colors|Colors]].
 
 ```
 Mobile — Botão tipo (Estado 0, inativo):
@@ -634,19 +636,21 @@ Exibida automaticamente pelo ScoringEngine quando um set é encerrado.
 
 ## Especificações de Design para Sol Forte
 
+> Substituída pela identidade "Areia & Oceano" (2026-07-14) — decisão de produto: **tema claro**, não escuro, é o que maximiza legibilidade ao sol. Fonte de verdade: [[../12-Design-System/00-Indice|12-Design-System]].
+
 | Propriedade | Valor | Motivo |
 |---|---|---|
-| Background geral | `#121212` | Fundo escuro reduz reflexo de tela |
-| Texto principal | `#FFFFFF` | Máximo contraste |
-| Texto secundário | `#BDBDBD` | Legível sem competir com ações |
-| Botões de jogador (A) | `#1565C0` com texto branco | Azul escuro legível ao sol |
-| Botões de jogador (B) | `#C62828` com texto branco | Vermelho escuro legível ao sol |
-| Botões winners | `#2E7D32` com texto branco | Verde escuro |
-| Botões erros | `#E65100` com texto branco | Laranja escuro |
+| Background geral | Areia Clara `#F6F3EE` | Tema claro — o Beach Tennis é jogado de dia; um fundo escuro reduz legibilidade ao sol, não aumenta |
+| Texto principal | Grafite `#22303C` | Alto contraste sobre areia, sem o peso visual de um fundo preto |
+| Texto secundário | Cinza Médio `#6B7280` | Legível sem competir com ações |
+| Botões de jogador — Dupla A | `#1E88E5` (Azul Oceano) com texto `#0F5FA8` sobre tint `#E4F1FC` | Identidade de dupla, nunca vermelho |
+| Botões de jogador — Dupla B | `#FF7043` (Coral) com texto `#C1440E` sobre tint `#FFE9E0` | Identidade de dupla — vermelho é exclusivo de erro |
+| Botões winners / Forçou Erro | Verde Vitória `#2E7D32` — idênticos entre si | Mesmo destaque para as duas categorias de "ponto ganho" |
+| Botões erros | Erro `#E53935` | Única categoria vermelha da tela |
 | Font size mínimo botões | 13px bold | Legível com tela a ~50cm |
 | Touch target mínimo | 44×44px | Recomendação WCAG / Apple HIG |
-| Border radius | 8px | Feedback visual de área clicável |
-| Sombra nos botões | `0 2px 8px rgba(0,0,0,0.5)` | Separação visual no tema escuro |
+| Border radius | 16px (botões) / 20px (cards) | Ver [[../12-Design-System/04-Spacing|Spacing]] |
+| Sombra nos botões/cards | Tingida de grafite quente — ver `--sh-sm`/`--sh-md` em [[../12-Design-System/04-Spacing|Spacing]] | Combina com o fundo areia em vez de destoar como sombra de sistema |
 
 ---
 

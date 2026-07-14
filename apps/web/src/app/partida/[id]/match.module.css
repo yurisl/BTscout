@@ -12,15 +12,16 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(15, 23, 42, 0.92);
+  background: rgba(34, 48, 60, 0.94);
   color: white;
   font-size: 1.5rem;
   font-weight: 800;
   padding: 20px 36px;
-  border-radius: var(--radius);
+  border-radius: var(--r-lg);
   z-index: 100;
   pointer-events: none;
   white-space: nowrap;
+  box-shadow: var(--sh-lg);
   animation: pop 0.15s ease-out;
 }
 @keyframes pop {
@@ -32,13 +33,22 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 16px 8px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  padding: 14px 20px 10px;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
   flex-wrap: wrap;
 }
-.back { font-size: 0.875rem; color: var(--text-muted); }
-.matchType { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+.back { font-size: 0.875rem; color: var(--ink-muted); font-weight: 600; }
+.matchType {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--card-grey);
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+}
 
 .topBarActions {
   margin-left: auto;
@@ -50,39 +60,42 @@
 .statsBtn,
 .pauseBtn,
 .undoBtn {
-  padding: 8px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
-  font-weight: 600;
-  background: var(--surface-2);
-  border: 1.5px solid var(--border);
-  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: var(--r-md);
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: var(--card-grey);
+  border: 1.5px solid var(--line);
+  color: var(--ink);
   min-height: 40px;
   white-space: nowrap;
 }
-.statsBtn { color: var(--color-a); border-color: var(--color-a-light); }
+.statsBtn { color: var(--ocean-dark); background: var(--ocean-tint); border-color: transparent; }
 
-.scoreSection { padding: 12px 16px 0; }
+.scoreSection { padding: 16px 20px 0; }
 
 .error {
-  margin: 8px 16px 0;
-  padding: 10px 14px;
-  background: var(--color-b-light);
-  color: var(--color-b-dark);
-  border-radius: var(--radius-sm);
+  margin: 10px 20px 0;
+  padding: 11px 14px;
+  background: var(--error-tint);
+  color: var(--error-dark);
+  border-radius: var(--r-md);
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .registrationSection {
   flex: 1;
-  padding: 12px 16px 24px;
+  padding: 16px 20px 28px;
   overflow-y: auto;
 }
 
 .finishedPanel {
   flex: 1;
-  padding: 24px 16px;
+  padding: 28px 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -90,8 +103,8 @@
 }
 .finishedText {
   text-align: center;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--color-win);
+  font-size: 1.2rem;
+  font-weight: 750;
+  color: var(--victory-dark);
   padding-bottom: 8px;
 }

@@ -4,6 +4,8 @@
 > **Rota Next.js:** `/`
 > **Prioridade:** Alta — primeiro contato do usuário com o produto
 
+> ⚠️ Cores citadas neste documento (ex: `#1565C0`) são de versão anterior à identidade "Areia & Oceano". Paleta oficial: [[../12-Design-System/01-Colors|12-Design-System/01-Colors]] — CTA primário e Dupla A em Azul Oceano `#1E88E5`, fundo Areia Clara `#F6F3EE`.
+
 ---
 
 ## Objetivo

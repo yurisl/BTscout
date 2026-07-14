@@ -5,6 +5,8 @@
 > **Prioridade:** Média-Alta — primeira impressão do valor gerado pelo app
 > **Publicidade:** Nenhuma — publicidade removida do MVP em todas as telas (ver [[02-Monetizacao]])
 
+> ⚠️ Cores citadas neste documento (ex: `#2E7D32`, `#1B5E20`) seguem a identidade "Areia & Oceano" — Verde Vitória `#2E7D32` para vencedor/winner. Paleta completa: [[../12-Design-System/01-Colors|12-Design-System/01-Colors]].
+
 ---
 
 ## Objetivo

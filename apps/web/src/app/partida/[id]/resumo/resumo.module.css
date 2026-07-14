@@ -2,8 +2,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
 }
-.back { font-size: 0.875rem; color: var(--text-muted); }
-.backToMatch { margin-left: auto; font-size: 0.8rem; color: var(--color-a); font-weight: 600; }
+.back { font-size: 0.875rem; color: var(--ink-muted); font-weight: 600; }
+.backToMatch { margin-left: auto; font-size: 0.82rem; color: var(--ocean-dark); font-weight: 700; }

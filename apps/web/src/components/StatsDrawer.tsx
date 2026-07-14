@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { X } from 'lucide-react';
 import styles from './StatsDrawer.module.css';
 
 interface Props {
@@ -37,7 +38,7 @@ export default function StatsDrawer({ open, title, onClose, children }: Props) {
         <div className={styles.header}>
           <span className={styles.title}>{title}</span>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Fechar">
-            ✕
+            <X size={18} strokeWidth={2.25} />
           </button>
         </div>
         <div className={styles.body}>{children}</div>

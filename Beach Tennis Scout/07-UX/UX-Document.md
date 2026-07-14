@@ -1,8 +1,8 @@
 # Beach Tennis Scout — Documento de UX
 
-> **Versão:** 3.0
-> **Data:** 2026-07-13
-> **Status:** MVP — Revisado após validação do primeiro deploy (regras No-Ad, estatísticas ao vivo, pausar/continuar partida, publicidade removida)
+> **Versão:** 3.1
+> **Data:** 2026-07-14
+> **Status:** MVP — Nova identidade visual "Areia & Oceano" (tema claro, ver [[12-Design-System/00-Indice]]); regras No-Ad, estatísticas ao vivo, pausar/continuar partida, publicidade removida
 
 ---
 
@@ -89,7 +89,7 @@ Esta seção documenta as decisões estratégicas que guiam todas as escolhas de
 |---|---|
 | **2 toques = 1 ponto** | Jogador → Como foi. Confirmação automática no 2º toque |
 | **Zona de polegar** | Todos os botões de ação na metade inferior da tela no mobile |
-| **Contraste extremo** | Fundo escuro + botões de alto contraste para uso ao sol |
+| **Tema claro, sempre** | Fundo areia claro (nunca escuro) + botões de alto contraste — o Beach Tennis é jogado de dia, sob sol forte; um fundo escuro reduz a legibilidade exatamente na condição de uso mais comum. Ver [[12-Design-System/00-Indice]] |
 | **Undo sem limite** | Desfazer qualquer quantidade de pontos, sempre disponível |
 | **Feedback imediato** | Vibração + som + animação a cada ponto registrado (≤ 100ms) |
 | **Dados nunca se perdem** | Autosave local após cada ponto, recuperação automática |
@@ -238,6 +238,8 @@ Esta seção documenta as decisões estratégicas que guiam todas as escolhas de
 └─────────────────────────────────────┘
 ```
 
+> Os símbolos entre colchetes (📊 ⏸ ↩) nos mockups ASCII acima representam ícones **Lucide** (`chart-column-increasing`, `pause`, `undo-2`) no produto real — o app não usa emojis, ver [[12-Design-System/05-Icons]].
+>
 > **Sem publicidade nesta tela** — nem em nenhuma outra do MVP. Ver [[#9. Publicidade]].
 >
 > **Botão "Estatísticas" sempre acessível:** ao tocar, abre um painel lateral (desktop, telas ≥768px) ou modal/bottom-sheet (mobile) com pontos disputados, winners, erros, percentuais e detalhamento por jogador/dupla — sem sair da tela de registro nem perder o passo em que o usuário estava (jogador já selecionado, aguardando o tipo de ponto). Ver [[04-Estatisticas]].
@@ -365,32 +367,30 @@ Estado 0: Aguardando
 
 ### 6.2 Botão de Jogador (Passo 1)
 
-- Tamanho mínimo: 100×60px no mobile
+- Tamanho mínimo: 100×64px no mobile
 - Mostra o nome do jogador (não "Jogador 1")
-- Cor de fundo por dupla:
-  - Dupla A → Azul (`#1565C0`)
-  - Dupla B → Vermelho (`#C62828`)
-- Estado selecionado: borda branca + destaque
+- Cor de fundo por dupla (ver [[12-Design-System/01-Colors]]):
+  - Dupla A → Azul Oceano (`#1E88E5`)
+  - Dupla B → Coral (`#FF7043`) — **nunca vermelho**, reservado exclusivamente ao estado de erro
+- Estado selecionado: contorno reforçado + destaque
 - Estado aguardando: todos os 4 botões visíveis e ativos
 
 ### 6.3 Botão de Tipo de Ponto (Passo 2)
 
-- Tamanho mínimo: 80×56px no mobile
+- Tamanho mínimo: 80×52px no mobile
 - Visível apenas após o Passo 1 ser concluído
-- Cores semânticas:
-  - Winners → Verde (`#2E7D32`)
-  - Erros → Laranja (`#E65100`)
-  - Ace → Roxo (`#6A1B9A`)
-  - Drop Shot → Ciano (`#00838F`)
-  - Forçou Erro → Amarelo escuro (`#F57F17`)
-- Disposição: grid 2 colunas
+- Cores semânticas (ver [[12-Design-System/01-Colors]]):
+  - Winners → Verde Vitória (`#2E7D32`)
+  - Forçou Erro do Adversário → Verde Vitória (`#2E7D32`) — **exatamente o mesmo destaque dos Winners**, mesma cor, peso e altura de botão
+  - Erros → Erro (`#E53935`)
+- Disposição: grid de 3 colunas (Forçou Erro ocupa a linha inteira)
 
 ### 6.4 Botão Undo
 
 - Posição: canto superior direito, sempre visível durante a partida
-- Ícone: seta curva para esquerda `[↩]`
-- Cor: cinza neutro — não compete com botões de ação
-- Desativado (cinza claro) quando não há ponto para desfazer
+- Ícone: Lucide `undo-2` (substituiu o emoji ↩ usado anteriormente — ver [[12-Design-System/05-Icons]])
+- Cor: neutro — não compete com botões de ação
+- Desativado (opacidade reduzida) quando não há ponto para desfazer
 
 ### 6.5 Indicador de Saque
 
@@ -696,7 +696,8 @@ Criar a pasta `09-Negocio` no vault com os seguintes documentos:
 - Armazenamento local: IndexedDB no web, AsyncStorage no mobile (React Native) ou equivalente nativo
 - Não implementar login/auth na V1 — aumenta atrito sem valor proporcional no MVP
 - Não implementar exportação de PDF na V1 — compartilhar via texto/screenshot é suficiente para validar
+- Toda decisão de cor, tipografia, componente, espaçamento, ícone e movimento é normativa em [[12-Design-System/00-Indice]] — este documento descreve fluxos e telas, aquele é a fonte de verdade visual
 
 ---
 
-*Beach Tennis Scout — Documento de UX v3.0 — Uso interno*
+*Beach Tennis Scout — Documento de UX v3.1 — Uso interno*

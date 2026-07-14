@@ -66,9 +66,11 @@ export default function Scoreboard({ match }: { match: Match }) {
   const teamAName = match.teamA.players.map((p) => p.name).join(' / ');
   const teamBName = match.teamB.players.map((p) => p.name).join(' / ');
   const stbInfo = superTiebreakHeaderInfo(match);
+  const isSuperTiebreak = match.sets[match.currentSetIndex]?.type === 'super_tiebreak'
+    && match.status === 'in_progress';
 
   return (
-    <div className={styles.board}>
+    <div className={`${styles.board} ${isSuperTiebreak ? styles.boardStb : ''}`}>
       {/* Header row */}
       <div className={styles.header}>
         <span className={styles.teamNameA}>{teamAName}</span>
@@ -80,20 +82,20 @@ export default function Scoreboard({ match }: { match: Match }) {
 
       {/* Sets won */}
       <div className={styles.setsWon}>
-        <span className={styles.setsCount} style={{ color: 'var(--color-a)' }}>{setsA}</span>
+        <span className={`${styles.setsCount} ${styles.setsCountA}`}>{setsA}</span>
         <span className={styles.setsLabel}>sets</span>
-        <span className={styles.setsCount} style={{ color: 'var(--color-b)' }}>{setsB}</span>
+        <span className={`${styles.setsCount} ${styles.setsCountB}`}>{setsB}</span>
       </div>
 
       {/* Individual set scores */}
       <div className={styles.setScores}>
         {match.sets.map((s) => (
           <div key={s.id} className={`${styles.setChip} ${s.status === 'in_progress' ? styles.setActive : ''}`}>
-            <span style={{ color: 'var(--color-a)' }}>
+            <span className={styles.setChipA}>
               {s.type === 'super_tiebreak' ? s.tiebreakScoreA : s.gamesA}
             </span>
             <span className={styles.setDash}>-</span>
-            <span style={{ color: 'var(--color-b)' }}>
+            <span className={styles.setChipB}>
               {s.type === 'super_tiebreak' ? s.tiebreakScoreB : s.gamesB}
             </span>
           </div>

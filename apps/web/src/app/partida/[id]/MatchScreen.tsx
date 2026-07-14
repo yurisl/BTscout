@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { ChartColumnIncreasing, Pause, Undo2 } from 'lucide-react';
 import { applyPoint, undoPoint, configureSetServer } from '@beach-tennis-scout/domain';
 import type { Match, TransitionType } from '@beach-tennis-scout/domain';
 import { loadMatch, saveMatch } from '@/lib/storage';
@@ -133,19 +134,19 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
         </span>
         <div className={styles.topBarActions}>
           <button className={styles.statsBtn} onClick={() => setStatsOpen(true)}>
-            📊 Estatísticas
+            <ChartColumnIncreasing size={18} strokeWidth={2} /> Estatísticas
           </button>
           {match.status === 'in_progress' && (
             <>
               <Link href="/" className={styles.pauseBtn}>
-                ⏸ Pausar
+                <Pause size={18} strokeWidth={2} /> Pausar
               </Link>
               <button
                 className={styles.undoBtn}
                 onClick={handleUndo}
                 disabled={match.pointEvents.length === 0}
               >
-                ↩ Desfazer
+                <Undo2 size={18} strokeWidth={2} /> Desfazer
               </button>
             </>
           )}

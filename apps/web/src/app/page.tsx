@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Plus, Trash2 } from 'lucide-react';
 import type { Match } from '@beach-tennis-scout/domain';
 import { loadMatches, deleteMatch } from '@/lib/storage';
 import styles from './home.module.css';
@@ -88,7 +89,7 @@ export default function HomePage() {
           <p className={styles.subtitle}>Registro ponto a ponto</p>
         </div>
         <Link href="/partida/nova" className={`btn btn-primary ${styles.newBtn}`}>
-          + Nova Partida
+          <Plus size={18} strokeWidth={2.5} /> Nova Partida
         </Link>
       </header>
 
@@ -278,8 +279,9 @@ function MatchCard({
               className={styles.deleteBtn}
               onClick={(e) => { e.preventDefault(); onDeleteRequest(); }}
               title="Excluir partida"
+              aria-label="Excluir partida"
             >
-              🗑
+              <Trash2 size={17} strokeWidth={2} />
             </button>
           )}
         </div>

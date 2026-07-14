@@ -1,35 +1,62 @@
 .board {
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-lg);
-  padding: 16px;
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-md);
+  padding: 20px;
   text-align: center;
 }
+
+/* Variante Super Tie-Break — único lugar do produto com fundo saturado */
+.boardStb {
+  background: linear-gradient(155deg, var(--ocean-dark), var(--lagoon-dark) 130%);
+  box-shadow: 0 16px 36px -12px rgba(15, 95, 168, 0.45);
+}
+.boardStb .teamNameA,
+.boardStb .teamNameB,
+.boardStb .tournament,
+.boardStb .setsLabel,
+.boardStb .gameLabel,
+.boardStb .pointDisplay,
+.boardStb .server,
+.boardStb .stbInfo {
+  color: white;
+}
+.boardStb .setsCountA,
+.boardStb .setsCountB { color: white; }
+.boardStb .setChip { background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.25); color: rgba(255, 255, 255, 0.92); }
+.boardStb .setChipA,
+.boardStb .setChipB { color: rgba(255, 255, 255, 0.95); }
+.boardStb .setActive { border-color: rgba(255, 255, 255, 0.7); }
+.boardStb .setDash { color: rgba(255, 255, 255, 0.7); }
+.boardStb .pointScore { border-top-color: rgba(255, 255, 255, 0.22); }
+.boardStb .server { opacity: 0.92; }
+.boardStb .stbInfo { opacity: 0.85; }
+.boardStb .dotA, .boardStb .dotB { background: white; }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .teamNameA {
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: var(--color-a);
+  font-weight: 750;
+  font-size: 0.88rem;
+  color: var(--ocean-dark);
   text-align: left;
   flex: 1;
 }
 .teamNameB {
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: var(--color-b);
+  font-weight: 750;
+  font-size: 0.88rem;
+  color: var(--coral-dark);
   text-align: right;
   flex: 1;
 }
 .tournament {
   font-size: 0.7rem;
-  color: var(--text-muted);
+  color: var(--ink-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -40,56 +67,70 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
-.setsCount { font-size: 2.5rem; font-weight: 800; line-height: 1; }
-.setsLabel { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+.setsCount { font-size: 2.75rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.setsCountA { color: var(--ocean-dark); }
+.setsCountB { color: var(--coral-dark); }
+.setChipA { color: var(--ocean-dark); }
+.setChipB { color: var(--coral-dark); }
+.setsLabel { font-size: 0.75rem; color: var(--ink-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
 
 .setScores {
   display: flex;
   justify-content: center;
-  gap: 6px;
-  margin-bottom: 12px;
+  gap: 7px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
 }
 .setChip {
   display: flex;
   align-items: center;
-  gap: 3px;
-  background: var(--surface-2);
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  padding: 4px 10px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--text-muted);
+  gap: 4px;
+  background: var(--card-grey);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 5px 12px;
+  font-size: 1rem;
+  font-weight: 750;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
 }
-.setActive { border-color: var(--text-muted); }
-.setDash { color: var(--text-muted); font-weight: 400; font-size: 0.75rem; }
+.setActive { border-color: var(--ocean); color: var(--ink); }
+.setDash { color: var(--ink-muted); font-weight: 400; font-size: 0.75rem; }
 
-.pointScore { border-top: 1px solid var(--border); padding-top: 12px; }
-.gameLabel { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
-.pointDisplay { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
-.server { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px; }
-.dotA { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-a); }
-.dotB { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-b); }
+.pointScore { border-top: 1px solid var(--line); padding-top: 16px; }
+.gameLabel { font-size: 0.76rem; font-weight: 700; color: var(--ink-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+.pointDisplay {
+  font-size: clamp(2.75rem, 11vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--ink);
+}
+.server { font-size: 0.82rem; color: var(--ink-muted); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.dotA { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--ocean); }
+.dotB { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--coral); }
 
 .stbInfo {
-  font-size: 0.72rem;
-  color: var(--text-muted);
+  font-size: 0.74rem;
+  color: var(--ink-muted);
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 .stbDivider { opacity: 0.6; }
 
 .winner {
-  border-top: 1px solid var(--border);
-  padding-top: 12px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--color-win);
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  font-size: 1.15rem;
+  font-weight: 750;
+  color: var(--victory-dark);
 }
