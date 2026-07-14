@@ -2,13 +2,14 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { applyPoint, undoPoint } from '@beach-tennis-scout/domain';
+import { applyPoint, undoPoint, configureSetServer } from '@beach-tennis-scout/domain';
 import type { Match, TransitionType } from '@beach-tennis-scout/domain';
 import { loadMatch, saveMatch } from '@/lib/storage';
 import Scoreboard from '@/components/Scoreboard';
 import PointRegistration from '@/components/PointRegistration';
 import StatsDrawer from '@/components/StatsDrawer';
 import MatchStats from '@/components/MatchStats';
+import ServeSetupDialog, { type ServeSetupResult } from '@/components/ServeSetupDialog';
 import styles from './match.module.css';
 
 const TRANSITION_LABELS: Record<TransitionType, string | null> = {
@@ -19,33 +20,30 @@ const TRANSITION_LABELS: Record<TransitionType, string | null> = {
   super_tiebreak_started: 'Super Tie-Break!',
   set_won: 'Set!',
   match_won: 'Partida encerrada!',
+  side_change: 'Troca de Lado!',
 };
 
-function needsServerPick(match: Match, transitions: TransitionType[]): boolean {
-  // Duplas: após game regular (não entra em tiebreak/supertiebreak), partida em aberto
-  return (
-    match.type === 'doubles' &&
-    match.status === 'in_progress' &&
-    transitions.includes('game_won') &&
-    !transitions.includes('tiebreak_started') &&
-    !transitions.includes('super_tiebreak_started') &&
-    !transitions.includes('match_won')
-  );
-}
+const SET_SETUP_TITLES: Record<number, string> = {
+  1: 'Sacador inicial — 1º Set',
+  2: 'Sacador inicial — 2º Set',
+  3: 'Sacador inicial — Super Tie-Break',
+};
 
-function autoSetServer(match: Match): Match {
-  // Singles: após game, o sacador é o único jogador do novo time
-  const nextTeam = match.servingTeam === 'A' ? match.teamA : match.teamB;
-  const nextPlayer = nextTeam.players[0];
-  if (!nextPlayer || match.servingPlayerId === nextPlayer.id) return match;
-  return { ...match, servingPlayerId: nextPlayer.id };
+/**
+ * Duplas: o set atual ainda não tem sacador configurado (início de set —
+ * 1º set, 2º set ou Super Tie-Break). Bloqueia o registro de pontos até a
+ * resposta ser dada; ver EP-01/EP-03 e `configureSetServer` no domínio.
+ */
+function needsServeSetup(match: Match): boolean {
+  if (match.type !== 'doubles' || match.status !== 'in_progress') return false;
+  const set = match.sets[match.currentSetIndex];
+  return !!set && set.serverConfig === null;
 }
 
 export default function MatchScreen({ matchId }: { matchId: string }) {
   const [match, setMatch] = useState<Match | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [choosingServer, setChoosingServer] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
 
   useEffect(() => {
@@ -74,17 +72,7 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
       try {
         const result = applyPoint(match, input);
         showToast(result.transitions);
-
-        if (result.match.type === 'singles' && result.transitions.includes('game_won')) {
-          // Singles: auto-deduz sacador do próximo game
-          applyAndSave(autoSetServer(result.match));
-        } else if (needsServerPick(result.match, result.transitions)) {
-          // Duplas: perguntar quem saca
-          applyAndSave(result.match);
-          setChoosingServer(true);
-        } else {
-          applyAndSave(result.match);
-        }
+        applyAndSave(result.match);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Erro ao registrar ponto');
       }
@@ -95,7 +83,6 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
   const handleUndo = useCallback(() => {
     if (!match) return;
     setError(null);
-    setChoosingServer(false);
     try {
       const result = undoPoint(match);
       applyAndSave(result.match);
@@ -105,12 +92,16 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
     }
   }, [match]);
 
-  const handleServerPick = useCallback(
-    (playerId: string) => {
+  const handleServeSetup = useCallback(
+    (config: ServeSetupResult) => {
       if (!match) return;
-      const updated = { ...match, servingPlayerId: playerId };
-      applyAndSave(updated);
-      setChoosingServer(false);
+      setError(null);
+      try {
+        const updated = configureSetServer(match, config);
+        applyAndSave(updated);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Erro ao configurar o sacador');
+      }
     },
     [match],
   );
@@ -128,9 +119,8 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
     );
   }
 
-  const servingTeam = match.servingTeam === 'A' ? match.teamA : match.teamB;
-  const servingTeamColor = match.servingTeam === 'A' ? 'var(--color-a)' : 'var(--color-b)';
-  const servingTeamName = `Time ${match.servingTeam}`;
+  const serveSetupNeeded = needsServeSetup(match);
+  const currentSetNumber = match.sets[match.currentSetIndex]?.setNumber ?? 1;
 
   return (
     <div className={styles.screen}>
@@ -153,7 +143,7 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
               <button
                 className={styles.undoBtn}
                 onClick={handleUndo}
-                disabled={match.pointEvents.length === 0 && !choosingServer}
+                disabled={match.pointEvents.length === 0}
               >
                 ↩ Desfazer
               </button>
@@ -174,25 +164,12 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
 
       {match.status === 'in_progress' ? (
         <div className={styles.registrationSection}>
-          {choosingServer ? (
-            /* Overlay: escolher sacador do próximo game */
-            <div className={styles.serverPicker}>
-              <p className={styles.serverPickerTitle}>
-                Quem saca pelo{' '}
-                <strong style={{ color: servingTeamColor }}>{servingTeamName}</strong>?
-              </p>
-              {servingTeam.players.map((p) => (
-                <button
-                  key={p.id}
-                  className={`${styles.serverPickerBtn} ${
-                    match.servingTeam === 'A' ? styles.serverPickerBtnA : styles.serverPickerBtnB
-                  }`}
-                  onClick={() => handleServerPick(p.id)}
-                >
-                  {p.name}
-                </button>
-              ))}
-            </div>
+          {serveSetupNeeded ? (
+            <ServeSetupDialog
+              match={match}
+              title={SET_SETUP_TITLES[currentSetNumber] ?? `Sacador inicial — Set ${currentSetNumber}`}
+              onConfirm={handleServeSetup}
+            />
           ) : (
             <PointRegistration match={match} onPoint={handlePoint} />
           )}

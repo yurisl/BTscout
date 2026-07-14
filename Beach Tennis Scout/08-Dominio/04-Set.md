@@ -36,6 +36,7 @@ A lógica de quando o set termina e o que acontece a seguir é de responsabilida
 | `status` | `in_progress` ou `finished` |
 | `winner` | Time vencedor do set (`A`, `B` ou `null`) |
 | `games` | Lista de games que compõem o set |
+| `serverConfig` | Configuração de sacador deste set (`SetServerConfig` ou `null`). Definida uma única vez, no início do set, via `configureSetServer` — ver [[09-ScoringEngine]]. Enquanto for `null`, nenhum ponto pode ser registrado neste set. |
 
 ---
 
@@ -69,8 +70,10 @@ Se o formato da partida define `lastSetIsSuperTiebreak: true`, o último set pos
 
 Nesse caso:
 - O set já começa com `type: super_tiebreak`
-- Não há games dentro dele — a pontuação é diretamente em `tiebreakScoreA` e `tiebreakScoreB`
-- O set termina quando um time atinge 10 pontos com vantagem mínima de 2
+- Não há games dentro dele — a pontuação é diretamente em `tiebreakScoreA` e `tiebreakScoreB`, em contagem direta (1, 2, 3...) — nunca 15/30/40/Vantagem/Deuce
+- O set termina quando um time atinge 10 pontos com vantagem mínima de 2; empate em 9x9 (ou qualquer empate acima de 9) não decide nada, o jogo continua até alguém abrir 2 pontos
+- O saque segue a ordem oficial ponto a ponto (1º sacador cobra 1 ponto, os demais cobram 2 cada, alternando dupla e jogador) — ver [[09-ScoringEngine]] § Saque no Super Tie-Break
+- A cada 4 pontos disputados (marcos 1, 5, 9, 13, 17, 21...) o app avisa a troca de lado — aviso apenas informativo, sem tempo de descanso
 
 ---
 
@@ -89,6 +92,8 @@ Nesse caso:
 6. **O vencedor do set é registrado no momento do encerramento** e não muda.
 
 7. **O placar de um set encerrado nunca é alterado**, exceto em operações de undo, que restauram o estado anterior completo.
+
+8. **Um set não aceita pontos enquanto `serverConfig` for `null`.** Em duplas, isso obriga a interface a perguntar o sacador inicial (quem saca pela Dupla A, quem saca pela Dupla B, qual dupla saca primeiro) no início de cada set antes de liberar o registro. Em simples o engine configura automaticamente ao criar o set — não há pergunta.
 
 ---
 

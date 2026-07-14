@@ -22,7 +22,9 @@ Capturar os dados necessários para iniciar uma partida. O formulário deve ser 
 | Seletor de modalidade (Simples / Duplas) | Toggle | Sim |
 | Campos de nome dos jogadores | Input com autocomplete | Sim |
 | Seletor de formato da partida | Radio/Toggle | Sim |
-| Seletor de quem saca primeiro | Toggle duplo | Sim |
+| Sacador inicial da Dupla A (duplas) | Toggle duplo | Sim, em Duplas |
+| Sacador inicial da Dupla B (duplas) | Toggle duplo | Sim, em Duplas |
+| Qual dupla saca primeiro | Toggle duplo | Sim |
 | Seção "Dados do Contexto" recolhível | Accordeon | Não |
 | Botão "Iniciar Partida" | CTA primário | Sim |
 
@@ -77,10 +79,24 @@ Capturar os dados necessários para iniciar uma partida. O formulário deve ser 
 │                                         │
 │  ─────────────────────────────────────  │
 │                                         │
-│  QUEM SACA PRIMEIRO?                    │
+│  QUEM SACA PRIMEIRO PELA DUPLA A?       │  ← só em Duplas; em Simples
+│  ┌─────────────────┐  ┌──────────────┐ │     pula direto para "qual dupla
+│  │   Jogador A1    │  │  Jogador A2  │ │     saca primeiro?" (sem estas
+│  └─────────────────┘  └──────────────┘ │     duas perguntas de jogador)
+│                                         │
+│  QUEM SACA PRIMEIRO PELA DUPLA B?       │
+│  ┌─────────────────┐  ┌──────────────┐ │
+│  │   Jogador B1    │  │  Jogador B2  │ │
+│  └─────────────────┘  └──────────────┘ │
+│                                         │
+│  QUAL DUPLA FARÁ O 1º SAQUE DO SET?     │
 │  ┌─────────────────┐  ┌──────────────┐ │
 │  │    DUPLA A      │  │   DUPLA B    │ │  ← toggle, 52px altura
 │  └─────────────────┘  └──────────────┘ │
+│                                         │
+│  Essa config vale só para o 1º set —    │  ← nota em 12px cinza
+│  no 2º set e no Super Tie-Break o app   │
+│  pergunta de novo (ver Scout)           │
 │                                         │
 │  ─────────────────────────────────────  │
 │                                         │
@@ -146,10 +162,10 @@ Capturar os dados necessários para iniciar uma partida. O formulário deve ser 
 │  │                     │  │                     │   │
 │  └─────────────────────┘  └─────────────────────┘   │
 │                                                      │
-│  FORMATO                         SAQUE INICIAL       │
-│  ◉ Melhor de 3 Sets              [ Dupla A ]         │
-│  ○ Pro Set                       [ Dupla B ]         │
-│  ○ Melhor de 5 Sets                                  │
+│  FORMATO                         SAQUE INICIAL (1º SET) │
+│  ◉ Melhor de 3 Sets              Dupla A: [A1][A2]   │
+│  ○ Pro Set                       Dupla B: [B1][B2]   │
+│  ○ Melhor de 5 Sets               1º saque: [A][B]   │
 │                                                      │
 │  ▶ Dados do Contexto (opcional)                      │
 │                                                      │
@@ -182,10 +198,10 @@ Capturar os dados necessários para iniciar uma partida. O formulário deve ser 
 │  └────────────────────────────┘  └────────────────────────────┘ │
 │                                                                  │
 │  ┌────────────────────────────┐  ┌────────────────────────────┐ │
-│  │  FORMATO                  │  │  SAQUE INICIAL             │ │
-│  │                            │  │                            │ │
-│  │  ◉ Melhor de 3 Sets       │  │  [ DUPLA A ]  [ DUPLA B ] │ │
-│  │  ○ Pro Set                 │  │                            │ │
+│  │  FORMATO                  │  │  SAQUE INICIAL (1º SET)    │ │
+│  │                            │  │  Dupla A saca: [A1] [A2]  │ │
+│  │  ◉ Melhor de 3 Sets       │  │  Dupla B saca: [B1] [B2]  │ │
+│  │  ○ Pro Set                 │  │  1º saque: [DUPLA A][B]  │ │
 │  │  ○ Melhor de 5 Sets       │  │                            │ │
 │  └────────────────────────────┘  └────────────────────────────┘ │
 │                                                                  │
@@ -221,7 +237,9 @@ Nova Partida
 | Jogador B1 | Obrigatório | "Informe o nome do Jogador B1" |
 | Jogador B2 | Obrigatório em Duplas | "Informe o nome do Jogador B2" |
 | Formato | Obrigatório (padrão: Melhor de 3) | — |
-| Saque inicial | Obrigatório (padrão: Dupla A) | — |
+| Sacador da Dupla A | Obrigatório em Duplas (padrão: Jogador A1) | — |
+| Sacador da Dupla B | Obrigatório em Duplas (padrão: Jogador B1) | — |
+| Qual dupla saca primeiro | Obrigatório (padrão: Dupla A) | — |
 
 - Validação ocorre apenas no submit, não em tempo real (menos distração)
 - "Iniciar Partida" fica ativo o tempo todo — validação bloqueia apenas no toque
@@ -241,7 +259,7 @@ Nova Partida
 - Formulário gerenciado com React Hook Form + Zod
 - Autocomplete: lista de nomes lida do IndexedDB (`usePlayerHistory()`)
 - Ao salvar jogadores, persistir nomes únicos no IndexedDB para uso futuro
-- `[INICIAR PARTIDA]` cria o objeto `Match` via `ScoringEngine.createMatch(config)` e salva no IndexedDB
+- `[INICIAR PARTIDA]` cria o objeto `Match` (`createMatch`, em `apps/web/src/lib/matchFactory.ts`) e, em seguida, chama `configureSetServer` do domínio com as 3 respostas de saque para configurar o set 1 — a mesma função usada nos diálogos de sacador do 2º set e do Super Tie-Break (ver [[03-Scout]] e [[09-ScoringEngine]])
 - Após criação, redirecionar para `/match/[id]/scout` com `router.push`
 - A mudança de Simples → Duplas deve ocultar/exibir o campo Jogador 2 de cada time com animação suave
 - O acordeão de contexto usa estado local React, sem persistência

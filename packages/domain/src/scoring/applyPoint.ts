@@ -3,9 +3,10 @@ import type { MatchSet } from '../entities/MatchSet.js';
 import type { Game } from '../entities/Game.js';
 import type { PointEvent, PointType, PointSubtype, ScoreSnapshot } from '../entities/PointEvent.js';
 import type { TeamSide } from '../entities/Team.js';
+import type { SetServerConfig } from '../entities/ServeConfig.js';
 import { resolveGame } from './resolveGame.js';
 import { resolveSet, resolveSuperTiebreak } from './resolveSet.js';
-import { oppositeTeam, tiebreakServingTeam } from './serve.js';
+import { oppositeTeam, pointBasedServer, isSideChangePoint } from './serve.js';
 
 export interface PointInput {
   winnerSide: TeamSide;
@@ -23,7 +24,8 @@ export type TransitionType =
   | 'tiebreak_started'
   | 'super_tiebreak_started'
   | 'match_won'
-  | 'serve_changed';
+  | 'serve_changed'
+  | 'side_change';
 
 export interface ApplyPointResult {
   match: Match;
@@ -42,6 +44,10 @@ function validate(match: Match, input: PointInput): void {
   const set = match.sets[match.currentSetIndex];
   if (!set) throw new Error('Nenhum set em andamento');
   if (set.status !== 'in_progress') throw new Error('Set atual já encerrado');
+
+  if (!set.serverConfig) {
+    throw new Error('Configure o sacador inicial deste set antes de registrar pontos');
+  }
 
   if (set.type === 'regular') {
     const game = activeGame(set);
@@ -84,7 +90,7 @@ function captureSnapshot(match: Match): ScoreSnapshot {
       tiebreakScoreB: s.tiebreakScoreB,
       status: s.status,
       winner: s.winner,
-      tiebreakInitialServingTeam: s.tiebreakInitialServingTeam,
+      serverConfig: s.serverConfig,
       games: s.games.map((g) => ({
         id: g.id,
         gameNumber: g.gameNumber,
@@ -95,6 +101,7 @@ function captureSnapshot(match: Match): ScoreSnapshot {
         winner: g.winner,
         servingTeam: g.servingTeam,
         servingPlayerId: g.servingPlayerId,
+        serverConfig: g.serverConfig,
       })),
     })),
     currentSetIndex: match.currentSetIndex,
@@ -126,6 +133,46 @@ function resolveMatchWinner(match: Match): TeamSide | null {
   return null;
 }
 
+/**
+ * Sacador designado para a próxima vez que `team` sacar um game regular
+ * neste set. Alterna entre os dois jogadores da dupla a cada nova vez que o
+ * time serve, começando pelo jogador designado em `serverConfig`.
+ */
+function pickServerForTeamGame(set: MatchSet, team: TeamSide): string {
+  const config = set.serverConfig!;
+  const rotation = team === 'A' ? config.teamARotation : config.teamBRotation;
+  const priorTurns = set.games.filter((g) => g.type === 'regular' && g.servingTeam === team).length;
+  return priorTurns % 2 === 0 ? rotation[0] : rotation[1];
+}
+
+/**
+ * Monta a config de rotação ponto a ponto local a um tie-break (6x6) recém
+ * criado, a partir de quem naturalmente sacaria o próximo game para cada
+ * dupla (continuação da rotação normal do set).
+ */
+function buildTiebreakLocalConfig(
+  set: MatchSet,
+  firstServingTeam: TeamSide,
+  firstServerId: string,
+): SetServerConfig {
+  const config = set.serverConfig!;
+  const otherTeam = oppositeTeam(firstServingTeam);
+  const otherTeamServerId = pickServerForTeamGame(set, otherTeam);
+
+  const firstRotationSrc = firstServingTeam === 'A' ? config.teamARotation : config.teamBRotation;
+  const firstOther = firstServerId === firstRotationSrc[0] ? firstRotationSrc[1] : firstRotationSrc[0];
+
+  const otherRotationSrc = otherTeam === 'A' ? config.teamARotation : config.teamBRotation;
+  const otherOther = otherTeamServerId === otherRotationSrc[0] ? otherRotationSrc[1] : otherRotationSrc[0];
+
+  const teamARotation: [string, string] =
+    firstServingTeam === 'A' ? [firstServerId, firstOther] : [otherTeamServerId, otherOther];
+  const teamBRotation: [string, string] =
+    firstServingTeam === 'B' ? [firstServerId, firstOther] : [otherTeamServerId, otherOther];
+
+  return { teamARotation, teamBRotation, firstServingTeam };
+}
+
 // ---------------------------------------------------------------------------
 // Criação de game / set
 // ---------------------------------------------------------------------------
@@ -150,6 +197,7 @@ function createGame(
     winner: null,
     servingTeam,
     servingPlayerId,
+    serverConfig: null,
   };
 }
 
@@ -172,7 +220,7 @@ function createSet(
     status: 'in_progress',
     winner: null,
     games: [],
-    tiebreakInitialServingTeam: type === 'super_tiebreak' ? servingTeam : null,
+    serverConfig: null,
   };
 
   if (type === 'regular') {
@@ -206,6 +254,27 @@ function openNextSet(next: Match, transitions: TransitionType[]): void {
   next.sets.push(newSet);
   next.currentSetIndex += 1;
 
+  // Simples: não há ambiguidade de jogador (1 por time) — configura
+  // automaticamente, continuando a rotação natural de saque. Duplas: o
+  // set fica com serverConfig=null até a interface perguntar quem saca
+  // pela Dupla A, quem saca pela Dupla B e qual dupla saca primeiro.
+  if (next.type === 'singles') {
+    const playerA = next.teamA.players[0]!;
+    const playerB = next.teamB.players[0]!;
+    const config: SetServerConfig = {
+      teamARotation: [playerA.id, playerA.id],
+      teamBRotation: [playerB.id, playerB.id],
+      firstServingTeam: next.servingTeam,
+    };
+    newSet.serverConfig = config;
+    next.servingPlayerId = next.servingTeam === 'A' ? playerA.id : playerB.id;
+    if (newSet.type === 'regular') {
+      const game = newSet.games[0]!;
+      game.servingTeam = next.servingTeam;
+      game.servingPlayerId = next.servingPlayerId;
+    }
+  }
+
   if (isDecisiveSet) transitions.push('super_tiebreak_started');
 }
 
@@ -228,17 +297,22 @@ export function applyPoint(match: Match, input: PointInput): ApplyPointResult {
     if (input.winnerSide === 'A') set.tiebreakScoreA += 1;
     else set.tiebreakScoreB += 1;
 
-    // Atualiza saque dentro do super TB
     // totalPlayed = pontos disputados INCLUINDO este; é o cursor para o próximo saque
     const totalPlayed = set.tiebreakScoreA + set.tiebreakScoreB;
-    const initialServer = set.tiebreakInitialServingTeam ?? next.servingTeam;
-    const newServingTeam = tiebreakServingTeam(initialServer, totalPlayed);
-    if (newServingTeam !== next.servingTeam) {
+    const { servingTeam: newServingTeam, servingPlayerId: newServingPlayerId } =
+      pointBasedServer(set.serverConfig!, totalPlayed);
+    if (newServingTeam !== next.servingTeam || newServingPlayerId !== next.servingPlayerId) {
       next.servingTeam = newServingTeam;
+      next.servingPlayerId = newServingPlayerId;
       transitions.push('serve_changed');
     }
 
     const winner = resolveSuperTiebreak(set, next.format);
+
+    if (isSideChangePoint(totalPlayed) && !winner) {
+      transitions.push('side_change');
+    }
+
     if (winner) {
       set.status = 'finished';
       set.winner = winner;
@@ -252,13 +326,14 @@ export function applyPoint(match: Match, input: PointInput): ApplyPointResult {
     if (input.winnerSide === 'A') game.pointsA += 1;
     else game.pointsB += 1;
 
-    // Atualiza saque dentro do tie-break
+    // Atualiza saque dentro do tie-break (ordem oficial ponto a ponto)
     if (game.type === 'tiebreak') {
-      // game.servingTeam permanece SEMPRE como o time que sacou o 1º ponto — não alterar
       const totalPlayed = game.pointsA + game.pointsB;
-      const newServingTeam = tiebreakServingTeam(game.servingTeam, totalPlayed);
-      if (newServingTeam !== next.servingTeam) {
+      const { servingTeam: newServingTeam, servingPlayerId: newServingPlayerId } =
+        pointBasedServer(game.serverConfig!, totalPlayed);
+      if (newServingTeam !== next.servingTeam || newServingPlayerId !== next.servingPlayerId) {
         next.servingTeam = newServingTeam;
+        next.servingPlayerId = newServingPlayerId;
         transitions.push('serve_changed');
       }
     }
@@ -288,8 +363,10 @@ export function applyPoint(match: Match, input: PointInput): ApplyPointResult {
           openNextSet(next, transitions);
         }
       } else {
-        // Game regular: troca saque e verifica set
+        // Game regular: troca saque (time + jogador, seguindo a rotação
+        // configurada no início do set) e verifica o set
         next.servingTeam = oppositeTeam(next.servingTeam);
+        next.servingPlayerId = pickServerForTeamGame(set, next.servingTeam);
         transitions.push('serve_changed');
 
         const setResolution = resolveSet(set, next.format);
@@ -307,7 +384,7 @@ export function applyPoint(match: Match, input: PointInput): ApplyPointResult {
           }
         } else if (setResolution.kind === 'tiebreak') {
           // Saque no tie-break começa com quem NÃO sacou o último game
-          // (a troca já foi feita acima, então next.servingTeam já é o correto)
+          // (a troca já foi feita acima, então next.servingTeam/servingPlayerId já são corretos)
           const tiebreakGame = createGame(
             next.id,
             set.id,
@@ -315,6 +392,11 @@ export function applyPoint(match: Match, input: PointInput): ApplyPointResult {
             'tiebreak',
             next.servingTeam,
             next.servingPlayerId,
+          );
+          tiebreakGame.serverConfig = buildTiebreakLocalConfig(
+            set,
+            next.servingTeam,
+            next.servingPlayerId!,
           );
           set.games.push(tiebreakGame);
           transitions.push('tiebreak_started');
@@ -334,7 +416,6 @@ export function applyPoint(match: Match, input: PointInput): ApplyPointResult {
   }
 
   // ─── Registrar PointEvent ────────────────────────────────────────────────
-  const currentSet = next.sets[next.currentSetIndex]!;
   const event: PointEvent = {
     id: newId(),
     matchId: next.id,

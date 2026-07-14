@@ -193,45 +193,99 @@ Set 3: super TB    → A vence 10x7  →  Partida: A 2x1 B
 
 ## Progressão do Saque
 
-O saque é uma informação de estado mantida pela partida e atualizada pelo engine.
+O saque é uma informação de estado mantida pela partida (`servingTeam`/`servingPlayerId`) e atualizada automaticamente pelo engine a partir de uma única configuração feita **no início de cada set**.
+
+### Configuração do Sacador — Uma Vez por Set
+
+O app pergunta quem inicia sacando **apenas no início de cada set** — 1º set, 2º set e Super Tie-Break — nunca a cada game. A pergunta tem 3 respostas, coletadas via `configureSetServer(match, input)`:
+
+1. Qual jogador iniciará sacando pela Dupla A?
+2. Qual jogador iniciará sacando pela Dupla B?
+3. Qual dupla fará o primeiro saque do set?
+
+Essas 3 respostas alimentam a `SetServerConfig` do set:
+
+```ts
+interface SetServerConfig {
+  teamARotation: [string, string]; // [sacador designado, outro jogador]
+  teamBRotation: [string, string];
+  firstServingTeam: TeamSide;
+}
+```
+
+`teamARotation`/`teamBRotation` guardam, na ordem, o jogador designado como 1º sacador da dupla e o "outro" jogador (o parceiro) — em simples, os dois elementos do array são o mesmo (único) jogador, então a rotação nunca muda de pessoa, só de time.
+
+**Enquanto o set atual não tiver `serverConfig`, nenhum ponto pode ser registrado** — `applyPoint` rejeita o evento com o erro "Configure o sacador inicial deste set antes de registrar pontos". Isso é o que obriga a interface a perguntar antes de liberar o registro. Em simples não há pergunta nenhuma: o próprio engine auto-configura o set (não há ambiguidade de jogador) ao abri-lo.
+
+A partir da configuração, o engine deriva sozinho toda a rotação de saque do set inteiro — games regulares, tie-break em 6x6 e Super Tie-Break — sem perguntar novamente a cada game.
 
 ### Saque em Games Regulares
 
 - O saque troca de time a cada game vencido.
-- Em duplas, a ordem de saque dentro do time deve ser mantida consistente ao longo do set.
+- Em duplas, dentro de cada time o sacador alterna entre os dois jogadores a cada vez que esse time serve um novo game, começando pelo jogador designado em `teamARotation`/`teamBRotation`.
 
 Regra:
 ```
 Após game vencido em set regular:
   servingTeam = time oposto ao que estava sacando
-  servingPlayer = próximo jogador na ordem de rotação do novo time sacante
+  priorTurns  = quantos games regulares esse time já sacou neste set
+  servingPlayer = rotation[0] se priorTurns for par, rotation[1] se ímpar
+```
+
+```
+Exemplo (Dupla A com A1 designado, Dupla B com B1 designado, A serve o game 1):
+  Game 1: A1 saca   Game 2: B1 saca   Game 3: A2 saca   Game 4: B2 saca
+  Game 5: A1 saca   Game 6: B1 saca   ...
 ```
 
 ### Saque no Início de Cada Set
 
-- O time que começa sacando no novo set é o que **não** sacou o último game do set anterior.
-- Exceção: no set que inicia um tie-break ou super tie-break, a regra é aplicada conforme o regulamento vigente (geralmente: quem sacou o último game regular antes do tie-break).
+- O time que começa sacando no novo set é o definido pela resposta 3 (`firstServingTeam`) da configuração daquele set — não há mais um carry-over automático "quem não sacou o último game do set anterior" em duplas: a pergunta é feita de novo a cada set.
+- Em simples, o engine auto-configura o set continuando a rotação natural (o time que não sacou o último game do set anterior), sem perguntar.
 
-### Saque no Tie-Break
+### Saque no Tie-Break (6x6 dentro de um set regular)
 
-O saque no tie-break alterna a cada 2 pontos, com o seguinte critério de início:
-- Começa sacando o time que **não** sacou o último game do set (ou seja, o time que sacaria o próximo game se não fosse tie-break).
-- Após o 1º ponto: troca.
-- A cada 2 pontos subsequentes: troca.
-- Em duplas, a ordem de alternância dentro do time segue a sequência de rotação do set.
+O tie-break usa a **ordem oficial ponto a ponto**: o 1º sacador da rotação do tie-break saca só 1 ponto; a partir daí, cada jogador saca exatamente 2 pontos, alternando entre as duplas e, dentro de cada dupla, entre o sacador designado e o outro jogador — a mesma mecânica do Super Tie-Break (ver abaixo).
+
+O "sacador designado" de cada dupla para o tie-break é sempre quem naturalmente sacaria o próximo game daquela dupla se o set continuasse em games regulares — ou seja, a rotação por game já em andamento simplesmente continua, só que agora ponto a ponto em vez de game a game. Essa config local é calculada uma vez, na criação do game de tie-break, e fica em `Game.serverConfig`.
 
 ```
-Pontos do tie-break:
-  Ponto 1:    Time A saca
-  Ponto 2-3:  Time B saca
-  Ponto 4-5:  Time A saca
-  Ponto 6-7:  Time B saca
+Pontos do tie-break (dupla A começa, A1 e B1 designados):
+  Ponto 1:    A1 saca
+  Ponto 2-3:  B1 saca
+  Ponto 4-5:  A2 saca
+  Ponto 6-7:  B2 saca
+  Ponto 8-9:  A1 saca
   ...
 ```
 
 ### Saque no Super Tie-Break
 
-Mesma regra do tie-break: começa com o time que não sacou o último game, alterna a cada 2 pontos.
+Mesma ordem oficial ponto a ponto do tie-break, mas usando diretamente a `serverConfig` do set (as 3 respostas dadas no início do Super Tie-Break, sem derivação — é o início de um set novo, não a continuação de um set regular):
+
+```
+Ponto 1:     sacador designado da dupla que saca primeiro (1 ponto)
+Ponto 2-3:   sacador designado da outra dupla (2 pontos)
+Ponto 4-5:   outro jogador da 1ª dupla (2 pontos)
+Ponto 6-7:   outro jogador da 2ª dupla (2 pontos)
+Ponto 8-9:   sacador designado da 1ª dupla de novo (2 pontos)
+...
+```
+
+Implementação: `pointBasedServer(config, totalPointsPlayed)` em `packages/domain/scoring/serve.ts`. O time é obtido reaproveitando `tiebreakServingTeam`; o jogador é obtido por paridade de "ocorrência" (quantas vezes aquele time já sacou nessa sequência): ocorrência ímpar usa o sacador designado, ocorrência par usa o outro.
+
+### Mudança de Lado no Super Tie-Break
+
+Durante o Super Tie-Break, o app avisa (apenas informativamente — **não há tempo de descanso**) quando o total de pontos disputados (somando os dois lados) atinge **1, 5, 9, 13, 17, 21...** — ou seja, a cada 4 pontos. Implementado em `isSideChangePoint(totalPointsPlayedAfter)`, que dispara a transição `side_change`. Quando o ponto que atinge esse marco também encerra o set/partida, o aviso é suprimido (não faz sentido anunciar troca de lado depois que a partida já terminou).
+
+### Cabeçalho do Super Tie-Break
+
+Durante o Super Tie-Break, a UI exibe, a partir de dados só de leitura do domínio:
+- Rótulo "SUPER TIE-BREAK"
+- Placar direto (ex: `7 — 6`, via `tiebreakScoreA`/`tiebreakScoreB`)
+- Nome do jogador sacando (`servingPlayerId`, atualizado ponto a ponto)
+- Quantos saques (incluindo o próximo) restam ao sacador atual — `remainingServes(totalPointsPlayed)`: o 1º sacador tem 1, os demais têm 2
+- Em quantos pontos ocorre a próxima troca de lado — `nextSideChangeAt(totalPointsPlayed) - totalPointsPlayed`
 
 ---
 

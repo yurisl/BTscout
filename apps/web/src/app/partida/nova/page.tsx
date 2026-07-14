@@ -14,8 +14,9 @@ export default function NovaPartidaPage() {
   const [a2, setA2] = useState('');
   const [b1, setB1] = useState('');
   const [b2, setB2] = useState('');
-  const [servingTeam, setServingTeam] = useState<TeamSide>('A');
-  const [servingIdx, setServingIdx] = useState(0);
+  const [firstServingTeam, setFirstServingTeam] = useState<TeamSide>('A');
+  const [teamAServerIdx, setTeamAServerIdx] = useState(0);
+  const [teamBServerIdx, setTeamBServerIdx] = useState(0);
   const [tournament, setTournament] = useState('');
   const [location, setLocation] = useState('');
   const [category, setCategory] = useState('');
@@ -43,8 +44,9 @@ export default function NovaPartidaPage() {
       type,
       teamAPlayers,
       teamBPlayers,
-      servingTeam,
-      servingPlayerIndex: type === 'doubles' ? servingIdx : 0,
+      teamAFirstServerIndex: type === 'doubles' ? teamAServerIdx : 0,
+      teamBFirstServerIndex: type === 'doubles' ? teamBServerIdx : 0,
+      firstServingTeam,
       context: {
         ...(tournament ? { tournamentName: tournament.trim() } : {}),
         ...(location ? { location: location.trim() } : {}),
@@ -71,7 +73,7 @@ export default function NovaPartidaPage() {
             <button
               type="button"
               className={type === 'singles' ? styles.segActive : styles.segItem}
-              onClick={() => { setType('singles'); setServingIdx(0); }}
+              onClick={() => { setType('singles'); setTeamAServerIdx(0); setTeamBServerIdx(0); }}
             >
               Simples
             </button>
@@ -114,45 +116,96 @@ export default function NovaPartidaPage() {
           )}
         </div>
 
-        {/* Saque inicial */}
+        {/* Saque inicial do 1º set */}
         <div className="card stack">
-          <label>Quem saca primeiro?</label>
-          <div className={styles.segmented}>
-            <button
-              type="button"
-              className={servingTeam === 'A' ? styles.segActive : styles.segItem}
-              onClick={() => { setServingTeam('A'); setServingIdx(0); }}
-              style={servingTeam === 'A' ? { background: 'var(--color-a)' } : {}}
-            >
-              Time A
-            </button>
-            <button
-              type="button"
-              className={servingTeam === 'B' ? styles.segActive : styles.segItem}
-              onClick={() => { setServingTeam('B'); setServingIdx(0); }}
-              style={servingTeam === 'B' ? { background: 'var(--color-b)' } : {}}
-            >
-              Time B
-            </button>
-          </div>
+          {type === 'doubles' ? (
+            <>
+              <div>
+                <label style={{ color: 'var(--color-a)' }}>Quem saca primeiro pela Dupla A?</label>
+                <div className={styles.segmented}>
+                  <button
+                    type="button"
+                    className={teamAServerIdx === 0 ? styles.segActive : styles.segItem}
+                    onClick={() => setTeamAServerIdx(0)}
+                  >
+                    {a1 || 'Jogador A1'}
+                  </button>
+                  <button
+                    type="button"
+                    className={teamAServerIdx === 1 ? styles.segActive : styles.segItem}
+                    onClick={() => setTeamAServerIdx(1)}
+                  >
+                    {a2 || 'Jogador A2'}
+                  </button>
+                </div>
+              </div>
 
-          {type === 'doubles' && (
+              <div>
+                <label style={{ color: 'var(--color-b)' }}>Quem saca primeiro pela Dupla B?</label>
+                <div className={styles.segmented}>
+                  <button
+                    type="button"
+                    className={teamBServerIdx === 0 ? styles.segActive : styles.segItem}
+                    onClick={() => setTeamBServerIdx(0)}
+                  >
+                    {b1 || 'Jogador B1'}
+                  </button>
+                  <button
+                    type="button"
+                    className={teamBServerIdx === 1 ? styles.segActive : styles.segItem}
+                    onClick={() => setTeamBServerIdx(1)}
+                  >
+                    {b2 || 'Jogador B2'}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ marginTop: 4 }}>Qual dupla fará o primeiro saque do set?</label>
+                <div className={styles.segmented}>
+                  <button
+                    type="button"
+                    className={firstServingTeam === 'A' ? styles.segActive : styles.segItem}
+                    onClick={() => setFirstServingTeam('A')}
+                    style={firstServingTeam === 'A' ? { background: 'var(--color-a)' } : {}}
+                  >
+                    Dupla A
+                  </button>
+                  <button
+                    type="button"
+                    className={firstServingTeam === 'B' ? styles.segActive : styles.segItem}
+                    onClick={() => setFirstServingTeam('B')}
+                    style={firstServingTeam === 'B' ? { background: 'var(--color-b)' } : {}}
+                  >
+                    Dupla B
+                  </button>
+                </div>
+              </div>
+
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
+                Essa configuração vale só para o 1º set. No início do 2º set e do Super
+                Tie-Break, o app pergunta novamente.
+              </p>
+            </>
+          ) : (
             <div>
-              <label style={{ marginTop: 4 }}>Quem saca do time {servingTeam}?</label>
+              <label>Quem saca primeiro?</label>
               <div className={styles.segmented}>
                 <button
                   type="button"
-                  className={servingIdx === 0 ? styles.segActive : styles.segItem}
-                  onClick={() => setServingIdx(0)}
+                  className={firstServingTeam === 'A' ? styles.segActive : styles.segItem}
+                  onClick={() => setFirstServingTeam('A')}
+                  style={firstServingTeam === 'A' ? { background: 'var(--color-a)' } : {}}
                 >
-                  {(servingTeam === 'A' ? a1 : b1) || 'Jogador 1'}
+                  Time A
                 </button>
                 <button
                   type="button"
-                  className={servingIdx === 1 ? styles.segActive : styles.segItem}
-                  onClick={() => setServingIdx(1)}
+                  className={firstServingTeam === 'B' ? styles.segActive : styles.segItem}
+                  onClick={() => setFirstServingTeam('B')}
+                  style={firstServingTeam === 'B' ? { background: 'var(--color-b)' } : {}}
                 >
-                  {(servingTeam === 'A' ? a2 : b2) || 'Jogador 2'}
+                  Time B
                 </button>
               </div>
             </div>

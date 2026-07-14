@@ -1,13 +1,17 @@
 import type { Match, MatchType, MatchContext } from '@beach-tennis-scout/domain';
-import { DEFAULT_FORMAT } from '@beach-tennis-scout/domain';
+import { DEFAULT_FORMAT, configureSetServer } from '@beach-tennis-scout/domain';
 import type { TeamSide } from '@beach-tennis-scout/domain';
 
 export interface CreateMatchInput {
   type: MatchType;
   teamAPlayers: string[];
   teamBPlayers: string[];
-  servingTeam: TeamSide;
-  servingPlayerIndex: number;
+  /** Índice (0 ou 1) do jogador da Dupla A que inicia sacando pelo time A neste set */
+  teamAFirstServerIndex: number;
+  /** Índice (0 ou 1) do jogador da Dupla B que inicia sacando pelo time B neste set */
+  teamBFirstServerIndex: number;
+  /** Dupla que sacará o primeiro ponto da partida */
+  firstServingTeam: TeamSide;
   context?: MatchContext;
 }
 
@@ -32,22 +36,22 @@ export function createMatch(input: CreateMatchInput): Match {
     matchId,
   }));
 
-  const servingTeamPlayers = input.servingTeam === 'A' ? playersA : playersB;
-  const servingPlayerId = servingTeamPlayers[input.servingPlayerIndex]?.id ?? null;
-
   const setId = crypto.randomUUID();
   const gameId = crypto.randomUUID();
   const now = new Date();
 
-  const match: Match = {
+  // Esqueleto do set 1 sem sacador definido — configureSetServer, logo
+  // abaixo, é a única fonte de verdade que preenche servingTeam/servingPlayerId
+  // (do domínio, não da UI), a partir das 3 respostas coletadas no formulário.
+  const skeleton: Match = {
     id: matchId,
     type: input.type,
     status: 'in_progress',
     format: DEFAULT_FORMAT,
     teamA: { id: teamAId, side: 'A', players: playersA, matchId },
     teamB: { id: teamBId, side: 'B', players: playersB, matchId },
-    servingTeam: input.servingTeam,
-    servingPlayerId,
+    servingTeam: input.firstServingTeam,
+    servingPlayerId: null,
     currentSetIndex: 0,
     sets: [
       {
@@ -61,7 +65,7 @@ export function createMatch(input: CreateMatchInput): Match {
         tiebreakScoreB: 0,
         status: 'in_progress',
         winner: null,
-        tiebreakInitialServingTeam: null,
+        serverConfig: null,
         games: [
           {
             id: gameId,
@@ -73,8 +77,9 @@ export function createMatch(input: CreateMatchInput): Match {
             pointsB: 0,
             status: 'in_progress',
             winner: null,
-            servingTeam: input.servingTeam,
-            servingPlayerId,
+            servingTeam: input.firstServingTeam,
+            servingPlayerId: null,
+            serverConfig: null,
           },
         ],
       },
@@ -86,7 +91,14 @@ export function createMatch(input: CreateMatchInput): Match {
     createdAt: now,
   };
 
-  if (input.context) match.context = input.context;
+  if (input.context) skeleton.context = input.context;
 
-  return match;
+  const teamAFirstServerId = playersA[input.teamAFirstServerIndex]?.id ?? playersA[0]!.id;
+  const teamBFirstServerId = playersB[input.teamBFirstServerIndex]?.id ?? playersB[0]!.id;
+
+  return configureSetServer(skeleton, {
+    teamAFirstServerId,
+    teamBFirstServerId,
+    firstServingTeam: input.firstServingTeam,
+  });
 }

@@ -1,4 +1,5 @@
 import type { TeamSide } from './Team.js';
+import type { SetServerConfig } from './ServeConfig.js';
 
 export type PointType = 'winner' | 'error' | 'forced_error';
 
@@ -44,6 +45,7 @@ export interface GameSnapshot {
   winner: TeamSide | null;
   servingTeam: TeamSide;
   servingPlayerId: string | null;
+  serverConfig: SetServerConfig | null;
 }
 
 export interface SetSnapshot {
@@ -56,7 +58,7 @@ export interface SetSnapshot {
   tiebreakScoreB: number;
   status: 'in_progress' | 'finished';
   winner: TeamSide | null;
-  tiebreakInitialServingTeam: TeamSide | null;
+  serverConfig: SetServerConfig | null;
   games: GameSnapshot[];
 }
 

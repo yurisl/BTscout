@@ -2,6 +2,7 @@ import type { Match, MatchFormat, MatchType } from '../entities/Match.js';
 import type { Team } from '../entities/Team.js';
 import type { Player } from '../entities/Player.js';
 import { DEFAULT_FORMAT } from '../entities/Match.js';
+import { configureSetServer } from '../scoring/configureServe.js';
 
 let idCounter = 0;
 function id(prefix = ''): string {
@@ -52,9 +53,8 @@ export function makeMatch(
   const gameId = id('g');
 
   const servingTeam = opts.servingTeam ?? 'A';
-  const servingPlayerId = servingTeam === 'A' ? playerA1.id : playerB1.id;
 
-  return {
+  const skeleton: Match = {
     id: matchId,
     type,
     status: 'in_progress',
@@ -62,7 +62,7 @@ export function makeMatch(
     teamA,
     teamB,
     servingTeam,
-    servingPlayerId,
+    servingPlayerId: null,
     currentSetIndex: 0,
     sets: [
       {
@@ -76,7 +76,7 @@ export function makeMatch(
         tiebreakScoreB: 0,
         status: 'in_progress',
         winner: null,
-        tiebreakInitialServingTeam: null,
+        serverConfig: null,
         games: [
           {
             id: gameId,
@@ -89,7 +89,8 @@ export function makeMatch(
             status: 'in_progress',
             winner: null,
             servingTeam,
-            servingPlayerId,
+            servingPlayerId: null,
+            serverConfig: null,
           },
         ],
       },
@@ -100,6 +101,14 @@ export function makeMatch(
     finishedAt: null,
     createdAt: new Date(),
   };
+
+  // Configura o sacador inicial do set 1 usando o primeiro jogador de cada
+  // dupla — exercita o mesmo domínio (configureSetServer) usado pela app.
+  return configureSetServer(skeleton, {
+    teamAFirstServerId: playerA1.id,
+    teamBFirstServerId: playerB1.id,
+    firstServingTeam: servingTeam,
+  });
 }
 
 /** Retorna o playerId do time A (primeiro jogador) */

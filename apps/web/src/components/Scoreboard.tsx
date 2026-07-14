@@ -1,5 +1,5 @@
 import type { Match, MatchSet, Game } from '@beach-tennis-scout/domain';
-import { toDisplayScore } from '@beach-tennis-scout/domain';
+import { toDisplayScore, remainingServes, nextSideChangeAt } from '@beach-tennis-scout/domain';
 import styles from './Scoreboard.module.css';
 
 function activeGame(set: MatchSet): Game | undefined {
@@ -40,11 +40,32 @@ function serverName(match: Match): string {
   return all.find((p) => p.id === match.servingPlayerId)?.name ?? '';
 }
 
+interface SuperTiebreakHeaderInfo {
+  /** Quantos saques (incluindo o próximo) restam para o sacador atual */
+  remaining: number;
+  /** Quantos pontos faltam para a próxima troca de lado */
+  pointsUntilSideChange: number;
+}
+
+/** Só retorna dados quando o set atual é o Super Tie-Break, em andamento e já configurado. */
+function superTiebreakHeaderInfo(match: Match): SuperTiebreakHeaderInfo | null {
+  const set = match.sets[match.currentSetIndex];
+  if (!set || set.type !== 'super_tiebreak' || set.status !== 'in_progress' || !set.serverConfig) {
+    return null;
+  }
+  const totalPlayed = set.tiebreakScoreA + set.tiebreakScoreB;
+  return {
+    remaining: remainingServes(totalPlayed),
+    pointsUntilSideChange: nextSideChangeAt(totalPlayed) - totalPlayed,
+  };
+}
+
 export default function Scoreboard({ match }: { match: Match }) {
   const setsA = match.sets.filter((s) => s.winner === 'A').length;
   const setsB = match.sets.filter((s) => s.winner === 'B').length;
   const teamAName = match.teamA.players.map((p) => p.name).join(' / ');
   const teamBName = match.teamB.players.map((p) => p.name).join(' / ');
+  const stbInfo = superTiebreakHeaderInfo(match);
 
   return (
     <div className={styles.board}>
@@ -89,6 +110,19 @@ export default function Scoreboard({ match }: { match: Match }) {
             {' '}
             <span className={match.servingTeam === 'A' ? styles.dotA : styles.dotB} />
           </div>
+          {stbInfo && (
+            <div className={styles.stbInfo}>
+              <span>
+                {stbInfo.remaining === 1 ? '1 saque restante' : `${stbInfo.remaining} saques restantes`}
+              </span>
+              <span className={styles.stbDivider}>·</span>
+              <span>
+                Troca de lado em {stbInfo.pointsUntilSideChange === 1
+                  ? '1 ponto'
+                  : `${stbInfo.pointsUntilSideChange} pontos`}
+              </span>
+            </div>
+          )}
         </div>
       )}
 

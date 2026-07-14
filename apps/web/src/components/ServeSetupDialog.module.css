@@ -1,0 +1,73 @@
+.overlay {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 0 24px;
+}
+
+.title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: -10px;
+  margin-bottom: 4px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.groupLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.optionRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.optionBtn {
+  padding: 14px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  color: var(--text);
+  min-height: 52px;
+}
+
+.optionBtnActiveA {
+  background: var(--color-a-light);
+  border-color: var(--color-a);
+  color: var(--color-a-dark);
+}
+
+.optionBtnActiveB {
+  background: var(--color-b-light);
+  border-color: var(--color-b);
+  color: var(--color-b-dark);
+}
+
+.confirmBtn {
+  width: 100%;
+  padding: 16px;
+  background: var(--color-a);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 700;
+  min-height: 52px;
+  margin-top: 8px;
+}

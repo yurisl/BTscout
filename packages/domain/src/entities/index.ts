@@ -2,6 +2,7 @@ export type { Player, PlayerPosition } from './Player.js';
 export type { Team, TeamSide } from './Team.js';
 export type { Game, GameType, GameStatus } from './Game.js';
 export type { MatchSet, SetType, SetStatus } from './MatchSet.js';
+export type { SetServerConfig } from './ServeConfig.js';
 export type {
   PointEvent,
   PointType,

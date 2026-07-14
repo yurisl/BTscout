@@ -1,5 +1,6 @@
 import type { TeamSide } from './Team.js';
 import type { Game } from './Game.js';
+import type { SetServerConfig } from './ServeConfig.js';
 
 /** 'regular' = set com games. 'super_tiebreak' = set decisivo sem games, pontuação direta. */
 export type SetType = 'regular' | 'super_tiebreak';
@@ -19,6 +20,10 @@ export interface MatchSet {
   winner: TeamSide | null;
   /** Vazio quando type === 'super_tiebreak' */
   games: Game[];
-  /** Time que sacou o primeiro ponto do super tie-break; usado para rotação de saque */
-  tiebreakInitialServingTeam: TeamSide | null;
+  /**
+   * Configuração de saque deste set, definida uma única vez no início do set
+   * (via `configureSetServer`). `null` enquanto o set aguarda configuração —
+   * nenhum ponto pode ser registrado nesse estado (ver `applyPoint`).
+   */
+  serverConfig: SetServerConfig | null;
 }

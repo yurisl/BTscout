@@ -73,7 +73,7 @@ O formato define todas as regras que o `ScoringEngine` irá aplicar durante a pa
 2. **Uma partida começa com exatamente 1 set criado e em andamento.**
    - O set inicial é criado automaticamente ao iniciar a partida.
 
-3. **O time sacante na abertura da partida é definido na configuração e não muda retroativamente.**
+3. **O sacador inicial é configurado uma vez por set — não apenas na abertura da partida.** No início de cada set (1º set, 2º set e Super Tie-Break), o app pergunta: quem saca primeiro pela Dupla A, quem saca primeiro pela Dupla B, e qual dupla saca primeiro no set. Essa configuração (`configureSetServer`, em `packages/domain`) alimenta `servingTeam`/`servingPlayerId` e, junto com a rotação por game/ponto do `ScoringEngine`, dispensa qualquer nova pergunta até o próximo set. Em simples não há pergunta — o próprio engine configura o set automaticamente, pois não existe ambiguidade de jogador. Ver [[09-ScoringEngine]] § Progressão do Saque.
 
 4. **A partida é encerrada quando um dos times atinge o número de sets necessários para vencer.**
    - Ao encerrar, o status passa para `finished`, o `winner` é registrado e `finishedAt` é preenchido.

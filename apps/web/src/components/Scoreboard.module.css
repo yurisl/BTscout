@@ -75,6 +75,17 @@
 .dotA { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-a); }
 .dotB { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-b); }
 
+.stbInfo {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+.stbDivider { opacity: 0.6; }
+
 .winner {
   border-top: 1px solid var(--border);
   padding-top: 12px;

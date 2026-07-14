@@ -430,6 +430,54 @@ Em simples os 2 botões do Passo 1 ficam lado a lado com largura total da coluna
 | `[↩]` Undo | 44×44px touch target, ícone 20px, cinza #757575 |
 | `[⋮]` Menu | 44×44px touch target, ícone 20px, cinza #757575 — demais opções (encerrar, editar configuração) |
 
+### Header do Super Tie-Break
+
+Quando o set atual é o Super Tie-Break, o header substitui "Set N · Game M · placar" por uma variante própria:
+
+```
+┌───────────────────────────────────────────────────────┐
+│  SUPER TIE-BREAK                    [📊] [⏸] [↩]  [⋮]│
+│  7 — 6                                                 │
+│  ● Saque: Bia · 2 saques restantes                    │
+│  Troca de lado em 4 pontos                             │
+└───────────────────────────────────────────────────────┘
+```
+
+| Elemento | Origem |
+|---|---|
+| Rótulo "SUPER TIE-BREAK" | fixo, maiúsculo |
+| Placar direto (`7 — 6`) | `tiebreakScoreA`/`tiebreakScoreB` do set — nunca 15/30/40 |
+| Sacador atual | `servingPlayerId`, recalculado a cada ponto pela ordem oficial (1º sacador cobra 1, os demais cobram 2) |
+| Saques restantes | `remainingServes(totalPointsPlayed)` — puramente informativo, domínio |
+| Próxima troca de lado | `nextSideChangeAt(totalPointsPlayed) - totalPointsPlayed` — troca a cada 4 pontos (1, 5, 9, 13...); aviso apenas informativo, sem tempo de descanso |
+
+### Diálogo de Sacador Inicial (início de cada set, Duplas)
+
+Em duplas, sempre que um novo set começa (2º set ou Super Tie-Break — o 1º set já é configurado na tela de Nova Partida) e ainda não tem sacador definido, o Scout substitui a área de registro por este diálogo, bloqueando o registro de pontos até a resposta:
+
+```
+┌─────────────────────────────────────────┐
+│      Sacador inicial — 2º Set            │
+│                                         │
+│  Quem saca primeiro pela Dupla A?       │
+│  [   A1   ]        [   A2   ]           │
+│                                         │
+│  Quem saca primeiro pela Dupla B?       │
+│  [   B1   ]        [   B2   ]           │
+│                                         │
+│  Qual dupla fará o primeiro saque?      │
+│  [ Dupla A ]       [ Dupla B ]          │
+│                                         │
+│  ┌─────────────────────────────────┐   │
+│  │           CONFIRMAR              │   │
+│  └─────────────────────────────────┘   │
+└─────────────────────────────────────────┘
+```
+
+- Mesmas 3 perguntas da tela de Nova Partida, reaproveitando o componente `ServeSetupDialog`
+- Ao confirmar, chama `configureSetServer` do domínio — a partir daí o motor calcula sozinho a rotação de saque do set inteiro, sem perguntar de novo a cada game
+- Em simples este diálogo nunca aparece — o motor configura o set automaticamente
+
 ### Botões de Jogador (Passo 1)
 
 | Estado | Visual |

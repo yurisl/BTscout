@@ -80,37 +80,6 @@
   overflow-y: auto;
 }
 
-.serverPicker {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 8px 0;
-}
-.serverPickerTitle {
-  font-size: 1rem;
-  text-align: center;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-.serverPickerBtn {
-  width: 100%;
-  padding: 20px 16px;
-  border-radius: var(--radius);
-  font-size: 1.1rem;
-  font-weight: 700;
-  min-height: 68px;
-}
-.serverPickerBtnA {
-  background: var(--color-a-light);
-  color: var(--color-a-dark);
-  border: 2px solid var(--color-a);
-}
-.serverPickerBtnB {
-  background: var(--color-b-light);
-  color: var(--color-b-dark);
-  border: 2px solid var(--color-b);
-}
-
 .finishedPanel {
   flex: 1;
   padding: 24px 16px;

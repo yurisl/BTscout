@@ -43,7 +43,7 @@ function restoreSet(ss: SetSnapshot, matchId: string): MatchSet {
     tiebreakScoreB: ss.tiebreakScoreB,
     status: ss.status,
     winner: ss.winner,
-    tiebreakInitialServingTeam: ss.tiebreakInitialServingTeam,
+    serverConfig: ss.serverConfig,
     games: ss.games.map((gs) => restoreGame(gs, ss.id, matchId)),
   };
 }
@@ -61,5 +61,6 @@ function restoreGame(gs: GameSnapshot, setId: string, matchId: string): Game {
     winner: gs.winner,
     servingTeam: gs.servingTeam,
     servingPlayerId: gs.servingPlayerId,
+    serverConfig: gs.serverConfig,
   };
 }
