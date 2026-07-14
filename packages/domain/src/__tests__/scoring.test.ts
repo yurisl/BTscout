@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { applyPoint } from '../scoring/applyPoint.js';
 import type { Match } from '../entities/Match.js';
-import { makeMatch, playerA, playerB } from './helpers.js';
+import { makeMatch, playerA, playerB, ensureServeConfigured } from './helpers.js';
 
 // Helpers para aplicar N pontos consecutivos para o mesmo lado
 function scorePoints(match: Match, side: 'A' | 'B', count: number): Match {
   let current = match;
-  const pid = side === 'A' ? playerA(current) : playerB(current);
   for (let i = 0; i < count; i++) {
+    current = ensureServeConfigured(current);
+    const pid = side === 'A' ? playerA(current) : playerB(current);
     ({ match: current } = applyPoint(current, {
       winnerSide: side,
       playerId: pid,

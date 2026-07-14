@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { applyPoint } from '../scoring/applyPoint.js';
-import { configureSetServer } from '../scoring/configureServe.js';
+import { configureFirstServer, configureNextServer } from '../scoring/configureServe.js';
 import { remainingServes, nextSideChangeAt, isSideChangePoint } from '../scoring/serve.js';
 import type { Match, MatchType, TeamSide } from '../entities/Match.js';
 import { DEFAULT_FORMAT } from '../entities/Match.js';
@@ -65,11 +65,13 @@ function makeSuperTiebreakMatch(
   };
 
   const firstServingTeam = opts.firstServingTeam ?? 'A';
-  const match = configureSetServer(skeleton, {
-    teamAFirstServerId: playerA1.id,
-    teamBFirstServerId: playerB1.id,
-    firstServingTeam,
-  });
+  const firstServerId = firstServingTeam === 'A' ? playerA1.id : playerB1.id;
+  let match = configureFirstServer(skeleton, { firstServingTeam, firstServerId });
+
+  if (type === 'doubles') {
+    const otherServerId = firstServingTeam === 'A' ? playerB1.id : playerA1.id;
+    match = configureNextServer(match, { serverId: otherServerId });
+  }
 
   return { match, a1: playerA1.id, a2: playerA2?.id ?? null, b1: playerB1.id, b2: playerB2?.id ?? null };
 }
@@ -224,19 +226,70 @@ describe('Super Tie-Break — ordem oficial de saque (duplas)', () => {
     expect(servers.every((s) => s.player === (s.team === 'A' ? a1 : b1))).toBe(true);
   });
 
-  it('rejeita configurar sacador com jogador de outra dupla', () => {
+  it('configureFirstServer rejeita jogador que não pertence à dupla escolhida', () => {
     const { match, b1 } = makeSuperTiebreakMatch();
+    const unconfigured: Match = { ...match, sets: [{ ...match.sets[0]!, serverConfig: null }] };
     expect(() =>
-      configureSetServer(match, { teamAFirstServerId: b1, teamBFirstServerId: b1, firstServingTeam: 'A' }),
+      configureFirstServer(unconfigured, { firstServingTeam: 'A', firstServerId: b1 }),
     ).toThrow(/não pertence à Dupla A/);
   });
 
-  it('rejeita reconfigurar o sacador depois que o set já tem pontos registrados', () => {
-    const { match, a1, b1 } = makeSuperTiebreakMatch();
-    const { match: afterPoint } = scorePoint(match, 'A', a1);
+  it('configureFirstServer rejeita ser chamada duas vezes no mesmo set', () => {
+    const { match, a1 } = makeSuperTiebreakMatch();
+    // makeSuperTiebreakMatch já configura o set inteiro — chamar de novo deve rejeitar
     expect(() =>
-      configureSetServer(afterPoint, { teamAFirstServerId: a1, teamBFirstServerId: b1, firstServingTeam: 'A' }),
-    ).toThrow(/já possui pontos registrados/);
+      configureFirstServer(match, { firstServingTeam: 'A', firstServerId: a1 }),
+    ).toThrow(/já foi configurado/);
+  });
+
+  it('configureNextServer rejeita jogador que não pertence a nenhuma dupla da partida', () => {
+    const { match } = makeSuperTiebreakMatch();
+    const unconfiguredB: Match = {
+      ...match,
+      sets: [{ ...match.sets[0]!, serverConfig: { ...match.sets[0]!.serverConfig!, teamBRotation: null } }],
+    };
+    expect(() =>
+      configureNextServer(unconfiguredB, { serverId: 'jogador-inexistente' }),
+    ).toThrow(/não pertence a nenhuma das duplas/);
+  });
+
+  it('configureNextServer rejeita reconfigurar uma dupla que já tem rotação definida', () => {
+    const { match, b1 } = makeSuperTiebreakMatch();
+    // makeSuperTiebreakMatch já configurou as duas duplas — configureNextServer deve rejeitar
+    expect(() =>
+      configureNextServer(match, { serverId: b1 }),
+    ).toThrow(/já foi configurado/);
+  });
+
+  it('bloqueia o 2º ponto do Super Tie-Break até a dupla adversária ser configurada, depois libera automaticamente', () => {
+    const { match, a1, a2, b1 } = makeSuperTiebreakMatch({ firstServingTeam: 'A' });
+    // Zera a rotação da Dupla B para simular o estado real logo após configureFirstServer
+    // (antes de qualquer configureNextServer) — só a Dupla A tem rotação neste ponto.
+    const onlyA: Match = {
+      ...match,
+      servingPlayerId: a1,
+      sets: [{ ...match.sets[0]!, serverConfig: { ...match.sets[0]!.serverConfig!, teamBRotation: null } }],
+    };
+
+    // 1º ponto: sacado pela Dupla A (já configurada) — passa normalmente
+    const { match: afterPoint1 } = scorePoint(onlyA, 'A', a1);
+    expect(afterPoint1.sets[0]!.tiebreakScoreA).toBe(1);
+    // Agora é a vez da Dupla B sacar, mas ela ainda não tem rotação — servingPlayerId fica null
+    expect(afterPoint1.servingTeam).toBe('B');
+    expect(afterPoint1.servingPlayerId).toBeNull();
+
+    // 2º ponto bloqueado até configurar quem saca pela Dupla B
+    expect(() => scorePoint(afterPoint1, 'B', b1)).toThrow(/Configure o sacador/);
+
+    // Configura o sacador da Dupla B (pergunta feita exatamente agora, após o 1º ponto)
+    const configured = configureNextServer(afterPoint1, { serverId: b1 });
+    expect(configured.servingPlayerId).toBe(b1);
+
+    // A partir daqui, a rotação segue automática sem nenhuma pergunta nova
+    const { match: afterPoint2 } = scorePoint(configured, 'B', b1);
+    expect(afterPoint2.servingPlayerId).toBe(b1); // B1 ainda saca o 3º ponto (2 saques)
+    const { match: afterPoint3 } = scorePoint(afterPoint2, 'B', b1);
+    expect(afterPoint3.servingPlayerId).toBe(a2); // volta para a Dupla A, com o outro jogador (A2)
   });
 });
 
@@ -321,51 +374,101 @@ describe('Super Tie-Break — integração via progressão real da partida (dupl
     return m;
   }
 
-  it('3º set abre como super_tiebreak sem serverConfig e exige configuração antes do 1º ponto', () => {
+  it('cada set (1º, 2º e Super Tie-Break) reinicia o fluxo de duas etapas: sacador inicial antes do 1º ponto, sacador adversário após o 1º game/ponto', () => {
     let m = makeMatch({ type: 'doubles' });
     const a1 = m.teamA.players[0]!.id;
+    const a2 = m.teamA.players[1]!.id;
     const b1 = m.teamB.players[0]!.id;
+    const b2 = m.teamB.players[1]!.id;
 
-    // Set 1: Dupla A vence 6x0
+    // ─── Set 1 já vem configurado pelo makeMatch (helper de teste) ─────────
     m = scoreGamesFor(m, 'A', a1, 6);
     expect(m.sets[0]!.status).toBe('finished');
     expect(m.sets[0]!.winner).toBe('A');
     expect(m.currentSetIndex).toBe(1);
     expect(m.sets[1]!.serverConfig).toBeNull();
+    expect(m.servingPlayerId).toBeNull(); // set 2 reinicia — nada é herdado do set 1
 
-    // Duplas: não é possível registrar ponto no set 2 sem configurar o sacador
+    // Duplas: não é possível registrar ponto no set 2 sem configurar o sacador inicial
     expect(() => scorePoint(m, 'A', a1)).toThrow(/Configure o sacador/);
 
-    // Configura o sacador do set 2 (pergunta feita apenas agora, no início do set)
-    m = configureSetServer(m, { teamAFirstServerId: a1, teamBFirstServerId: b1, firstServingTeam: 'B' });
+    // Etapa 1 do set 2: "Quem iniciará o saque neste set?" (Dupla B) → "Qual jogador?" (B1)
+    m = configureFirstServer(m, { firstServingTeam: 'B', firstServerId: b1 });
     expect(m.servingTeam).toBe('B');
+    expect(m.servingPlayerId).toBe(b1);
 
-    // Set 2: Dupla B vence 6x0 → 1-1 em sets
-    m = scoreGamesFor(m, 'B', b1, 6);
+    // O 1º game do set 2 já pode ser jogado — só a Dupla B tem rotação
+    m = scoreGamesFor(m, 'B', b1, 1);
+    expect(m.sets[1]!.gamesB).toBe(1);
+    // Agora é a vez da Dupla A sacar o 2º game, mas ela ainda não tem rotação
+    expect(m.servingTeam).toBe('A');
+    expect(m.servingPlayerId).toBeNull();
+    expect(() => scorePoint(m, 'A', a1)).toThrow(/Configure o sacador/);
+
+    // Etapa 2 do set 2: "Quem sacará neste game?" — só os jogadores da Dupla A
+    m = configureNextServer(m, { serverId: a1 });
+    expect(m.servingPlayerId).toBe(a1);
+
+    // A partir daqui a rotação é 100% automática pelo resto do set 2
+    m = scoreGamesFor(m, 'B', b1, 5); // Dupla B fecha 6x0 no set 2 (1 já feito acima)
     expect(m.sets[1]!.status).toBe('finished');
     expect(m.sets[1]!.winner).toBe('B');
     expect(m.currentSetIndex).toBe(2);
 
-    // Set 3 (decisivo) abre como Super Tie-Break, também sem sacador configurado
+    // ─── Set 3 (decisivo) — Super Tie-Break — reinicia tudo de novo ───────
     expect(m.sets[2]!.type).toBe('super_tiebreak');
     expect(m.sets[2]!.serverConfig).toBeNull();
-    expect(() => scorePoint(m, 'A', a1)).toThrow(/Configure o sacador/);
+    expect(m.servingPlayerId).toBeNull();
+    expect(() => scorePoint(m, 'A', a2)).toThrow(/Configure o sacador/);
 
-    // Configura o sacador do Super Tie-Break (3 respostas: sacador da Dupla A,
-    // sacador da Dupla B, qual dupla saca primeiro)
-    const a2 = m.teamA.players[1]!.id;
-    m = configureSetServer(m, { teamAFirstServerId: a2, teamBFirstServerId: b1, firstServingTeam: 'A' });
+    // Etapa 1 do STB: "Quem fará o primeiro saque?" (Dupla A) → "Qual jogador?" (A2)
+    m = configureFirstServer(m, { firstServingTeam: 'A', firstServerId: a2 });
     expect(m.servingTeam).toBe('A');
     expect(m.servingPlayerId).toBe(a2);
 
-    // Super Tie-Break até 10, vence a partida
+    // 1º ponto do STB: sacado por A2 (dupla já configurada)
+    m = (() => { const r = scorePoint(m, 'A', a2); return r.match; })();
+    expect(m.sets[2]!.tiebreakScoreA).toBe(1);
+    // Agora é a vez da Dupla B sacar (2 pontos), mas ainda não tem rotação
+    expect(m.servingTeam).toBe('B');
+    expect(m.servingPlayerId).toBeNull();
+    expect(() => scorePoint(m, 'B', b1)).toThrow(/Configure o sacador/);
+
+    // Etapa 2 do STB: "Qual jogador da dupla adversária fará os próximos dois saques?"
+    m = configureNextServer(m, { serverId: b1 });
+    expect(m.servingPlayerId).toBe(b1);
+
+    // Resto do Super Tie-Break 100% automático, vence a partida
     m = (() => {
       let cur = m;
-      for (let i = 0; i < 10; i++) ({ match: cur } = scorePoint(cur, 'A', a2));
+      for (let i = 0; i < 9; i++) ({ match: cur } = scorePoint(cur, 'A', a2));
       return cur;
     })();
     expect(m.sets[2]!.tiebreakScoreA).toBe(10);
     expect(m.status).toBe('finished');
     expect(m.winner).toBe('A');
+  });
+
+  it('simples: configureFirstServer sozinha resolve o set inteiro — configureNextServer nunca é necessária', () => {
+    let m = makeMatch({ type: 'singles' });
+    const a1 = m.teamA.players[0]!.id;
+    const b1 = m.teamB.players[0]!.id;
+
+    m = scoreGamesFor(m, 'A', a1, 6);
+    expect(m.currentSetIndex).toBe(1);
+    expect(m.sets[1]!.serverConfig).toBeNull();
+
+    // Uma única pergunta ("quem inicia sacando?" com nomes dos jogadores) resolve tudo
+    m = configureFirstServer(m, { firstServingTeam: 'B', firstServerId: b1 });
+    expect(m.sets[1]!.serverConfig!.teamARotation).toEqual([a1, a1]);
+    expect(m.sets[1]!.serverConfig!.teamBRotation).toEqual([b1, b1]);
+
+    // O 1º game já sacado pela Dupla B — e o 2º game (Dupla A) NÃO fica bloqueado,
+    // pois simples nunca precisa da segunda etapa.
+    m = scoreGamesFor(m, 'B', b1, 1);
+    expect(m.servingTeam).toBe('A');
+    expect(m.servingPlayerId).toBe(a1); // já resolvido, sem pergunta adicional
+    m = scoreGamesFor(m, 'A', a1, 1);
+    expect(m.sets[1]!.gamesA).toBe(1);
   });
 });

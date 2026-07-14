@@ -453,32 +453,55 @@ Quando o set atual é o Super Tie-Break, o header substitui "Set N · Game M · 
 | Saques restantes | `remainingServes(totalPointsPlayed)` — puramente informativo, domínio |
 | Próxima troca de lado | `nextSideChangeAt(totalPointsPlayed) - totalPointsPlayed` — troca a cada 4 pontos (1, 5, 9, 13...); aviso apenas informativo, sem tempo de descanso |
 
-### Diálogo de Sacador Inicial (início de cada set, Duplas)
+### Modais de Configuração de Saque (todo início de set, Simples e Duplas)
 
-Em duplas, sempre que um novo set começa (2º set ou Super Tie-Break — o 1º set já é configurado na tela de Nova Partida) e ainda não tem sacador definido, o Scout substitui a área de registro por este diálogo, bloqueando o registro de pontos até a resposta:
+A tela de Nova Partida **não configura sacador nenhum** — todo set (1º, 2º e Super Tie-Break, em simples e em duplas) reinicia a configuração de saque do zero, exatamente no momento em que ela é necessária. São dois modais distintos, sobrepostos à tela de Scout (nunca uma nova rota) com o placar visível e escurecido ao fundo:
+
+**Modal 1 — `InitialServeDialog`** (antes do 1º ponto do set; bloqueia o registro até a resposta):
 
 ```
 ┌─────────────────────────────────────────┐
-│      Sacador inicial — 2º Set            │
 │                                         │
-│  Quem saca primeiro pela Dupla A?       │
-│  [   A1   ]        [   A2   ]           │
+│   Quem iniciará o saque neste set?      │
 │                                         │
-│  Quem saca primeiro pela Dupla B?       │
-│  [   B1   ]        [   B2   ]           │
+│   [   Dupla A   ]     [   Dupla B   ]   │
 │                                         │
-│  Qual dupla fará o primeiro saque?      │
-│  [ Dupla A ]       [ Dupla B ]          │
-│                                         │
-│  ┌─────────────────────────────────┐   │
-│  │           CONFIRMAR              │   │
-│  └─────────────────────────────────┘   │
 └─────────────────────────────────────────┘
 ```
 
-- Mesmas 3 perguntas da tela de Nova Partida, reaproveitando o componente `ServeSetupDialog`
-- Ao confirmar, chama `configureSetServer` do domínio — a partir daí o motor calcula sozinho a rotação de saque do set inteiro, sem perguntar de novo a cada game
-- Em simples este diálogo nunca aparece — o motor configura o set automaticamente
+Em duplas, ao tocar em uma dupla o modal avança automaticamente (sem botão "Confirmar") para:
+
+```
+┌─────────────────────────────────────────┐
+│                                         │
+│  Qual jogador da dupla iniciará         │
+│  sacando?                               │
+│                                         │
+│   [   A1   ]           [   A2   ]       │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+Em **simples** esse 2º passo nunca aparece — só há 1 jogador possível por lado, então o toque na dupla já resolve o set inteiro (`configureFirstServer` preenche as duas rotações de uma vez). No **Super Tie-Break**, os textos mudam para *"Quem fará o primeiro saque?"* e *"Qual jogador fará o primeiro saque?"* (não existe "set"/"game" no Super Tie-Break).
+
+**Modal 2 — `NextServerDialog`** (duplas apenas; exibido uma única vez por set, quando a dupla adversária vai sacar pela 1ª vez neste set — após o 1º game em sets regulares, após o 1º ponto no Super Tie-Break):
+
+```
+┌─────────────────────────────────────────┐
+│                                         │
+│      Quem sacará neste game?            │
+│                                         │
+│   [   B1   ]           [   B2   ]       │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+Mostra apenas os 2 jogadores da dupla que ainda não tem rotação definida neste set. No Super Tie-Break o texto muda para *"Qual jogador da dupla adversária fará os próximos dois saques?"*.
+
+- Cada escolha exige 1 único toque; ao confirmar, o modal fecha imediatamente
+- Ao responder o Modal 1, chama `configureFirstServer` do domínio; ao responder o Modal 2, chama `configureNextServer` — a partir daí o motor calcula sozinho a rotação de saque do resto do set, sem perguntar de novo (nem a cada game, nem a cada ponto)
+- Em simples o Modal 2 nunca aparece — o Modal 1 já resolve os dois lados de uma vez
+- Todo novo set reinicia os dois modais do zero, mesmo quando a regra oficial permitiria inferir o próximo sacador a partir do set anterior
 
 ### Botões de Jogador (Passo 1)
 
@@ -581,8 +604,9 @@ Exibida automaticamente pelo ScoringEngine quando um set é encerrado.
 │                                         │
 │   ✓  ANA / BIA vence o Set 1           │
 │                                         │
-│   Próximo set: saque de CRIS / DANI     │
-│   ↔  Troque de lado                    │
+│   O próximo set perguntará quem saca    │  ← ver "Modais de Configuração
+│   (modal ao início do set)              │     de Saque" — não há mais
+│   ↔  Troque de lado                    │     continuação automática
 │                                         │
 │   ┌──────────────────────────────────┐  │
 │   │       INICIAR SET 2             │  │  ← CTA, verde

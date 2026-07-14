@@ -2,7 +2,7 @@ import type { Match, MatchFormat, MatchType } from '../entities/Match.js';
 import type { Team } from '../entities/Team.js';
 import type { Player } from '../entities/Player.js';
 import { DEFAULT_FORMAT } from '../entities/Match.js';
-import { configureSetServer } from '../scoring/configureServe.js';
+import { configureFirstServer, configureNextServer } from '../scoring/configureServe.js';
 
 let idCounter = 0;
 function id(prefix = ''): string {
@@ -103,12 +103,18 @@ export function makeMatch(
   };
 
   // Configura o sacador inicial do set 1 usando o primeiro jogador de cada
-  // dupla — exercita o mesmo domínio (configureSetServer) usado pela app.
-  return configureSetServer(skeleton, {
-    teamAFirstServerId: playerA1.id,
-    teamBFirstServerId: playerB1.id,
-    firstServingTeam: servingTeam,
-  });
+  // dupla — exercita o mesmo domínio (configureFirstServer/configureNextServer)
+  // usado pela app, só que respondendo as duas etapas de imediato para que
+  // os testes de placar não precisem lidar com o fluxo reativo de perguntas.
+  const firstServerId = servingTeam === 'A' ? playerA1.id : playerB1.id;
+  let match = configureFirstServer(skeleton, { firstServingTeam: servingTeam, firstServerId });
+
+  if (type === 'doubles') {
+    const otherServerId = servingTeam === 'A' ? playerB1.id : playerA1.id;
+    match = configureNextServer(match, { serverId: otherServerId });
+  }
+
+  return match;
 }
 
 /** Retorna o playerId do time A (primeiro jogador) */
@@ -119,4 +125,33 @@ export function playerA(match: Match): string {
 /** Retorna o playerId do time B (primeiro jogador) */
 export function playerB(match: Match): string {
   return match.teamB.players[0]!.id;
+}
+
+/**
+ * Simula respostas automáticas e determinísticas (sempre o 1º jogador de
+ * cada dupla) ao fluxo de configuração de saque em duas etapas — usada por
+ * testes de placar/undo/stats que não testam a configuração de saque em
+ * si, apenas precisam que a partida continue avançando por sets/Super
+ * Tie-Break sem travar no novo guard de `applyPoint`. Chamada antes de
+ * cada ponto, é um no-op quando o set atual já está totalmente configurado.
+ */
+export function ensureServeConfigured(match: Match): Match {
+  const set = match.sets[match.currentSetIndex];
+  if (!set || match.status !== 'in_progress') return match;
+
+  let next = match;
+
+  if (!set.serverConfig) {
+    const team = next.servingTeam;
+    const firstServerId = team === 'A' ? next.teamA.players[0]!.id : next.teamB.players[0]!.id;
+    next = configureFirstServer(next, { firstServingTeam: team, firstServerId });
+  }
+
+  if (next.type === 'doubles' && next.servingPlayerId === null) {
+    const team = next.servingTeam;
+    const serverId = team === 'A' ? next.teamA.players[0]!.id : next.teamB.players[0]!.id;
+    next = configureNextServer(next, { serverId });
+  }
+
+  return next;
 }

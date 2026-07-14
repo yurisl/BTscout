@@ -24,11 +24,10 @@ Capturar os dados necessários para iniciar uma partida. O formulário deve ser 
 | Seletor de modalidade (Simples / Duplas) | Toggle | Sim |
 | Campos de nome dos jogadores | Input com autocomplete | Sim |
 | Seletor de formato da partida | Radio/Toggle | Sim |
-| Sacador inicial da Dupla A (duplas) | Toggle duplo | Sim, em Duplas |
-| Sacador inicial da Dupla B (duplas) | Toggle duplo | Sim, em Duplas |
-| Qual dupla saca primeiro | Toggle duplo | Sim |
 | Seção "Dados do Contexto" recolhível | Accordeon | Não |
 | Botão "Iniciar Partida" | CTA primário | Sim |
+
+> Esta tela **não coleta nenhuma informação de saque**. Quem saca é definido durante a partida, através de modais exibidos exatamente quando necessário — ver [[03-Scout]], seção "Modais de Configuração de Saque".
 
 ---
 
@@ -78,27 +77,6 @@ Capturar os dados necessários para iniciar uma partida. O formulário deve ser 
 │  ○ Melhor de 5 Sets                     │
 │    Sets até 6, TB em 6x6,              │
 │    Super TB no 5º set                   │
-│                                         │
-│  ─────────────────────────────────────  │
-│                                         │
-│  QUEM SACA PRIMEIRO PELA DUPLA A?       │  ← só em Duplas; em Simples
-│  ┌─────────────────┐  ┌──────────────┐ │     pula direto para "qual dupla
-│  │   Jogador A1    │  │  Jogador A2  │ │     saca primeiro?" (sem estas
-│  └─────────────────┘  └──────────────┘ │     duas perguntas de jogador)
-│                                         │
-│  QUEM SACA PRIMEIRO PELA DUPLA B?       │
-│  ┌─────────────────┐  ┌──────────────┐ │
-│  │   Jogador B1    │  │  Jogador B2  │ │
-│  └─────────────────┘  └──────────────┘ │
-│                                         │
-│  QUAL DUPLA FARÁ O 1º SAQUE DO SET?     │
-│  ┌─────────────────┐  ┌──────────────┐ │
-│  │    DUPLA A      │  │   DUPLA B    │ │  ← toggle, 52px altura
-│  └─────────────────┘  └──────────────┘ │
-│                                         │
-│  Essa config vale só para o 1º set —    │  ← nota em 12px cinza
-│  no 2º set e no Super Tie-Break o app   │
-│  pergunta de novo (ver Scout)           │
 │                                         │
 │  ─────────────────────────────────────  │
 │                                         │
@@ -164,10 +142,10 @@ Capturar os dados necessários para iniciar uma partida. O formulário deve ser 
 │  │                     │  │                     │   │
 │  └─────────────────────┘  └─────────────────────┘   │
 │                                                      │
-│  FORMATO                         SAQUE INICIAL (1º SET) │
-│  ◉ Melhor de 3 Sets              Dupla A: [A1][A2]   │
-│  ○ Pro Set                       Dupla B: [B1][B2]   │
-│  ○ Melhor de 5 Sets               1º saque: [A][B]   │
+│  FORMATO                                             │
+│  ◉ Melhor de 3 Sets                                  │
+│  ○ Pro Set                                           │
+│  ○ Melhor de 5 Sets                                  │
 │                                                      │
 │  ▶ Dados do Contexto (opcional)                      │
 │                                                      │
@@ -199,13 +177,13 @@ Capturar os dados necessários para iniciar uma partida. O formulário deve ser 
 │  │                            │  │                            │ │
 │  └────────────────────────────┘  └────────────────────────────┘ │
 │                                                                  │
-│  ┌────────────────────────────┐  ┌────────────────────────────┐ │
-│  │  FORMATO                  │  │  SAQUE INICIAL (1º SET)    │ │
-│  │                            │  │  Dupla A saca: [A1] [A2]  │ │
-│  │  ◉ Melhor de 3 Sets       │  │  Dupla B saca: [B1] [B2]  │ │
-│  │  ○ Pro Set                 │  │  1º saque: [DUPLA A][B]  │ │
-│  │  ○ Melhor de 5 Sets       │  │                            │ │
-│  └────────────────────────────┘  └────────────────────────────┘ │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │  FORMATO                                                  │ │
+│  │                                                            │ │
+│  │  ◉ Melhor de 3 Sets                                       │ │
+│  │  ○ Pro Set                                                 │ │
+│  │  ○ Melhor de 5 Sets                                       │ │
+│  └────────────────────────────────────────────────────────────┘ │
 │                                                                  │
 │  ▶ Dados do Contexto (opcional)                                  │
 │                                                                  │
@@ -239,9 +217,6 @@ Nova Partida
 | Jogador B1 | Obrigatório | "Informe o nome do Jogador B1" |
 | Jogador B2 | Obrigatório em Duplas | "Informe o nome do Jogador B2" |
 | Formato | Obrigatório (padrão: Melhor de 3) | — |
-| Sacador da Dupla A | Obrigatório em Duplas (padrão: Jogador A1) | — |
-| Sacador da Dupla B | Obrigatório em Duplas (padrão: Jogador B1) | — |
-| Qual dupla saca primeiro | Obrigatório (padrão: Dupla A) | — |
 
 - Validação ocorre apenas no submit, não em tempo real (menos distração)
 - "Iniciar Partida" fica ativo o tempo todo — validação bloqueia apenas no toque
@@ -251,7 +226,7 @@ Nova Partida
 
 ## Publicidade
 
-**Nenhum anúncio nesta tela** — e, desde a revisão pós-primeiro-deploy, em nenhuma tela do MVP (ver [[02-Monetizacao]]). Mesmo antes dessa decisão global, esta tela já era protegida: o usuário está configurando dados da partida e qualquer distração aumenta risco de nome errado, formato errado ou saque inicial errado — o que compromete todo o registro de pontos subsequente.
+**Nenhum anúncio nesta tela** — e, desde a revisão pós-primeiro-deploy, em nenhuma tela do MVP (ver [[02-Monetizacao]]). Mesmo antes dessa decisão global, esta tela já era protegida: o usuário está configurando dados da partida e qualquer distração aumenta risco de nome errado ou formato errado — o que compromete todo o registro de pontos subsequente.
 
 ---
 
@@ -261,7 +236,7 @@ Nova Partida
 - Formulário gerenciado com React Hook Form + Zod
 - Autocomplete: lista de nomes lida do IndexedDB (`usePlayerHistory()`)
 - Ao salvar jogadores, persistir nomes únicos no IndexedDB para uso futuro
-- `[INICIAR PARTIDA]` cria o objeto `Match` (`createMatch`, em `apps/web/src/lib/matchFactory.ts`) e, em seguida, chama `configureSetServer` do domínio com as 3 respostas de saque para configurar o set 1 — a mesma função usada nos diálogos de sacador do 2º set e do Super Tie-Break (ver [[03-Scout]] e [[09-ScoringEngine]])
+- `[INICIAR PARTIDA]` cria o objeto `Match` (`createMatch`, em `apps/web/src/lib/matchFactory.ts`) **sem nenhum sacador definido** (`sets[0].serverConfig: null`) — a configuração de saque não faz parte deste fluxo; ela acontece via modais dentro da partida, assim que necessária (`configureFirstServer`/`configureNextServer`, ver [[03-Scout]] e [[09-ScoringEngine]])
 - Após criação, redirecionar para `/match/[id]/scout` com `router.push`
 - A mudança de Simples → Duplas deve ocultar/exibir o campo Jogador 2 de cada time com animação suave
 - O acordeão de contexto usa estado local React, sem persistência

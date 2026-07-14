@@ -13,5 +13,5 @@ export {
   isSideChangePoint,
 } from './serve.js';
 export type { PointBasedServer } from './serve.js';
-export { configureSetServer } from './configureServe.js';
-export type { ConfigureSetServerInput } from './configureServe.js';
+export { configureFirstServer, configureNextServer } from './configureServe.js';
+export type { ConfigureFirstServerInput, ConfigureNextServerInput } from './configureServe.js';

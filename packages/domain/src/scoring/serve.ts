@@ -25,7 +25,8 @@ export function tiebreakServingTeam(
 
 export interface PointBasedServer {
   servingTeam: TeamSide;
-  servingPlayerId: string;
+  /** `null` quando a dupla sacante ainda não teve seu sacador configurado (ver `configureNextServer`) */
+  servingPlayerId: string | null;
 }
 
 /**
@@ -42,15 +43,20 @@ export interface PointBasedServer {
  * alternam estritamente entre as duas duplas, a ocorrência (1ª, 2ª, 3ª...
  * vez que ESTA dupla sacou) é sempre `floor(serveGroup / 2) + 1` —
  * ocorrência ímpar usa o sacador designado, ocorrência par usa o outro.
+ *
+ * Se a dupla sacante ainda não tem rotação configurada (aguardando
+ * `configureNextServer`), retorna `servingPlayerId: null` — cabe ao
+ * chamador (applyPoint) bloquear o próximo ponto até a configuração.
  */
 export function pointBasedServer(
   config: SetServerConfig,
   totalPointsPlayed: number,
 ): PointBasedServer {
   const servingTeam = tiebreakServingTeam(config.firstServingTeam, totalPointsPlayed);
+  const rotation = servingTeam === 'A' ? config.teamARotation : config.teamBRotation;
+  if (!rotation) return { servingTeam, servingPlayerId: null };
   const serveGroup = Math.floor((totalPointsPlayed + 1) / 2);
   const occurrence = Math.floor(serveGroup / 2) + 1;
-  const rotation = servingTeam === 'A' ? config.teamARotation : config.teamBRotation;
   const servingPlayerId = occurrence % 2 === 1 ? rotation[0] : rotation[1];
   return { servingTeam, servingPlayerId };
 }

@@ -169,7 +169,8 @@ Esta seção documenta as decisões estratégicas que guiam todas as escolhas de
   - Pro Set (até 16 games — tie-break em 15/15)
   - Melhor de 3 Sets
   - Melhor de 5 Sets
-- Quem saca primeiro: `[Dupla A]` `[Dupla B]`
+
+> Esta tela **não pergunta quem saca**. A configuração de saque não faz parte da criação da partida — ela acontece dentro da partida, através de modais exibidos exatamente quando necessária (ver seção 5.3.1 "Modais de Configuração de Saque").
 
 **Campos opcionais** *(seção recolhível "Dados do Contexto"):*
 - Nome do torneio
@@ -263,6 +264,50 @@ Estado 0: Aguardando
           Placar atualiza com animação
           Retorna ao Estado 0
 ```
+
+---
+
+### 5.3.1 Modais de Configuração de Saque
+
+**Propósito:** Definir quem saca, exatamente no momento em que essa informação passa a ser necessária — nunca antecipadamente na criação da partida (ver seção 5.2).
+
+**Regras gerais:**
+- Sempre um **modal** sobreposto à tela de registro — nunca uma nova tela/rota
+- O placar permanece visível (levemente escurecido) ao fundo
+- Cada escolha exige **1 único toque**; ao confirmar, o modal desaparece imediatamente e avança para o próximo passo (ou fecha, se for o último)
+- Todo novo set (1º, 2º, Super Tie-Break) reinicia esse fluxo do zero — nenhum dado do set anterior é reaproveitado, mesmo quando a regra oficial permitiria inferir o próximo sacador
+
+**Modal 1 — Sacador inicial do set** (exibido antes do 1º ponto de todo set):
+```
+┌───────────────────────────────┐
+│  Quem iniciará o saque neste  │
+│  set?                          │
+│                                 │
+│   [ Dupla A ]     [ Dupla B ]  │
+└───────────────────────────────┘
+```
+Em duplas, ao tocar em uma dupla o modal avança automaticamente para:
+```
+┌───────────────────────────────┐
+│  Qual jogador da dupla         │
+│  iniciará sacando?             │
+│                                 │
+│   [ Jogador 1 ]   [ Jogador 2 ]│
+└───────────────────────────────┘
+```
+Em **simples** esse segundo passo nunca aparece — só existe 1 jogador possível por lado, então o toque na dupla já resolve o set inteiro.
+
+No **Super Tie-Break**, os textos mudam para refletir que não há "set" nem "games": *"Quem fará o primeiro saque?"* e, em duplas, *"Qual jogador fará o primeiro saque?"*.
+
+**Modal 2 — Sacador da dupla adversária** (duplas apenas; exibido uma única vez por set, no momento em que a dupla adversária vai sacar pela 1ª vez):
+```
+┌───────────────────────────────┐
+│  Quem sacará neste game?       │
+│                                 │
+│   [ Jogador B1 ]  [ Jogador B2]│
+└───────────────────────────────┘
+```
+Mostra **apenas os 2 jogadores da dupla que ainda não tem sacador definido neste set** — nunca os 4. Em sets regulares aparece logo após o 1º game do set; no Super Tie-Break, logo após o 1º ponto, com o texto *"Qual jogador da dupla adversária fará os próximos dois saques?"*. Depois dessa escolha, a rotação oficial de saque segue 100% automática pelo resto do set/Super Tie-Break — este modal não reaparece. Em simples esse modal nunca aparece (o Modal 1 já resolve os dois lados de uma vez).
 
 ---
 

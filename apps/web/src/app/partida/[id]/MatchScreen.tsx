@@ -3,14 +3,15 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { ChartColumnIncreasing, Pause, Undo2 } from 'lucide-react';
-import { applyPoint, undoPoint, configureSetServer } from '@beach-tennis-scout/domain';
-import type { Match, TransitionType } from '@beach-tennis-scout/domain';
+import { applyPoint, undoPoint, configureFirstServer, configureNextServer } from '@beach-tennis-scout/domain';
+import type { Match, TransitionType, TeamSide } from '@beach-tennis-scout/domain';
 import { loadMatch, saveMatch } from '@/lib/storage';
 import Scoreboard from '@/components/Scoreboard';
 import PointRegistration from '@/components/PointRegistration';
 import StatsDrawer from '@/components/StatsDrawer';
 import MatchStats from '@/components/MatchStats';
-import ServeSetupDialog, { type ServeSetupResult } from '@/components/ServeSetupDialog';
+import InitialServeDialog, { type InitialServeResult } from '@/components/InitialServeDialog';
+import NextServerDialog from '@/components/NextServerDialog';
 import styles from './match.module.css';
 
 const TRANSITION_LABELS: Record<TransitionType, string | null> = {
@@ -24,21 +25,34 @@ const TRANSITION_LABELS: Record<TransitionType, string | null> = {
   side_change: 'Troca de Lado!',
 };
 
-const SET_SETUP_TITLES: Record<number, string> = {
-  1: 'Sacador inicial — 1º Set',
-  2: 'Sacador inicial — 2º Set',
-  3: 'Sacador inicial — Super Tie-Break',
-};
-
 /**
- * Duplas: o set atual ainda não tem sacador configurado (início de set —
- * 1º set, 2º set ou Super Tie-Break). Bloqueia o registro de pontos até a
- * resposta ser dada; ver EP-01/EP-03 e `configureSetServer` no domínio.
+ * O set atual ainda não tem NENHUM sacador configurado (início de set — 1º
+ * set, 2º set ou Super Tie-Break). Vale para simples e duplas: todo set
+ * reinicia o fluxo de configuração do zero. Bloqueia o registro de pontos
+ * até a resposta ser dada; ver `configureFirstServer` no domínio.
  */
-function needsServeSetup(match: Match): boolean {
-  if (match.type !== 'doubles' || match.status !== 'in_progress') return false;
+function needsInitialServeSetup(match: Match): boolean {
+  if (match.status !== 'in_progress') return false;
   const set = match.sets[match.currentSetIndex];
   return !!set && set.serverConfig === null;
+}
+
+/**
+ * O 1º sacador do set já foi definido, mas a dupla adversária ainda não
+ * (só ocorre em duplas — em simples `configureFirstServer` já preenche as
+ * duas rotações de uma vez). Bloqueia o próximo ponto até a resposta ser
+ * dada; ver `configureNextServer` no domínio.
+ */
+function needsNextServerSetup(match: Match): boolean {
+  if (match.status !== 'in_progress') return false;
+  const set = match.sets[match.currentSetIndex];
+  return !!set && set.serverConfig !== null && match.servingPlayerId === null;
+}
+
+/** Dupla cuja rotação ainda não foi definida neste set — alvo do NextServerDialog. */
+function teamAwaitingConfig(match: Match): TeamSide {
+  const config = match.sets[match.currentSetIndex]!.serverConfig!;
+  return config.teamARotation === null ? 'A' : 'B';
 }
 
 export default function MatchScreen({ matchId }: { matchId: string }) {
@@ -93,12 +107,26 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
     }
   }, [match]);
 
-  const handleServeSetup = useCallback(
-    (config: ServeSetupResult) => {
+  const handleInitialServe = useCallback(
+    (result: InitialServeResult) => {
       if (!match) return;
       setError(null);
       try {
-        const updated = configureSetServer(match, config);
+        const updated = configureFirstServer(match, result);
+        applyAndSave(updated);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Erro ao configurar o sacador');
+      }
+    },
+    [match],
+  );
+
+  const handleNextServer = useCallback(
+    (serverId: string) => {
+      if (!match) return;
+      setError(null);
+      try {
+        const updated = configureNextServer(match, { serverId });
         applyAndSave(updated);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Erro ao configurar o sacador');
@@ -120,8 +148,10 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
     );
   }
 
-  const serveSetupNeeded = needsServeSetup(match);
-  const currentSetNumber = match.sets[match.currentSetIndex]?.setNumber ?? 1;
+  const currentSet = match.sets[match.currentSetIndex];
+  const isSuperTiebreak = currentSet?.type === 'super_tiebreak';
+  const initialServeNeeded = needsInitialServeSetup(match);
+  const nextServerNeeded = !initialServeNeeded && needsNextServerSetup(match);
 
   return (
     <div className={styles.screen}>
@@ -165,15 +195,7 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
 
       {match.status === 'in_progress' ? (
         <div className={styles.registrationSection}>
-          {serveSetupNeeded ? (
-            <ServeSetupDialog
-              match={match}
-              title={SET_SETUP_TITLES[currentSetNumber] ?? `Sacador inicial — Set ${currentSetNumber}`}
-              onConfirm={handleServeSetup}
-            />
-          ) : (
-            <PointRegistration match={match} onPoint={handlePoint} />
-          )}
+          <PointRegistration match={match} onPoint={handlePoint} />
         </div>
       ) : (
         <div className={styles.finishedPanel}>
@@ -190,6 +212,18 @@ export default function MatchScreen({ matchId }: { matchId: string }) {
             Voltar ao Início
           </Link>
         </div>
+      )}
+
+      {initialServeNeeded && (
+        <InitialServeDialog match={match} isSuperTiebreak={isSuperTiebreak} onConfirm={handleInitialServe} />
+      )}
+      {nextServerNeeded && (
+        <NextServerDialog
+          match={match}
+          team={teamAwaitingConfig(match)}
+          isSuperTiebreak={isSuperTiebreak}
+          onConfirm={handleNextServer}
+        />
       )}
     </div>
   );

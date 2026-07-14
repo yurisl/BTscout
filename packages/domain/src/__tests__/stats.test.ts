@@ -4,15 +4,16 @@ import { undoPoint } from '../scoring/undoPoint.js';
 import { calculateStats } from '../stats/calculateStats.js';
 import type { Match } from '../entities/Match.js';
 import type { PointInput } from '../scoring/applyPoint.js';
-import { makeMatch, playerA, playerB } from './helpers.js';
+import { makeMatch, playerA, playerB, ensureServeConfigured } from './helpers.js';
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function score(match: Match, side: 'A' | 'B', overrides: Partial<PointInput> = {}): Match {
-  const defaultPlayerId = side === 'A' ? playerA(match) : playerB(match);
-  return applyPoint(match, {
+  const ready = ensureServeConfigured(match);
+  const defaultPlayerId = side === 'A' ? playerA(ready) : playerB(ready);
+  return applyPoint(ready, {
     winnerSide: side,
     playerId: defaultPlayerId,
     pointType: 'winner',

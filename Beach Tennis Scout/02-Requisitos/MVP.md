@@ -31,12 +31,18 @@ Este produto é exclusivamente para Beach Tennis — nenhuma regra de tênis tra
 - **Sistema No-Ad obrigatório:** em 40x40 (3x3 em pontos brutos), o próximo ponto encerra o game imediatamente — **nunca há Advantage**
 - 3º set sempre em Super Tie-break até 10 pontos (contagem direta, sem 15/30/40/Vantagem/Deuce, vence por 2 pontos de diferença — empate em 9x9 ou acima continua até alguém abrir 2), substituindo o set inteiro
 
-## Configuração de saque (duplas)
+## Configuração de saque
 
-- O app pergunta quem inicia sacando **apenas no início de cada set** — 1º set, 2º set e Super Tie-Break — nunca a cada game
-- A pergunta tem 3 respostas: qual jogador saca primeiro pela Dupla A, qual jogador saca primeiro pela Dupla B, e qual dupla faz o primeiro saque do set
-- Essas respostas alimentam o motor de regras do domínio (`configureSetServer`), que passa a calcular sozinho a rotação de saque pelo resto do set (por game em sets regulares, ponto a ponto no tie-break de 6x6 e no Super Tie-Break) — nenhuma pergunta adicional durante o set
-- Em simples não há pergunta: como só existe um jogador por lado, o próprio motor configura o sacador automaticamente a cada set
+A tela "Nova Partida" **não pergunta nada sobre saque**. A definição acontece somente durante a partida, no momento em que é realmente necessária, através de modais — nunca em uma nova tela.
+
+Cada set (1º, 2º e Super Tie-Break) reinicia esse fluxo do zero, em duas etapas reativas, tanto em simples quanto em duplas:
+
+1. **Antes do 1º ponto do set** — modal "Quem iniciará o saque neste set?" (Dupla A / Dupla B). Em duplas, ao escolher a dupla, um segundo passo pergunta "Qual jogador da dupla iniciará sacando?" (avança automaticamente após o toque). Em simples esse segundo passo não existe — só há um jogador possível por lado, então 1 toque já resolve o set inteiro.
+2. **Após o 1º game do set (ou o 1º ponto, no Super Tie-Break)** — só em duplas: modal perguntando qual jogador da dupla **adversária** sacará, mostrando apenas os 2 jogadores dessa dupla. Depois dessa única escolha, a rotação segue 100% automática pelo resto do set — o modal não reaparece.
+
+Essas respostas alimentam o motor de regras do domínio (`configureFirstServer` para a etapa 1, `configureNextServer` para a etapa 2), que passa a calcular sozinho a rotação de saque pelo resto do set (por game em sets regulares, ponto a ponto no Super Tie-Break) — nenhuma pergunta adicional durante o set além dessas duas.
+
+Cada escolha exige um único toque; o modal desaparece imediatamente após a resposta e o placar permanece visível ao fundo.
 
 ### Ordem oficial de saque do Super Tie-Break
 

@@ -36,7 +36,7 @@ A lógica de quando o set termina e o que acontece a seguir é de responsabilida
 | `status` | `in_progress` ou `finished` |
 | `winner` | Time vencedor do set (`A`, `B` ou `null`) |
 | `games` | Lista de games que compõem o set |
-| `serverConfig` | Configuração de sacador deste set (`SetServerConfig` ou `null`). Definida uma única vez, no início do set, via `configureSetServer` — ver [[09-ScoringEngine]]. Enquanto for `null`, nenhum ponto pode ser registrado neste set. |
+| `serverConfig` | Configuração de sacador deste set (`SetServerConfig` ou `null`). Preenchida em duas etapas reativas — `configureFirstServer` (antes do 1º ponto) e, em duplas, `configureNextServer` (quando a dupla adversária vai sacar pela 1ª vez) — ver [[09-ScoringEngine]]. Enquanto `serverConfig` for `null`, nenhum ponto pode ser registrado neste set; mesmo com `serverConfig` preenchido, se `servingPlayerId` da partida ainda for `null` (2ª etapa pendente, só em duplas), o próximo ponto também é bloqueado. |
 
 ---
 

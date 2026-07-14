@@ -21,9 +21,10 @@ export interface MatchSet {
   /** Vazio quando type === 'super_tiebreak' */
   games: Game[];
   /**
-   * Configuração de saque deste set, definida uma única vez no início do set
-   * (via `configureSetServer`). `null` enquanto o set aguarda configuração —
-   * nenhum ponto pode ser registrado nesse estado (ver `applyPoint`).
+   * Configuração de saque deste set, preenchida em duas etapas reativas
+   * (`configureFirstServer` e, em duplas, `configureNextServer`). `null`
+   * enquanto o set aguarda a 1ª etapa — nenhum ponto pode ser registrado
+   * nesse estado (ver `applyPoint`).
    */
   serverConfig: SetServerConfig | null;
 }

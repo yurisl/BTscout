@@ -2,15 +2,16 @@ import { describe, it, expect } from 'vitest';
 import { applyPoint } from '../scoring/applyPoint.js';
 import { undoPoint } from '../scoring/undoPoint.js';
 import type { Match } from '../entities/Match.js';
-import { makeMatch, playerA, playerB } from './helpers.js';
+import { makeMatch, playerA, playerB, ensureServeConfigured } from './helpers.js';
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function scorePoint(match: Match, side: 'A' | 'B'): Match {
-  const pid = side === 'A' ? playerA(match) : playerB(match);
-  return applyPoint(match, {
+  const ready = ensureServeConfigured(match);
+  const pid = side === 'A' ? playerA(ready) : playerB(ready);
+  return applyPoint(ready, {
     winnerSide: side,
     playerId: pid,
     pointType: 'winner',

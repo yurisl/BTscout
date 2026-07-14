@@ -34,7 +34,7 @@ beach-tennis-scout/
 │
 ├── packages/
 │   ├── domain/                 # Regras de negócio puras (TypeScript)
-│   │   ├── scoring/            # Placar: sets, games, tie-break, super TB, rotação de saque (configureSetServer)
+│   │   ├── scoring/            # Placar: sets, games, tie-break, super TB, rotação de saque (configureFirstServer/configureNextServer)
 │   │   ├── points/             # Tipos de ponto (winner, erro, subtipos)
 │   │   ├── stats/              # Cálculo de estatísticas
 │   │   └── match/              # Entidades: Match, Player, PointEvent

@@ -48,6 +48,9 @@ function validate(match: Match, input: PointInput): void {
   if (!set.serverConfig) {
     throw new Error('Configure o sacador inicial deste set antes de registrar pontos');
   }
+  if (!match.servingPlayerId) {
+    throw new Error('Configure o sacador da dupla adversária antes de registrar o próximo ponto');
+  }
 
   if (set.type === 'regular') {
     const game = activeGame(set);
@@ -137,10 +140,15 @@ function resolveMatchWinner(match: Match): TeamSide | null {
  * Sacador designado para a próxima vez que `team` sacar um game regular
  * neste set. Alterna entre os dois jogadores da dupla a cada nova vez que o
  * time serve, começando pelo jogador designado em `serverConfig`.
+ *
+ * Retorna `null` se a rotação dessa dupla ainda não foi configurada
+ * (aguardando `configureNextServer`) — cabe ao chamador bloquear o próximo
+ * ponto até a configuração.
  */
-function pickServerForTeamGame(set: MatchSet, team: TeamSide): string {
+function pickServerForTeamGame(set: MatchSet, team: TeamSide): string | null {
   const config = set.serverConfig!;
   const rotation = team === 'A' ? config.teamARotation : config.teamBRotation;
+  if (!rotation) return null;
   const priorTurns = set.games.filter((g) => g.type === 'regular' && g.servingTeam === team).length;
   return priorTurns % 2 === 0 ? rotation[0] : rotation[1];
 }
@@ -149,6 +157,10 @@ function pickServerForTeamGame(set: MatchSet, team: TeamSide): string {
  * Monta a config de rotação ponto a ponto local a um tie-break (6x6) recém
  * criado, a partir de quem naturalmente sacaria o próximo game para cada
  * dupla (continuação da rotação normal do set).
+ *
+ * Sempre chamada com ambas as duplas já configuradas: um tie-break só
+ * ocorre em 6x6 games, e cada dupla já serviu pelo menos 3 games regulares
+ * até lá — logo `pickServerForTeamGame` nunca retorna `null` neste ponto.
  */
 function buildTiebreakLocalConfig(
   set: MatchSet,
@@ -157,12 +169,12 @@ function buildTiebreakLocalConfig(
 ): SetServerConfig {
   const config = set.serverConfig!;
   const otherTeam = oppositeTeam(firstServingTeam);
-  const otherTeamServerId = pickServerForTeamGame(set, otherTeam);
+  const otherTeamServerId = pickServerForTeamGame(set, otherTeam)!;
 
-  const firstRotationSrc = firstServingTeam === 'A' ? config.teamARotation : config.teamBRotation;
+  const firstRotationSrc = (firstServingTeam === 'A' ? config.teamARotation : config.teamBRotation)!;
   const firstOther = firstServerId === firstRotationSrc[0] ? firstRotationSrc[1] : firstRotationSrc[0];
 
-  const otherRotationSrc = otherTeam === 'A' ? config.teamARotation : config.teamBRotation;
+  const otherRotationSrc = (otherTeam === 'A' ? config.teamARotation : config.teamBRotation)!;
   const otherOther = otherTeamServerId === otherRotationSrc[0] ? otherRotationSrc[1] : otherRotationSrc[0];
 
   const teamARotation: [string, string] =
@@ -243,6 +255,12 @@ function openNextSet(next: Match, transitions: TransitionType[]): void {
   const isDecisiveSet =
     nextSetNumber === totalPossibleSets && next.format.lastSetIsSuperTiebreak;
 
+  // Todo novo set começa sem sacador configurado — o fluxo de configuração
+  // (configureFirstServer, e configureNextServer em duplas) é reiniciado a
+  // cada set, inclusive em simples (ver [[09-ScoringEngine]] § Progressão
+  // do Saque). next.servingTeam/servingPlayerId ficam com o valor anterior
+  // até a interface configurar o novo set — applyPoint bloqueia pontos
+  // novos até lá.
   const newSet = createSet(
     next.id,
     nextSetNumber,
@@ -253,27 +271,7 @@ function openNextSet(next: Match, transitions: TransitionType[]): void {
 
   next.sets.push(newSet);
   next.currentSetIndex += 1;
-
-  // Simples: não há ambiguidade de jogador (1 por time) — configura
-  // automaticamente, continuando a rotação natural de saque. Duplas: o
-  // set fica com serverConfig=null até a interface perguntar quem saca
-  // pela Dupla A, quem saca pela Dupla B e qual dupla saca primeiro.
-  if (next.type === 'singles') {
-    const playerA = next.teamA.players[0]!;
-    const playerB = next.teamB.players[0]!;
-    const config: SetServerConfig = {
-      teamARotation: [playerA.id, playerA.id],
-      teamBRotation: [playerB.id, playerB.id],
-      firstServingTeam: next.servingTeam,
-    };
-    newSet.serverConfig = config;
-    next.servingPlayerId = next.servingTeam === 'A' ? playerA.id : playerB.id;
-    if (newSet.type === 'regular') {
-      const game = newSet.games[0]!;
-      game.servingTeam = next.servingTeam;
-      game.servingPlayerId = next.servingPlayerId;
-    }
-  }
+  next.servingPlayerId = null;
 
   if (isDecisiveSet) transitions.push('super_tiebreak_started');
 }

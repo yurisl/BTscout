@@ -193,31 +193,34 @@ Set 3: super TB    → A vence 10x7  →  Partida: A 2x1 B
 
 ## Progressão do Saque
 
-O saque é uma informação de estado mantida pela partida (`servingTeam`/`servingPlayerId`) e atualizada automaticamente pelo engine a partir de uma única configuração feita **no início de cada set**.
+O saque é uma informação de estado mantida pela partida (`servingTeam`/`servingPlayerId`) e atualizada automaticamente pelo engine a partir de **duas configurações reativas por set**, cada uma disparada pela UI exatamente quando é necessária — nunca antecipadamente na criação da partida.
 
-### Configuração do Sacador — Uma Vez por Set
+### Configuração do Sacador — Duas Etapas Reativas por Set
 
-O app pergunta quem inicia sacando **apenas no início de cada set** — 1º set, 2º set e Super Tie-Break — nunca a cada game. A pergunta tem 3 respostas, coletadas via `configureSetServer(match, input)`:
+A tela de Nova Partida não configura nenhum sacador; a partida é criada com `sets[0].serverConfig: null`. A configuração acontece em duas etapas, cada uma coletada por uma função do domínio:
 
-1. Qual jogador iniciará sacando pela Dupla A?
-2. Qual jogador iniciará sacando pela Dupla B?
-3. Qual dupla fará o primeiro saque do set?
+**Etapa 1 — `configureFirstServer(match, { firstServingTeam, firstServerId })`**, chamada pela UI através de um modal exibido antes do 1º ponto de todo set (1º set, 2º set e Super Tie-Break — em simples e em duplas):
+1. Qual dupla iniciará sacando neste set?
+2. Qual jogador dessa dupla iniciará sacando? (só em duplas — em simples só existe 1 jogador possível, então a etapa 1 sozinha já resolve as duas rotações)
 
-Essas 3 respostas alimentam a `SetServerConfig` do set:
+**Etapa 2 — `configureNextServer(match, { serverId })`**, só ocorre em duplas, chamada pela UI através de um modal exibido quando a dupla **adversária** está prestes a sacar pela 1ª vez neste set (após o 1º game, em sets regulares; após o 1º ponto, no Super Tie-Break):
+3. Qual jogador da dupla adversária sacará?
+
+Juntas, essas respostas alimentam a `SetServerConfig` do set:
 
 ```ts
 interface SetServerConfig {
-  teamARotation: [string, string]; // [sacador designado, outro jogador]
-  teamBRotation: [string, string];
+  teamARotation: [string, string] | null; // [sacador designado, outro jogador]
+  teamBRotation: [string, string] | null;
   firstServingTeam: TeamSide;
 }
 ```
 
-`teamARotation`/`teamBRotation` guardam, na ordem, o jogador designado como 1º sacador da dupla e o "outro" jogador (o parceiro) — em simples, os dois elementos do array são o mesmo (único) jogador, então a rotação nunca muda de pessoa, só de time.
+`teamARotation`/`teamBRotation` guardam, na ordem, o jogador designado como 1º sacador da dupla e o "outro" jogador (o parceiro), e ficam `null` até a respectiva etapa ser respondida. `configureFirstServer` preenche a rotação da dupla que começa sacando (e, em simples, também a da dupla adversária, de uma vez); `configureNextServer` preenche a rotação da dupla adversária em duplas. Em simples os dois elementos do array são o mesmo (único) jogador, então a rotação nunca muda de pessoa, só de time.
 
-**Enquanto o set atual não tiver `serverConfig`, nenhum ponto pode ser registrado** — `applyPoint` rejeita o evento com o erro "Configure o sacador inicial deste set antes de registrar pontos". Isso é o que obriga a interface a perguntar antes de liberar o registro. Em simples não há pergunta nenhuma: o próprio engine auto-configura o set (não há ambiguidade de jogador) ao abri-lo.
+**Enquanto o set atual não tiver `serverConfig`, nenhum ponto pode ser registrado** — `applyPoint` rejeita o evento com o erro "Configure o sacador inicial deste set antes de registrar pontos". Depois que `serverConfig` existe mas a rotação da dupla adversária ainda é `null` (janela entre a etapa 1 e a etapa 2, só em duplas), `match.servingPlayerId` fica `null` e `applyPoint` rejeita o próximo ponto com "Configure o sacador da dupla adversária antes de registrar o próximo ponto". Esses dois guards são o que obriga a interface a perguntar antes de liberar o registro, em cada uma das duas etapas.
 
-A partir da configuração, o engine deriva sozinho toda a rotação de saque do set inteiro — games regulares, tie-break em 6x6 e Super Tie-Break — sem perguntar novamente a cada game.
+A partir das duas respostas, o engine deriva sozinho toda a rotação de saque do resto do set — games regulares, tie-break em 6x6 e Super Tie-Break — sem perguntar novamente.
 
 ### Saque em Games Regulares
 
@@ -240,8 +243,8 @@ Exemplo (Dupla A com A1 designado, Dupla B com B1 designado, A serve o game 1):
 
 ### Saque no Início de Cada Set
 
-- O time que começa sacando no novo set é o definido pela resposta 3 (`firstServingTeam`) da configuração daquele set — não há mais um carry-over automático "quem não sacou o último game do set anterior" em duplas: a pergunta é feita de novo a cada set.
-- Em simples, o engine auto-configura o set continuando a rotação natural (o time que não sacou o último game do set anterior), sem perguntar.
+- O time que começa sacando no novo set é o definido pela resposta da etapa 1 (`firstServingTeam`) da configuração daquele set.
+- **Não há carry-over automático entre sets, nem em simples nem em duplas.** Mesmo que a regra oficial permitisse inferir o próximo sacador a partir de quem sacou por último no set anterior, o produto reinicia a pergunta (etapa 1, e em duplas também a etapa 2) do zero em todo set novo — inclusive em simples, que antes se auto-configurava silenciosamente e agora também passa pelo modal da etapa 1 a cada set.
 
 ### Saque no Tie-Break (6x6 dentro de um set regular)
 
