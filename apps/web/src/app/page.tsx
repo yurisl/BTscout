@@ -105,7 +105,8 @@ export default function HomePage() {
     <div className={`page ${styles.page}`}>
       <header className={styles.header}>
         <div>
-          <h1>Beach Tennis Scout</h1>
+          {/* eslint-disable-next-line @next/next/no-img-element -- asset estático, sem otimização em runtime (prioridade PWA/offline) */}
+          <img src="/logo.webp" alt="Beach Tennis Scout" className={styles.logo} />
           <p className={styles.subtitle}>Registro ponto a ponto</p>
         </div>
         <Link href="/partida/nova" className={`btn btn-primary ${styles.newBtn}`}>

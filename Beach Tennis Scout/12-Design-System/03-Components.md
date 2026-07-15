@@ -68,6 +68,8 @@ O botão primário recebe uma sombra colorida suave (glow do Oceano) para parece
 
 > A tela de Scout (registro de ponto) não tem header — ver "Rodapé de navegação" abaixo. O padrão de header acima continua valendo para as demais telas (Nova Partida, Resumo, Comparar).
 
+**Logo (Home):** o `<h1>` de texto "Beach Tennis Scout" foi substituído pelo logo gráfico (`apps/web/public/logo.webp`, 320×401, fundo transparente — palmeira, bola de tênis, wordmark). 52px de altura no header da Home, proporção preservada. Recortado/tratado a partir da arte de referência para remover o fundo fotográfico, mantendo o selo (sticker) com seu contorno e sombra originais.
+
 ## Rodapé de navegação (tela de Scout)
 
 > **Revisão de 2026-07-14:** na tela de registro de ponto, a navegação (Início, tipo de partida, Estatísticas, Pausar, Desfazer) saiu do topo e foi para um rodapé fixo — o topo da tela passou a ser ocupado pelo placar compacto (ver abaixo), e o espaço central inteiro fica livre para os botões de ação, que são o conteúdo mais importante da tela.

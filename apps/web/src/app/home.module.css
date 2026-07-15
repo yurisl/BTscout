@@ -15,8 +15,8 @@
   gap: 12px;
   margin-bottom: 28px;
 }
-.header h1 { font-size: 1.5rem; }
-.subtitle { font-size: 0.85rem; color: var(--ink-muted); margin-top: 4px; }
+.logo { display: block; height: 52px; width: auto; }
+.subtitle { font-size: 0.85rem; color: var(--ink-muted); margin-top: 6px; }
 .newBtn { width: auto; white-space: nowrap; padding: 11px 18px; min-height: 46px; }
 
 .empty {

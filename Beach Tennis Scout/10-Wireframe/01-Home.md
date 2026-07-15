@@ -4,7 +4,9 @@
 > **Rota Next.js:** `/`
 > **Prioridade:** Alta — primeiro contato do usuário com o produto
 
-> ⚠️ Cores citadas neste documento (ex: `#1565C0`) são de versão anterior à identidade "Areia & Oceano". Paleta oficial: [[../12-Design-System/01-Colors|12-Design-System/01-Colors]] — CTA primário e Dupla A em Azul Oceano `#1E88E5`, fundo Areia Clara `#F6F3EE`.
+> ⚠️ Cores citadas neste documento (ex: `#1565C0`) são de versão anterior à identidade "Areia & Oceano". Paleta oficial: [[../12-Design-System/01-Colors|12-Design-System/01-Colors]] — Dupla A em Azul Oceano `#1E88E5`, fundo Areia Clara `#F6F3EE`. **CTA primário desta tela é Laranja Escuro `#B45309`** (não Azul Oceano — ver [[../12-Design-System/01-Colors|12-Design-System/01-Colors]] § "Laranja Escuro").
+>
+> ⚠️ **Logo (2026-07-15):** o "🎾 Beach Tennis Scout" em texto nos mockups abaixo foi substituído pelo logo gráfico real (`apps/web/public/logo.webp` — palmeira, bola de tênis e wordmark "BEACH TENNIS SCOUT", fundo transparente), renderizado no lugar do `<h1>` de título. Estrutura do header (logo à esquerda, botão "Nova Partida" à direita) continua igual.
 
 ---
 
