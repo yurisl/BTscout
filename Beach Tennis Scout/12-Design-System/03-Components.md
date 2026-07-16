@@ -68,7 +68,15 @@ O botão primário recebe uma sombra colorida suave (glow do Oceano) para parece
 
 > A tela de Scout (registro de ponto) não tem header — ver "Rodapé de navegação" abaixo. O padrão de header acima continua valendo para as demais telas (Nova Partida, Resumo, Comparar).
 
-**Logo (Home):** o `<h1>` de texto "Beach Tennis Scout" foi substituído pelo logo gráfico (`apps/web/public/logo.webp`, 320×401, fundo transparente — palmeira, bola de tênis, wordmark). 52px de altura no header da Home, proporção preservada. Recortado/tratado a partir da arte de referência para remover o fundo fotográfico, mantendo o selo (sticker) com seu contorno e sombra originais.
+**Logo (Home):** o `<h1>` de texto "Beach Tennis Scout" foi substituído pelo logo gráfico, recortado/tratado a partir da arte de referência para remover o fundo fotográfico, mantendo o traço/sombra originais de cada peça (fundo transparente). Renderizado em **3 imagens separadas, em sequência horizontal** — não uma imagem única — porque o selo completo como uma peça só deixava o wordmark pequeno demais para ler no header:
+
+| Peça | Arquivo | Altura no header | Papel |
+|---|---|---|---|
+| Palmeira | `apps/web/public/logo-palm.webp` | 38px | Abre a sequência |
+| Wordmark "BEACH TENNIS SCOUT" | `apps/web/public/logo-wordmark.webp` | 44px | Maior das três — é o elemento que precisa ser lido |
+| Bola de Beach Tennis | `apps/web/public/logo-ball.webp` | 34px | Fecha a sequência |
+
+`alt` da palmeira e da bola ficam vazios (decorativas); o wordmark carrega o `alt="Beach Tennis Scout"` — é ele quem representa o nome do produto para leitores de tela.
 
 ## Rodapé de navegação (tela de Scout)
 

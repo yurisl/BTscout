@@ -105,8 +105,18 @@ export default function HomePage() {
     <div className={`page ${styles.page}`}>
       <header className={styles.header}>
         <div>
-          {/* eslint-disable-next-line @next/next/no-img-element -- asset estático, sem otimização em runtime (prioridade PWA/offline) */}
-          <img src="/logo.webp" alt="Beach Tennis Scout" className={styles.logo} />
+          {/* Logo em 3 peças — palmeira, wordmark (maior, mais legível) e bola —
+              em vez de um selo único pequeno demais para ler no header.
+              eslint-disable-next-line @next/next/no-img-element: assets
+              estáticos, sem otimização em runtime (prioridade PWA/offline). */}
+          <div className={styles.logoRow}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-palm.webp" alt="" className={styles.logoPalm} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-wordmark.webp" alt="Beach Tennis Scout" className={styles.logoWordmark} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-ball.webp" alt="" className={styles.logoBall} />
+          </div>
           <p className={styles.subtitle}>Registro ponto a ponto</p>
         </div>
         <Link href="/partida/nova" className={`btn btn-primary ${styles.newBtn}`}>

@@ -15,7 +15,12 @@
   gap: 12px;
   margin-bottom: 28px;
 }
-.logo { display: block; height: 52px; width: auto; }
+/* Logo em 3 peças, em sequência: palmeira → wordmark (elemento maior, o
+   mais legível dos três) → bola. */
+.logoRow { display: flex; align-items: center; gap: 8px; }
+.logoPalm { display: block; height: 38px; width: auto; }
+.logoWordmark { display: block; height: 44px; width: auto; }
+.logoBall { display: block; height: 34px; width: auto; }
 .subtitle { font-size: 0.85rem; color: var(--ink-muted); margin-top: 6px; }
 .newBtn { width: auto; white-space: nowrap; padding: 11px 18px; min-height: 46px; }
 
