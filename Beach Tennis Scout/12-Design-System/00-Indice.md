@@ -35,6 +35,19 @@ Referências de qualidade usadas: Apple Sports (números de placar), Strava (car
 
 ---
 
+## Ativos de marca
+
+O logo oficial (palmeira + bola + wordmark "Beach Tennis Scout") está em
+`07-UX/135ab4e5-ef73-4307-824c-43d7dccbc7f7.png`. Todos os formatos derivados
+para publicação — PNG/SVG/PDF do logo, favicon, ícones PWA/Android/iOS,
+splash screens e imagens de Open Graph/Banner — ficam organizados em
+`07-UX/Assets/`, com detalhamento de uso e resolução no `README.md` dessa
+pasta. Nenhum desses ativos altera cor, tipografia ou ilustração do logo
+original — apenas empacota o mesmo material gráfico nos formatos exigidos por
+cada plataforma.
+
+---
+
 ## Regras inegociáveis
 
 1. **Tema claro, sempre.** Não implementar `prefers-color-scheme: dark` nem qualquer alternância de tema no produto. Fundo escuro pode voltar a ser avaliado futuramente, mas nunca como identidade principal.
